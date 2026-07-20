@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seyat Khani | Doctor Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../CSS/doctor-dashboard.css">
+</head>
+<body class="doctor-dashboard">
+
+<!-- SideNavBar -->
+<aside class="sidebar">
+    <div class="brand-logo">
+        <a class="brand" href="#home" aria-label="Sehat Kahani home">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span style="color: aliceblue">Sehat Kahani</span>
+        </a>
+    </div>
+    <div>
+        <p class="brand-tag" style="color: rgba(216, 226, 220, 0.6); margin-left: 10px; font-size: 10px;text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700;">Medical Dashboard</p>
+    </div>
+
+    <nav class="nav">
+        <a href="#" class="active">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
+            <span>Overview</span>
+        </a>
+        <a href="../HTML/appointment.html">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>Appointments</span>
+        </a>
+        <a href="../HTML/patient-directory.html">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Patients</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <button class="btn-new">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Appointment
+        </button>
+        <a href="#">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Settings</span>
+        </a>
+        <a href="#">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Logout</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content Area -->
+<main class="content">
+
+    <!-- TopAppBar -->
+    <header class="topbar">
+        <div class="search-box">
+            <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+            <input placeholder="Search patients, records, or labs..." type="text">
+        </div>
+        <div class="topbar-actions">
+            <button class="icon-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span></button>
+            <button class="icon-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span></button>
+            <div class="divider-v"></div>
+            <div class="profile-block">
+                <div class="profile-text">
+                    <p>Dr. Arshad Khan</p>
+                    <p>Chief Surgeon</p>
+                </div>
+                <div class="avatar-circle">AK</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Scrollable Content -->
+    <div class="scroll-content">
+
+        <!-- Header Section -->
+        <section class="page-header">
+            <div>
+                <h2>Good Morning, Dr. Arshad</h2>
+                <p>You have 12 appointments scheduled for today.</p>
+            </div>
+            <div class="date-chip">
+                <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
+                <span class="label" id="currentDate">OCTOBER 24, 2023</span>
+            </div>
+        </section>
+
+        <!-- Quick Stats Row -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div>
+                    <p class="label">Today's Visits</p>
+                    <h3 class="value">12</h3>
+                    <p class="trend up">
+                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></span>
+                        +2 from yesterday
+                    </p>
+                </div>
+                <div class="stat-icon-wrap bg-secondary-container">
+                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"></path></svg></span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <p class="label">Pending Reports</p>
+                    <h3 class="value">08</h3>
+                    <p class="trend error">
+                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path></svg></span>
+                        3 Urgent
+                    </p>
+                </div>
+                <div class="stat-icon-wrap bg-surface-container-highest">
+                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6l-4 10a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-4-10V2"></path><path d="M9 2h6"></path></svg></span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <p class="label">New Messages</p>
+                    <h3 class="value">05</h3>
+                    <p class="trend neutral">Unread internal notes</p>
+                </div>
+                <div class="stat-icon-wrap bg-sage-light">
+                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <p class="label">Patient Rating</p>
+                    <h3 class="value">4.9</h3>
+                    <div class="stars">
+                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"></polygon></svg></span>
+                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"></polygon></svg></span>
+                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"></polygon></svg></span>
+                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"></polygon></svg></span>
+                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="currentColor"><defs><linearGradient id="halfStar"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><polygon fill="url(#halfStar)" stroke="currentColor" stroke-width="1" points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"></polygon></svg></span>
+                    </div>
+                </div>
+                <div class="stat-icon-wrap bg-secondary-fixed">
+                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Grid: Schedule and Recent Patients -->
+        <section class="main-grid">
+
+            <!-- Left: Today's Schedule -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h4>Today's Schedule</h4>
+                    <button class="view-cal-link">
+                        View Calendar
+                        <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+                    </button>
+                </div>
+                <div class="schedule-scroll">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="time-cell">09:00 AM</td>
+                                <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">SA</div><span class="name">Sarah Ahmed</span></div></td>
+                                <td class="type-cell">General Checkup</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td><button class="more-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></span></button></td>
+                            </tr>
+                            <tr class="in-progress">
+                                <td class="time-cell">10:15 AM</td>
+                                <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--forest-deep);">ZK</div><span class="name">Zaid Khan</span></div></td>
+                                <td class="type-cell">Follow-up</td>
+                                <td><span class="status-badge status-progress"><span class="pulse-dot"></span> In Progress</span></td>
+                                <td><button class="view-record-btn">View Record</button></td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">11:00 AM</td>
+                                <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">RM</div><span class="name">Raza Malik</span></div></td>
+                                <td class="type-cell">Lab Results Rev.</td>
+                                <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                                <td><button class="more-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></span></button></td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">12:30 PM</td>
+                                <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">FJ</div><span class="name">Fatima Jinnah</span></div></td>
+                                <td class="type-cell">New Consultation</td>
+                                <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                                <td><button class="more-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></span></button></td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">02:15 PM</td>
+                                <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">OM</div><span class="name">Omar Mukhtar</span></div></td>
+                                <td class="type-cell">Monthly Review</td>
+                                <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                                <td><button class="more-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></span></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right: Recent Patients -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h4>Recent Patients</h4>
+                </div>
+                <div class="patients-list">
+                    <div class="patient-row">
+                        <div class="patient-info">
+                            <div class="avatar-patient"></div>
+                            <div>
+                                <p>Ibrahim Lodi</p>
+                                <p>Last visit: 2 hours ago</p>
+                            </div>
+                        </div>
+                        <button class="folder-btn"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span></button>
+                    </div>
+                    <div class="patient-row">
+                        <div class="patient-info">
+                            <div class="avatar-patient"></div>
+                            <div>
+                                <p>Ayesha Gul</p>
+                                <p>Last visit: 4 hours ago</p>
+                            </div>
+                        </div>
+                        <button class="folder-btn"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span></button>
+                    </div>
+                    <div class="patient-row">
+                        <div class="patient-info">
+                            <div class="avatar-patient"></div>
+                            <div>
+                                <p>Bilal Farooqui</p>
+                                <p>Last visit: Yesterday</p>
+                            </div>
+                        </div>
+                        <button class="folder-btn"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span></button>
+                    </div>
+
+                    <div class="directory-btn-wrap">
+                        <button class="directory-btn">All Patient Directory</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Section: Clinical Insights -->
+        <section class="insights-panel">
+            <div class="insights-header">
+                <div>
+                    <h4>Clinical Insights</h4>
+                    <p>Patient volume analysis over the last 7 days</p>
+                </div>
+                <div class="legend">
+                    <span class="legend-item"><span class="legend-dot" style="background-color: var(--forest-deep);"></span> This Week</span>
+                    <span class="legend-item"><span class="legend-dot" style="background-color: var(--sage-light);"></span> Past Avg</span>
+                </div>
+            </div>
+
+            <div class="chart-area">
+                <div class="grid-lines">
+                    <div></div><div></div><div></div><div></div>
+                </div>
+                <div class="bar-col">
+                    <div class="bar-tooltip">18 Cases</div>
+                    <div class="bar" style="height: 60%;"></div>
+                    <span class="bar-label">Mon</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar" style="height: 75%;"></div>
+                    <span class="bar-label">Tue</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar" style="height: 45%;"></div>
+                    <span class="bar-label">Wed</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar-tooltip">28 Cases</div>
+                    <div class="bar" style="height: 90%;"></div>
+                    <span class="bar-label">Thu</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar" style="height: 65%;"></div>
+                    <span class="bar-label">Fri</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar faded" style="height: 30%;"></div>
+                    <span class="bar-label">Sat</span>
+                </div>
+                <div class="bar-col">
+                    <div class="bar faded" style="height: 20%;"></div>
+                    <span class="bar-label">Sun</span>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fabBtn">
+        <span class="icon" style="width:28px;height:28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+    </button>
+
+</main>
+
+<script src="../JS/app.js"></script>
+</body>
+</html>

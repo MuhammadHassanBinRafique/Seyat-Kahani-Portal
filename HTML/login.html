@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seyat Khani | Portal Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+<!-- Unified Login Shell -->
+<main class="shell">
+
+    <!-- Left Column: Visual & Atmosphere -->
+    <section class="visual-panel">
+        <div class="bg-image" aria-hidden="true">
+            <img src="../assests/photos/login-bg-photo.png" alt="Healthcare professionals collaborating in a modern clinic environment.">  
+        </div>
+
+        <!-- Glassmorphism Overlay Content -->
+        <div class="glass-card">
+            <h1>Restorative Care for Every Mind.</h1>
+            <p>Seyat Khani combines clinical precision with human empathy to provide a seamless healthcare experience for both patients and providers.</p>
+            <div class="avatars">
+                <div class="avatar-stack">
+                    <div class="avatar-circle"></div>
+                    <div class="avatar-circle"></div>
+                </div>
+                <span class="trust-label">Trusted by 10k+ users</span>
+            </div>
+        </div>
+
+        <!-- Subtle Decorative Element -->
+        <div class="badge-secure">
+            <svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>HIPAA Compliant &amp; Secure</span>
+        </div>
+    </section>
+
+    <!-- Right Column: Login Form -->
+    <section class="form-panel">
+        <div class="form-wrap">
+
+            <!-- Brand Header -->
+            <div class="brand-header">
+                <div class="logo-mark">
+                    <!-- <div class="logo-icon">SK</div> -->
+                      <span class="brand-mark" aria-hidden="true"></span>
+                </div>
+                <a class="brand-name" href="#">Seyat Khani</a>
+                <h2>Welcome back. Please enter your details.</h2>
+            </div>
+
+            <!-- Tab Toggle: Patient vs Doctor -->
+            <div class="tabs">
+                <button class="tab-btn active-tab" id="patientTab" type="button" onclick="switchTab('patient')">PATIENT LOGIN</button>
+                <button class="tab-btn inactive-tab" id="doctorTab" type="button" onclick="switchTab('doctor')">DOCTOR LOGIN</button>
+            </div>
+
+            <!-- Dynamic Form Section -->
+            <form class="login-form" id="loginForm">
+
+                <!-- Identity Marker (Dynamic) -->
+                <div class="role-indicator" id="roleIndicator">
+                    <svg class="role-icon" id="roleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M4 21v-1a7 7 0 0 1 14 0v1"></path>
+                    </svg>
+                    <span class="role-text" id="roleText">Logging in as Patient</span>
+                </div>
+
+                <!-- Email Field -->
+                <div class="field-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-wrap">
+                        <input id="email" placeholder="name@seyatkhani.com" required type="email">
+                        <span class="input-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m2 7 10 6 10-6"></path></svg>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="field-group">
+                    <div class="field-row-between">
+                        <label for="password">Password</label>
+                        <a href="#">Forgot Password?</a>
+                    </div>
+                    <div class="input-wrap">
+                        <input id="password" placeholder="••••••••" required type="password">
+                        <button class="icon-btn input-icon" type="button" id="togglePassword" aria-label="Show password">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember Me -->
+                <div class="remember-row">
+                    <input id="remember" type="checkbox">
+                    <label for="remember">Remember me for 30 days</label>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="submit-btn" type="submit" id="submitBtn">
+                    <span id="submitLabel">SIGN IN TO PORTAL</span>
+                    <svg class="arrow-icon" id="submitArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                </button>
+            </form>
+
+            <!-- Footer Links -->
+            <div class="signup-footer">
+                <p>Don't have an account? <a href="../HTML/sign-up.html">Join Now</a></p>
+            </div>
+
+            <!-- Footer Support Information -->
+            <div class="support-footer">
+                <div class="support-row">
+                    <span>Seyat Khani System © 2024</span>
+                    <div class="support-links">
+                        <a href="#">Privacy</a>
+                        <a href="#">Support</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<script src="../JS/app.js"></script>
+</body>
+</html>

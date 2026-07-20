@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Vault | Seyat Khani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../CSS/Health-vault.css">
+
+</head>
+<body>
+
+<!-- Icon sprite -->
+<svg style="display:none">
+  <symbol id="icon-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></symbol>
+  <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></symbol>
+  <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path></symbol>
+  <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"></path></symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></symbol>
+  <symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
+  <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol>
+  <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></symbol>
+  <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></symbol>
+  <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M12 16V4"></path><path d="M6 10l6-6 6 6"></path><path d="M4 20h16"></path></symbol>
+  <symbol id="icon-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"></line><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line></symbol>
+  <symbol id="icon-flask" viewBox="0 0 24 24"><path d="M9 2v6L4 19a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-11V2"></path><line x1="9" y1="2" x2="15" y2="2"></line><line x1="6.5" y1="15" x2="17.5" y2="15"></line></symbol>
+  <symbol id="icon-pill" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(45 12 12)"></rect><line x1="9" y1="12" x2="15" y2="12"></line></symbol>
+  <symbol id="icon-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3"></path><path d="M20 8V5a1 1 0 0 0-1-1h-3"></path><path d="M4 16v3a1 1 0 0 0 1 1h3"></path><path d="M20 16v3a1 1 0 0 1-1 1h-3"></path><circle cx="12" cy="12" r="4"></circle></symbol>
+  <symbol id="icon-syringe" viewBox="0 0 24 24"><line x1="18" y1="2" x2="22" y2="6"></line><line x1="3" y1="21" x2="9" y2="15"></line><path d="M16 4l4 4-9 9-5 1 1-5 9-9z"></path></symbol>
+  <symbol id="icon-chevron" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></symbol>
+  <symbol id="icon-droplet" viewBox="0 0 24 24"><path d="M12 2s7 8 7 13a7 7 0 0 1-14 0c0-5 7-13 7-13z"></path></symbol>
+  <symbol id="icon-warning" viewBox="0 0 24 24"><path d="M12 3l10 18H2L12 3z"></path><line x1="12" y1="10" x2="12" y2="14"></line><line x1="12" y1="17" x2="12" y2="17.01"></line></symbol>
+  <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2V4z"></path><path d="M4 4a2 2 0 0 1 2-2h12"></path></symbol>
+  <symbol id="icon-userplus" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"></circle><path d="M2 21c0-4 3-7 7-7s7 3 7 7"></path><line x1="19" y1="8" x2="19" y2="14"></line><line x1="16" y1="11" x2="22" y2="11"></line></symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 4v12"></path><path d="M6 12l6 6 6-6"></path><path d="M4 20h16"></path></symbol>
+  <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></symbol>
+</svg>
+
+<aside class="sidenav">
+    <div class="sidenav-brand">
+        <a class="brand" href="#" aria-label="Sehat Kahani home">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Sehat Kahani</span>
+        </a>
+    </div>
+
+    <nav class="sidenav-links">
+    <a class="nav-item" href="../HTML/patient-dashboard.html">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg></span>
+            <span>Overview</span>
+        </a>
+        <a class="nav-item" href="../HTML/medical-records.html">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>
+            <span>Medical Records</span>
+        </a>
+    <a class="nav-item active" href="#">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+            <span>Health Vault</span>
+        </a>
+    </nav>
+
+    <button class="book-appt-btn">
+        <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+        Book Appointment
+    </button>
+
+    <div class="sidenav-footer">
+        <a href="#">
+            <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
+            <span>Settings</span>
+        </a>
+        <a class="logout-link" href="#">
+            <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+            <span>Logout</span>
+        </a>
+    </div>
+</aside>
+
+<header class="topbar">
+    <div class="search-wrap">
+        <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <input placeholder="Search records, doctors, or help..." type="text">
+    </div>
+    <div class="topbar-actions">
+        <button class="icon-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span></button>
+        <button class="icon-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span></button>
+        <div class="profile-block">
+            <div class="profile-text">
+                <p>Zainab Khan</p>
+                <p>Premium Member</p>
+            </div>
+            <div class="avatar-circle">ZK</div>
+        </div>
+    </div>
+</header>
+
+<main class="canvas">
+
+      <!-- Welcome -->
+      <section class="welcome">
+        <div>
+          <span class="eyebrow">Your Secured Data</span>
+          <h1>Personal Health Repository</h1>
+          <p>Welcome to your encrypted Health Vault. Here, your medical history is guarded with clinical precision and restorative care, ensuring only you and your trusted providers have access.</p>
+          <div class="welcome-actions">
+            <button class="btn btn-primary"><svg class="icon" style="width:16px;height:16px"><use href="#icon-upload"></use></svg>Upload Record</button>
+            <button class="btn btn-outline"><svg class="icon" style="width:16px;height:16px"><use href="#icon-share"></use></svg>Share Access</button>
+          </div>
+        </div>
+        <div class="welcome-art">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="90" fill="#cde9dd"></circle>
+            <rect x="55" y="50" width="90" height="110" rx="10" fill="#ffffff" stroke="#324f46" stroke-width="3"></rect>
+            <line x1="70" y1="75" x2="130" y2="75" stroke="#324f46" stroke-width="4" stroke-linecap="round"></line>
+            <line x1="70" y1="95" x2="130" y2="95" stroke="#324f46" stroke-width="4" stroke-linecap="round"></line>
+            <line x1="70" y1="115" x2="110" y2="115" stroke="#324f46" stroke-width="4" stroke-linecap="round"></line>
+            <circle cx="140" cy="140" r="26" fill="#2C3E38"></circle>
+            <path d="M140 128v24M128 140h24" stroke="#ffffff" stroke-width="4" stroke-linecap="round"></path>
+          </svg>
+        </div>
+      </section>
+
+      <!-- Bento -->
+      <div class="bento">
+
+        <!-- Secure Storage -->
+        <div>
+          <div class="section-head">
+            <h3>Secure Storage</h3>
+            <a href="#">View All</a>
+          </div>
+          <div class="storage-grid">
+
+            <div class="card storage-card">
+              <div class="storage-card-top">
+                <div class="storage-icon"><svg class="icon icon-fill" style="width:24px;height:24px"><use href="#icon-flask"></use></svg></div>
+                <span class="file-count">12 Files</span>
+              </div>
+              <h4>Lab Results</h4>
+              <p>Blood work, lipid panels, and metabolic profiles.</p>
+              <div class="storage-card-foot">
+                <span>Last updated 3 days ago</span>
+                <svg class="icon"><use href="#icon-chevron"></use></svg>
+              </div>
+            </div>
+
+            <div class="card storage-card">
+              <div class="storage-card-top">
+                <div class="storage-icon"><svg class="icon icon-fill" style="width:24px;height:24px"><use href="#icon-pill"></use></svg></div>
+                <span class="file-count">8 Files</span>
+              </div>
+              <h4>Prescriptions</h4>
+              <p>Digital scripts and medication history logs.</p>
+              <div class="storage-card-foot">
+                <span>Last updated 1 week ago</span>
+                <svg class="icon"><use href="#icon-chevron"></use></svg>
+              </div>
+            </div>
+
+            <div class="card storage-card">
+              <div class="storage-card-top">
+                <div class="storage-icon"><svg class="icon icon-fill" style="width:24px;height:24px"><use href="#icon-scan"></use></svg></div>
+                <span class="file-count">4 Files</span>
+              </div>
+              <h4>Imaging</h4>
+              <p>X-Rays, MRIs, and CT scans in high resolution.</p>
+              <div class="storage-card-foot">
+                <span>Last updated 1 month ago</span>
+                <svg class="icon"><use href="#icon-chevron"></use></svg>
+              </div>
+            </div>
+
+            <div class="card storage-card">
+              <div class="storage-card-top">
+                <div class="storage-icon"><svg class="icon icon-fill" style="width:24px;height:24px"><use href="#icon-syringe"></use></svg></div>
+                <span class="file-count">6 Files</span>
+              </div>
+              <h4>Vaccination Records</h4>
+              <p>Immunization history and booster certificates.</p>
+              <div class="storage-card-foot">
+                <span>Fully synchronized</span>
+                <svg class="icon"><use href="#icon-chevron"></use></svg>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Vital metrics & sidebar -->
+        <div class="side-col">
+
+          <div class="card">
+            <h3 style="font-size:20px; margin-bottom:20px;">Vital Metrics</h3>
+            <div class="vitals-row">
+              <div class="vitals-label"><svg class="icon"><use href="#icon-droplet"></use></svg>Blood Type</div>
+              <div class="vitals-value">O-Positive</div>
+            </div>
+            <div class="vitals-block">
+              <div class="vitals-block-head"><svg class="icon"><use href="#icon-warning"></use></svg>Allergies</div>
+              <div class="tags">
+                <span class="tag">Penicillin</span>
+                <span class="tag">Peanuts</span>
+              </div>
+            </div>
+            <div class="vitals-block">
+              <div class="vitals-block-head" style="color:var(--status-upcoming)"><svg class="icon" style="color:var(--status-upcoming)"><use href="#icon-book"></use></svg>Chronic Conditions</div>
+              <p class="note">None recorded. Maintain active lifestyle.</p>
+            </div>
+          </div>
+
+          <div class="tip-card">
+            <svg class="icon icon-watermark" style="stroke:#ffffff"><use href="#icon-shield"></use></svg>
+            <div class="tip-head">
+              <svg class="icon" style="width:18px;height:18px"><use href="#icon-shield"></use></svg>
+              <span>SECURITY TIP</span>
+            </div>
+            <p>Never share your Health Vault password. Use two-factor authentication (2FA) for an extra layer of restorative security.</p>
+          </div>
+
+          <div class="card">
+            <div class="access-head">
+              <h3>Trusted Access</h3>
+              <button><svg class="icon"><use href="#icon-userplus"></use></svg></button>
+            </div>
+
+            <div class="access-row">
+              <div class="access-avatar">SM</div>
+              <div class="access-info">
+                <p>Dr. Sarah Mitchell</p>
+                <p>Primary Physician</p>
+              </div>
+              <span class="access-status">Active</span>
+            </div>
+
+            <div class="access-row">
+              <div class="access-avatar">RC</div>
+              <div class="access-info">
+                <p>Robert Chen</p>
+                <p>Family Caregiver</p>
+              </div>
+              <span class="access-status">Active</span>
+            </div>
+
+            <button class="btn-manage">Manage All Trusted Persons</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Activity table -->
+      <section class="card activity">
+        <h3>Recent Vault Activity</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Entity</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="action-cell">
+                  <svg class="icon"><use href="#icon-download"></use></svg>
+                  File Downloaded
+                </div>
+              </td>
+              <td class="row-sub">MRI_Spine_2023.pdf</td>
+              <td class="row-sub">Oct 24, 2023 • 10:24 AM</td>
+              <td><span class="status-chip">ENCRYPTED</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="action-cell">
+                  <svg class="icon"><use href="#icon-eye"></use></svg>
+                  Access Granted
+                </div>
+              </td>
+              <td class="row-sub">Dr. Sarah Mitchell</td>
+              <td class="row-sub">Oct 22, 2023 • 02:15 PM</td>
+              <td><span class="status-chip">SECURE</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="action-cell">
+                  <svg class="icon"><use href="#icon-upload"></use></svg>
+                  New Document Upload
+                </div>
+              </td>
+              <td class="row-sub">Blood_Panel_Q3.pdf</td>
+              <td class="row-sub">Oct 19, 2023 • 09:00 AM</td>
+              <td><span class="status-chip">VERIFIED</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    <footer>
+      <p>© 2023 Seyat Khani. All medical records are protected by 256-bit AES encryption.</p>
+    </footer>
+
+</main>
+
+<script src="../JS/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seyat Khani | Patient Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../CSS/patient.css">
+</head>
+<body>
+
+<!-- Sidebar Navigation -->
+<aside class="sidenav">
+    <div class="sidenav-brand">
+        <a class="brand" href="#" aria-label="Sehat Kahani home">
+                    <span class="brand-mark" aria-hidden="true"></span>
+                    <span>Sehat Kahani</span>
+                </a>
+    </div>
+
+    <nav class="sidenav-links">
+        <a class="nav-item active" href="#">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg></span>
+            <span>Overview</span>
+        </a>
+        <a class="nav-item" href="../HTML/medical-records.html">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>
+            <span>Medical Records</span>
+        </a>
+        
+        <a class="nav-item" href="../HTML/Health-vault.html">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+            <span>Health Vault</span>
+        </a>
+    </nav>
+
+    <button class="book-appt-btn">
+        <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+        Book Appointment
+    </button>
+
+    <div class="sidenav-footer">
+        <a href="#">
+            <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span>
+            <span>Settings</span>
+        </a>
+        <a class="logout-link" href="#">
+            <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+            <span>Logout</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Top App Bar -->
+<header class="topbar">
+    <div class="search-wrap">
+        <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+        <input placeholder="Search records, doctors, or help..." type="text">
+    </div>
+    <div class="topbar-actions">
+        <button class="icon-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span></button>
+        <button class="icon-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span></button>
+        <div class="profile-block">
+            <div class="profile-text">
+                <p>Zainab Khan</p>
+                <p>Premium Member</p>
+            </div>
+            <div class="avatar-circle">ZK</div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content Canvas -->
+<main class="canvas">
+
+    <!-- Welcome Hero Section -->
+    <section class="hero">
+        <div>
+            <h2>Good Morning, Zainab</h2>
+            <p>Your restorative journey continues today. Take a deep breath and review your upcoming schedule for professional care.</p>
+            <div class="tip-card">
+                <div class="tip-icon">
+                    <span class="icon lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg></span>
+                </div>
+                <div>
+                    <h4>Wellness Tip of the Day</h4>
+                    <p class="quote">"Health is a state of body. Wellness is a state of being. Remember to hydrate after your morning walk today."</p>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image" role="img" aria-label="Patient-Doctor Interaction">
+            <img src="../assests/photos/screen1.png" alt="Patient-Doctor Interaction" style="width: 100%; height: auto; border-radius: 12px;">
+        </div>
+    </section>
+
+    <!-- Bento Grid: Health Summary -->
+    <section class="bento-grid">
+        <div class="glass-card">
+            <div>
+                <div class="card-top-row">
+                    <span class="card-icon-wrap"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span></span>
+                    <span class="card-badge badge-upcoming">Next: 3 days</span>
+                </div>
+                <p class="card-label">Upcoming Visits</p>
+                <p class="card-value">2 Appointments</p>
+            </div>
+        </div>
+        <div class="glass-card">
+            <div>
+                <div class="card-top-row">
+                    <span class="card-icon-wrap"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 1 1 7-7l7 7a4.95 4.95 0 1 1-7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg></span></span>
+                    <span class="card-badge badge-success">Refill available</span>
+                </div>
+                <p class="card-label">Active Prescriptions</p>
+                <p class="card-value">4 Medications</p>
+            </div>
+        </div>
+        <div class="glass-card">
+            <div style="margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center;">
+                <p class="card-label" style="margin:0;">Health Goal Progress</p>
+                <span class="progress-pct">85%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="goalProgress"></div>
+            </div>
+            <p style="font-size: 14px; font-weight: 700; color: var(--forest-deep); margin:0;">Weight Management Focus</p>
+        </div>
+        <div class="glass-card">
+            <div>
+                <div class="card-top-row">
+                    <span class="card-icon-wrap"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m2 7 10 6 10-6"></path></svg></span></span>
+                    <div class="dot-pulse"></div>
+                </div>
+                <p class="card-label">Messages</p>
+                <p class="card-value">12 Unread</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area: Appointments & Activity -->
+    <div class="content-grid">
+
+        <!-- Left: Upcoming Appointment -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01"></path></svg></span>Upcoming Appointments</h3>
+                <a href="#">View Calendar</a>
+            </div>
+            <div class="appt-card">
+                <div class="appt-avatar"></div>
+                <div class="appt-details">
+                    <span class="appt-tag">Primary Care</span>
+                    <h4>Dr. Sarah Ahmed</h4>
+                    <p class="appt-mode">
+                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg></span>
+                        Virtual Tele-Consultation
+                    </p>
+                    <div class="appt-meta">
+                        <span class="appt-meta-item"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span> Oct 24, 2023</span>
+                        <span class="appt-meta-item"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span> 10:30 AM</span>
+                    </div>
+                </div>
+                <div class="appt-actions">
+                    <button class="btn-primary-solid"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>Take Appointment</button>
+                    <button class="btn-outline">Reschedule</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Recent Activity / Records -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg></span>Recent Records</h3>
+                <a href="#">View All</a>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6l-4 10a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-4-10V2"></path><path d="M9 2h6"></path></svg></span></div>
+                    <div class="activity-body">
+                        <p class="title">Blood Test Results</p>
+                        <p class="meta">General Health Panel • 2 days ago</p>
+                        <button class="download-link"><span class="icon xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span>Download PDF</button>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 1 1 7-7l7 7a4.95 4.95 0 1 1-7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg></span></div>
+                    <div class="activity-body">
+                        <p class="title">New Prescription</p>
+                        <p class="meta">Dr. Amna (Dermatology) • 1 week ago</p>
+                        <p class="note">3 Items prescribed</p>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></span></div>
+                    <div class="activity-body">
+                        <p class="title">Vitals Updated</p>
+                        <p class="meta">Synced from Health Vault • Today, 8:15 AM</p>
+                        <div class="vitals-row">
+                            <span class="vitals-chip">BP: 120/80</span>
+                            <span class="vitals-chip">HR: 72 bpm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Contextual FAB -->
+<button class="fab" id="fabBtn">
+    <span class="icon" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+</button>
+
+<script src="../JS/app.js"></script>
+</body>
+</html>

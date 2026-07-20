@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sehat Kahani - Landing Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/style.css">
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header: primary navigation and appointment CTA -->
+        <header class="site-header">
+            <div class="container header-inner">
+                <a class="brand" href="#home" aria-label="Sehat Kahani home">
+                    <span class="brand-mark" aria-hidden="true"></span>
+                    <span>Sehat Kahani</span>
+                </a>
+
+                <details class="mobile-menu">
+                    <summary class="menu-summary" aria-label="Open navigation menu">
+                        <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span>Menu</span>
+                    </summary>
+                    <div class="menu-panel" aria-label="Mobile navigation">
+                        <a href="#home">Home</a>
+                        <a href="#services">Services</a>
+                        <a href="#doctors">Doctors</a>
+                        <a href="#portal">Patient Portal</a>
+                        <a href="#contact">Contact</a>
+                        <a class="book-btn" href="../HTML/login.html">Book Appointment</a>
+                    </div>
+                </details>
+
+                <nav class="nav" aria-label="Primary">
+                    <a href="#home">Home</a>
+                    <a href="#services">Services</a>
+                    <a href="#doctors">Doctors</a>
+                    <a href="#about">About</a>
+                    <a href="#contact">Contact</a>
+                </nav>
+
+                <div class="header-links">
+                    <a href="#portal">Patient Portal</a>
+                    <a class="book-btn" href="../HTML/login.html">Book Appointment</a>
+                </div>
+            </div>
+        </header>
+
+        <main id="home">
+            <!-- Hero: simple, calm healthcare message with illustration -->
+            <section class="hero section">
+                <div class="container hero-grid">
+                    <div class="hero-copy">
+                        <span class="eyebrow">Trusted Clinical Care</span>
+                        <h1>Healthcare made simple, secure, and accessible.</h1>
+                        <p>
+                            Manage your health journey from one intuitive platform. Book appointments,
+                            access secure medical records, and track your wellness progress seamlessly.
+                        </p>
+
+                        <div class="hero-actions">
+                            <a class="primary-btn" href="../HTML/login.html">Book Appointment</a>
+                            <a class="secondary-btn" href="#services">Learn More</a>
+                        </div>
+                    </div>
+
+                    <div class="hero-visual" aria-label="Healthcare illustration">
+                        <div class="illustration">
+                            <img src="../assests/photos/screen1.png" alt="Healthcare consultation illustration showing a doctor and patient" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trust bar: short social proof strip -->
+            <section class="trust-bar" aria-label="Trust indicators">
+                <div class="container trust-grid">
+                    <div class="trust-item"><span class="trust-icon">★</span><span> Trusted Patients</span></div>
+                    <div class="trust-item"><span class="trust-icon">◎</span><span>Secure Medical Records</span></div>
+                    <div class="trust-item"><span class="trust-icon">✦</span><span>HIPAA Compliant Security</span></div>
+                    <div class="trust-item"><span class="trust-icon">◌</span><span>3+ Certified Doctors</span></div>
+                </div>
+            </section>
+
+            <!-- Services: patient-centric feature cards -->
+            <section id="services" class="section">
+                <div class="container">
+                    <div class="section-head">
+                        <h2>Patient-Centric Features</h2>
+                        <p>A suite of digital tools designed to make your healthcare experience seamless, from initial consultation to long-term recovery.</p>
+                    </div>
+
+                    <div class="card-grid">
+                        <article class="feature-card">
+                            <div class="feature-icon">⌂</div>
+                            <h3>Appointment Booking</h3>
+                            <p>Schedule visits with specialists in seconds and synchronize directly with your calendar.</p>
+                        </article>
+                        <article class="feature-card">
+                            <div class="feature-icon">▣</div>
+                            <h3>Digital Prescriptions</h3>
+                            <p>Access prescriptions anytime with direct integration to local pharmacies.</p>
+                        </article>
+                        <article class="feature-card">
+                            <div class="feature-icon">▤</div>
+                            <h3>Medical Records</h3>
+                            <p>View a unified timeline of history, tests, results, and vaccination logs.</p>
+                        </article>
+                        <article class="feature-card">
+                            <div class="feature-icon">◫</div>
+                            <h3>Secure Messaging</h3>
+                            <p>Communicate safely with your care team between appointments.</p>
+                        </article>
+                        <article class="feature-card">
+                            <div class="feature-icon">↺</div>
+                            <h3>Health Tracking</h3>
+                            <p>Monitor visits and chronic conditions with automated reporting to your doctor.</p>
+                        </article>
+                        <article class="feature-card">
+                            <div class="feature-icon">◔</div>
+                            <h3>Notifications</h3>
+                            <p>Never miss an appointment or a medication dose with smart reminders.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Journey: step-by-step process for the platform -->
+            <section class="journey section">
+                <div class="container">
+                    <div class="section-head">
+                        <h2>Your Journey to Wellness</h2>
+                        <p>Simple steps to expert medical care.</p>
+                    </div>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-badge">1</div>
+                            <h3>Register</h3>
+                            <p>Secure sign-up in under 2 minutes.</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-badge">2</div>
+                            <h3>Book Appointment</h3>
+                            <p>Choose your specialist and time slot.</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-badge">3</div>
+                            <h3>Meet Doctor</h3>
+                            <p>In-person or high-definition virtual visit.</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-badge">4</div>
+                            <h3>Prescription</h3>
+                            <p>Instant digital records and script access.</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-badge">5</div>
+                            <h3>Track History</h3>
+                            <p>Monitor health logs and recovery.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Doctors: specialist showcase cards -->
+            <section id="doctors" class="section">
+                <div class="container">
+                    <div class="doctor-top">
+                        <div>
+                            <h2>Meet Our Specialists</h2>
+                            <p class="section-intro">Our board-certified professionals are dedicated to your long-term health and well-being.</p>
+                        </div>
+                        <a class="link-arrow" href="#contact">View all doctors →</a>
+                    </div>
+
+                    <div class="doctors-grid">
+                        <article class="doctor-card">
+                            <div class="doctor-photo">
+                                <img src="../assests/photos/doctor1.jpg" alt="photo">
+                                <!-- <span class="person-mini" aria-hidden="true"></span> -->
+                            </div>
+                            <div class="doctor-content">
+                                <h3>Dr. Arthur Vance</h3>
+                                <p>Senior Cardiologist</p>
+                                <div class="doctor-meta"><span>Experience 15+ years</span><span>Patients 2.5k+</span></div>
+                                <a class="doctor-btn" href="#appointment">Book Appointment</a>
+                            </div>
+                        </article>
+
+                        <article class="doctor-card">
+                            <div class="doctor-photo">
+                              <img src="../assests/photos/doctor2.jpg" alt="photo" style="object-position: center;"
+                              >
+                            </div>
+                            <div class="doctor-content">
+                                <h3>Dr. Elena Rodriguez</h3>
+                                <p>Pediatric Specialist</p>
+                                <div class="doctor-meta"><span>Experience 8+ years</span><span>Patients 1.8k+</span></div>
+                                <a class="doctor-btn" href="#appointment">Book Appointment</a>
+                            </div>
+                        </article>
+
+                        <article class="doctor-card">
+                            <div class="doctor-photo">
+                                <img src="../assests/photos/doctor3.jpg" alt="photo" style="object-position: center;">
+                            </div>
+                            <div class="doctor-content">
+                                <h3>Dr. Simon Chen</h3>
+                                <p>Neurologist</p>
+                                <div class="doctor-meta"><span>Experience 12+ years</span><span>Patients 3.1k+</span></div>
+                                <a class="doctor-btn" href="#appointment">Book Appointment</a>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Portal preview: optional visuals inspired by the saved screenshots -->
+            <section id="portal" class="section">
+                <div class="container">
+                    <div class="section-head">
+                        <h2>Patient Portal Access</h2>
+                        <p>Secure sign-in and account creation experiences designed for quick, clear access on any device.</p>
+                    </div>
+
+                    <div class="card-grid">
+                        <article class="feature-card" style="padding: 0; overflow: hidden;">
+                            <img src="../assests/photos/sehat_kahani_patient_log_in.png" alt="Sehat Kahani secure login preview" style="width:100%; height: 100%; object-fit: cover; min-height: 16rem;">
+                        </article>
+                        <article class="feature-card" style="padding: 0; overflow: hidden;">
+                            <img src="../assests/photos/sehat_kahani_patient_sign_up.png" alt="Sehat Kahani patient sign up preview" style="width:100%; height: 100%; object-fit: cover; min-height: 16rem;">
+                        </article>
+                        <article class="feature-card">
+                            <div class="feature-icon">⌁</div>
+                            <h3>Responsive by design</h3>
+                            <p>Buttons, cards, and forms are structured to reflow cleanly on mobile, tablet, and desktop screens.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ: accordion without JavaScript -->
+            <section class="section">
+                <div class="container faq">
+                    <div class="faq-head">
+                        <h2>Frequently Asked Questions</h2>
+                        <p>Common questions about our digital health platform.</p>
+                    </div>
+
+                    <div class="faq-list">
+                        <details class="faq-item">
+                            <summary>How do I access my medical records?</summary>
+                            <div class="faq-answer"><p>Sign in to your patient portal and open the records tab to see visits, results, and prescriptions in one place.</p></div>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Is my health data secure and private?</summary>
+                            <div class="faq-answer"><p>Yes. The layout emphasizes secure access points, protected account flows, and privacy-first patient management.</p></div>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Can I book virtual consultations?</summary>
+                            <div class="faq-answer"><p>Yes. You can select a doctor, choose a time slot, and use the platform for virtual or in-person visits.</p></div>
+                        </details>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer: supporting links and newsletter -->
+        <footer id="contact" class="site-footer">
+            <div class="container footer-top">
+                <div class="footer-brand">
+                    <a class="brand" href="#home" aria-label="Sehat Kahani home footer link">
+                        <span class="brand-mark" aria-hidden="true"></span>
+                        <span>Sehat Kahani</span>
+                    </a>
+                    <p>Leading the future of digital healthcare with empathy and precision. Your wellness, simplified.</p>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <div class="footer-links">
+                        <a href="#services">Find a Doctor</a>
+                        <a href="#services">Services & Pricing</a>
+                        <a href="#appointment">Book Appointment</a>
+                        <a href="#services">Health Library</a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Legal</h3>
+                    <div class="footer-links">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">HIPAA Compliance</a>
+                        <a href="#">Cookie Policy</a>
+                    </div>
+                </div>
+
+                <div class="footer-col newsletter">
+                    <h3>Newsletter</h3>
+                    <p>Stay updated with health tips and news.</p>
+                    <form class="newsletter-form">
+                        <label class="sr-only" for="email">Email address</label>
+                        <input id="email" type="email" placeholder="Your email address">
+                        <button class="subscribe-btn" type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container footer-bottom">
+                <span>© 2024 Sehat Kahani Healthcare. All rights reserved.</span>
+                <span class="footer-note">Care · Trust · Innovation</span>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

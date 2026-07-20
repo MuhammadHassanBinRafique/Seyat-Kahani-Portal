@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appointments | Seyat Khani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../CSS/appointment.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-logo">
+            <a class="brand" href="#home" aria-label="Sehat Kahani home">
+                    <span class="brand-mark" aria-hidden="true"></span>
+                    <span style="color: aliceblue">Sehat Kahani</span>
+                </a>
+        </div>
+    </div>
+      <div>
+             <p class="brand-tag" style="color: rgba(216, 226, 220, 0.6);     margin-left: 10px;    font-size: 10px;text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700;">Medical Dashboard</p>
+        </div>
+    <nav class="nav">
+        <a href="../HTML/doctor-dashboard.html">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
+            <span>Overview</span>
+        </a>
+        <a href="#" class="active">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>Appointments</span>
+        </a>
+        <a href="/HTML/patient-directory.html">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Patients</span>
+        </a>
+    </nav>
+    <div class="sidebar-bottom">
+        <button class="btn-new">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Appointment
+        </button>
+        <a href="#">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Settings</span>
+        </a>
+        <a href="#">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Logout</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+    <div class="search-wrap">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" placeholder="Search patients, dates or IDs...">
+    </div>
+    <div class="topbar-right">
+        <button class="icon-btn" title="Notifications">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        </button>
+        <button class="icon-btn" title="Help">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </button>
+        <div class="divider-v"></div>
+        <div class="profile">
+            <div class="profile-text">
+                <p class="profile-name">Dr. Sarah Ahmed</p>
+                <p class="profile-role">Cardiologist</p>
+            </div>
+            <div class="avatar-doc">SA</div>
+        </div>
+    </div>
+</header>
+
+<!-- Main -->
+<main>
+    <div class="page-head">
+        <div>
+            <h2>Appointments</h2>
+            <p>Manage your patient schedule and medical consultations.</p>
+        </div>
+        <div class="tabs">
+            <button class="active">Upcoming</button>
+            <button>Past</button>
+            <button>Cancelled</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Date &amp; Time</th>
+                        <th>Consultation Type</th>
+                        <th>Status</th>
+                        <th class="right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar" style="background: var(--primary-fixed);">AM</div>
+                                <div>
+                                    <p class="patient-name">Ayesha Malik</p>
+                                    <p class="patient-id">ID: #SK-8821</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="dt-row"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Oct 24, 2023</div>
+                            <div class="dt-row"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 09:00 AM - 09:30 AM</div>
+                        </td>
+                        <td>
+                            <div class="type-cell"><span class="dot" style="background: var(--primary);"></span> General Checkup</div>
+                        </td>
+                        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                        <td class="right">
+                            <div class="row-actions">
+                                <button class="action-btn" title="View Records"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg></button>
+                                <button class="action-btn" title="Reschedule"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg></button>
+                                <button class="action-btn muted" title="More"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar" style="background: var(--secondary-container);">OF</div>
+                                <div>
+                                    <p class="patient-name">Omar Farooq</p>
+                                    <p class="patient-id">ID: #SK-9012</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="dt-row"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Oct 24, 2023</div>
+                            <div class="dt-row"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 10:15 AM - 10:45 AM</div>
+                        </td>
+                        <td>
+                            <div class="type-cell"><span class="dot" style="background: var(--status-pending);"></span> Follow-up</div>
+                        </td>
+                        <td><span class="badge badge-pending">PENDING</span></td>
+                        <td class="right">
+                            <div class="row-actions">
+                                <button class="action-btn" title="View Records"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg></button>
+                                <button class="action-btn" title="Reschedule"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg></button>
+                                <button class="action-btn muted" title="More"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar" style="background: var(--secondary-container);">ZS</div>
+                                <div>
+                                    <p class="patient-name">Zainab Sheikh</p>
+                                    <p class="patient-id">ID: #SK-4432</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="dt-row"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Oct 24, 2023</div>
+                            <div class="dt-row"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 11:30 AM - 12:00 PM</div>
+                        </td>
+                        <td>
+                            <div class="type-cell"><span class="dot" style="background: var(--error);"></span> Lab Results Review</div>
+                        </td>
+                        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                        <td class="right">
+                            <div class="row-actions">
+                                <button class="action-btn" title="View Records"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg></button>
+                                <button class="action-btn" title="Reschedule"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg></button>
+                                <button class="action-btn muted" title="More"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="patient-cell">
+                                <div class="avatar" style="background: var(--sage-light);">BK</div>
+                                <div>
+                                    <p class="patient-name">Bilal Khan</p>
+                                    <p class="patient-id">ID: #SK-1120</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="dt-row"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Oct 25, 2023</div>
+                            <div class="dt-row"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 02:00 PM - 02:30 PM</div>
+                        </td>
+                        <td>
+                            <div class="type-cell"><span class="dot" style="background: var(--secondary);"></span> Follow-up</div>
+                        </td>
+                        <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+                        <td class="right">
+                            <div class="row-actions">
+                                <button class="action-btn" title="View Records"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg></button>
+                                <button class="action-btn" title="Reschedule"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg></button>
+                                <button class="action-btn muted" title="More"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <p>Showing 1-4 of 24 appointments</p>
+            <div class="pagination">
+                <button class="page-btn" disabled>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button class="page-num current">1</button>
+                <button class="page-num">2</button>
+                <button class="page-num">3</button>
+                <button class="page-btn">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div>
+                <p class="stat-label">Total Daily Slots</p>
+                <p class="stat-value">12</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div>
+                <p class="stat-label">Completed Today</p>
+                <p class="stat-value">8</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><line x1="9" y1="16" x2="15" y2="20"></line><line x1="15" y1="16" x2="9" y2="20"></line></svg>
+            </div>
+            <div>
+                <p class="stat-label">Cancellations</p>
+                <p class="stat-value">1</p>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
