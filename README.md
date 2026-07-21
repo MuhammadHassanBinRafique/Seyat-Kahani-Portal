@@ -75,6 +75,7 @@ Seyat Khani Portal/server.js
 ## Total Pages
 Detected HTML pages: **9**
 
+- about.html
 - appointment.html
 - doctor-dashboard.html
 - Health-vault.html
