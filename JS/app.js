@@ -1,3 +1,5 @@
+const API_BASE_URL = 'http://localhost:3000/api/auth';
+
 function switchTab(role) {
     const patientTab = document.querySelector('#patientTab');
     const doctorTab = document.querySelector('#doctorTab');
@@ -85,7 +87,9 @@ function switchTab(role) {
             passwordInput.addEventListener('input', () => clearError(passwordInput, passwordError));
         }
 
-        loginForm.addEventListener('submit', (event) => {
+        const loginServerError = document.querySelector('#loginServerError');
+
+        loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const emailValue = emailInput ? emailInput.value.trim() : '';
@@ -94,6 +98,9 @@ function switchTab(role) {
 
             clearError(emailInput, emailError);
             clearError(passwordInput, passwordError);
+            if (loginServerError) {
+                loginServerError.textContent = '';
+            }
 
             if (!emailValue) {
                 showError(emailInput, emailError, 'Email is required.');
@@ -121,11 +128,41 @@ function switchTab(role) {
                 submitArrow.style.display = 'none';
             }
 
-            const targetUrl = doctorTab && doctorTab.classList.contains('active-tab')
-                ? '../HTML/doctor-dashboard.html'
-                : '../HTML/patient-dashboard.html';
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailValue, password: passwordValue })
+                });
 
-            window.location.href = targetUrl;
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (loginServerError) {
+                        loginServerError.textContent = data.message || 'Invalid Credentials!';
+                    }
+                    return;
+                }
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                const targetUrl = data.user && data.user.role === 'Doctor'
+                    ? '../HTML/doctor-dashboard.html'
+                    : '../HTML/patient-dashboard.html';
+
+                window.location.href = targetUrl;
+            } catch (error) {
+                if (loginServerError) {
+                    loginServerError.textContent = 'Unable to reach the server. Please try again.';
+                }
+            } finally {
+                if (submitBtn && submitLabel && submitArrow) {
+                    submitBtn.disabled = false;
+                    submitLabel.textContent = 'SIGN IN TO PORTAL';
+                    submitArrow.style.display = '';
+                }
+            }
         });
     }
 
@@ -330,8 +367,14 @@ function showToast() {
           });
       }
 
-      signupForm.addEventListener('submit', function(event) {
+      const signupServerError = document.querySelector('#signupServerError');
+
+      signupForm.addEventListener('submit', async function(event) {
           event.preventDefault();
+
+          if (signupServerError) {
+              signupServerError.textContent = '';
+          }
 
           let isValid = true;
 
@@ -392,10 +435,46 @@ function showToast() {
 
           if (submitButton) {
               submitButton.disabled = true;
-              submitButton.textContent = 'Redirecting...';
+              submitButton.textContent = 'Creating Account...';
           }
 
-          window.location.href = '../HTML/login.html';
+          try {
+              const response = await fetch(`${API_BASE_URL}/signup`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      name: nameInput.value.trim(),
+                      email: emailInput.value.trim(),
+                      password: passwordInput.value
+                  })
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                  if (signupServerError) {
+                      signupServerError.textContent = data.message || 'Unable to create account.';
+                  }
+                  if (submitButton) {
+                      submitButton.disabled = false;
+                      submitButton.textContent = 'Create Account';
+                  }
+                  return;
+              }
+
+              showToast();
+              setTimeout(function() {
+                  window.location.href = '../HTML/login.html';
+              }, 2000);
+          } catch (error) {
+              if (signupServerError) {
+                  signupServerError.textContent = 'Unable to reach the server. Please try again.';
+              }
+              if (submitButton) {
+                  submitButton.disabled = false;
+                  submitButton.textContent = 'Create Account';
+              }
+          }
       });
   }
 
@@ -412,12 +491,14 @@ function showToast() {
 
   // Search focus ring
   var searchInput = document.querySelector('.search-wrap input');
-  searchInput.addEventListener('focus', function () {
-    searchInput.style.boxShadow = '0 0 0 2px rgba(50,79,70,0.2)';
-  });
-  searchInput.addEventListener('blur', function () {
-    searchInput.style.boxShadow = 'none';
-  });
+    if (searchInput) {
+        searchInput.addEventListener('focus', function () {
+            searchInput.style.boxShadow = '0 0 0 2px rgba(50,79,70,0.2)';
+        });
+        searchInput.addEventListener('blur', function () {
+            searchInput.style.boxShadow = 'none';
+        });
+    }
 
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
@@ -445,6 +526,15 @@ function showToast() {
 
 
 // patient-dashboard functionality starts from here:
+
+    document.querySelectorAll('.logout-link').forEach(function (logoutLink) {
+        logoutLink.addEventListener('click', function (event) {
+            event.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../HTML/login.html';
+        });
+    });
 
  // Simple micro-interaction for smooth scrolling or active states
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
