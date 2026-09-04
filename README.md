@@ -1,90 +1,140 @@
 # Seyat Khani Portal
 
 ## Project Overview
-A web portal project with a frontend implementation and a planned Node.js/Express backend.
+A healthcare portal with a multi-page frontend and a Node.js/Express backend. The current implementation includes patient and doctor authentication, MongoDB persistence, protected doctor routes, dashboards, and healthcare feature pages.
+
+## Current Development Status
+
+### Completed
+- Responsive HTML/CSS frontend with 10 pages: home, about, login, sign-up, patient dashboard, doctor dashboard, appointments, health vault, medical records, and patient directory.
+- Shared frontend JavaScript for login and registration requests, client-side validation, password visibility controls, authentication state storage, logout, date/progress interactions, tabs, pagination states, and small UI interactions.
+- Shared visual assets, healthcare imagery, branding, responsive layouts, Google Fonts, accessible labels, and inline server-error areas in the authentication forms.
+- Node.js backend using Express with ES modules.
+- CORS and JSON request-body parsing.
+- MongoDB connection through Mongoose using environment variables.
+- User model with name, unique lowercase email, hashed password, role, and timestamps.
+- Patient signup with duplicate-email detection and bcrypt password hashing.
+- Login with bcrypt password verification and JWT creation containing user ID and role.
+- JWT protection middleware and role-authorization middleware.
+- Doctor administration endpoints for listing users without passwords and deleting users.
+- Seed script for creating initial doctor accounts.
+- Backend development workflow using Nodemon.
+
+### In Progress or Planned
+- Connect appointment booking, health vault, medical records, and patient-directory screens to backend APIs.
+- Add complete CRUD APIs for appointments, records, vault files, notifications, and profile/settings data.
+- Add refresh-token/session management, password reset, email verification, and production-grade validation/rate limiting.
+- Complete role-based access control and doctor/patient dashboard authorization.
+- Add automated tests, API documentation, deployment configuration, and production security hardening.
 
 ## Vision
-Build a scalable portal with authentication, dashboards, and modular architecture.
-
-## Features
-- Responsive UI
-- Multi-page navigation
-- Reusable assets/components
-- Ready for backend integration
+Build a scalable healthcare portal with authentication, dashboards, medical records, appointments, and modular architecture.
 
 ## Functional Requirements
-- Navigation between pages
-- Forms and validation
-- Authentication (planned)
-- CRUD operations (planned)
-- API integration (planned)
+- Navigation between portal pages.
+- Responsive forms with client-side validation.
+- Patient account registration and login.
+- Doctor login and JWT-based authentication.
+- Role-aware dashboard redirects.
+- Protected doctor user-management operations.
+- MongoDB-backed user persistence.
+- API integration for implemented authentication flows.
 
 ## Non-functional Requirements
-- Responsive
-- Maintainable
-- Accessible
-- Performance optimized
+- Responsive.
+- Maintainable and modular.
+- Accessible form labels and status messages.
+- Secure password storage through bcrypt hashing.
+- Environment-based configuration for database and JWT settings.
 
 ## UI Hierarchy
 Home
 - Authentication
-- Dashboard
+- Patient Dashboard
+- Doctor Dashboard
 - Feature Pages
-- Settings/Profile
+- Profile/Settings (planned)
 - Footer
 
 ## Project Structure
 ```
-Seyat Khani Portal/assests/
-Seyat Khani Portal/assests/photos/
-Seyat Khani Portal/assests/photos/doctor1.jpg
-Seyat Khani Portal/assests/photos/doctor2.jpg
-Seyat Khani Portal/assests/photos/doctor3.jpg
-Seyat Khani Portal/assests/photos/login-bg-photo.png
-Seyat Khani Portal/assests/photos/logo.png
-Seyat Khani Portal/assests/photos/screen1.png
-Seyat Khani Portal/assests/photos/sehat_kahani_patient_log_in.png
-Seyat Khani Portal/assests/photos/sehat_kahani_patient_sign_up.png
-Seyat Khani Portal/assests/photos/signup-visual-img.jpg
-Seyat Khani Portal/CSS/
-Seyat Khani Portal/CSS/appointment.css
-Seyat Khani Portal/CSS/doctor-dashboard.css
-Seyat Khani Portal/CSS/Health-vault.css
-Seyat Khani Portal/CSS/medical-record.css
-Seyat Khani Portal/CSS/patient.css
-Seyat Khani Portal/CSS/patient-directory.css
-Seyat Khani Portal/CSS/signup.css
-Seyat Khani Portal/CSS/style.css
-Seyat Khani Portal/HTML/
-Seyat Khani Portal/HTML/appointment.html
-Seyat Khani Portal/HTML/doctor-dashboard.html
-Seyat Khani Portal/HTML/Health-vault.html
-Seyat Khani Portal/HTML/index.html
-Seyat Khani Portal/HTML/login.html
-Seyat Khani Portal/HTML/medical-records.html
-Seyat Khani Portal/HTML/patient-dashboard.html
-Seyat Khani Portal/HTML/patient-directory.html
-Seyat Khani Portal/HTML/sign-up.html
-Seyat Khani Portal/JS/
-Seyat Khani Portal/JS/app.js
-Seyat Khani Portal/package.json
-Seyat Khani Portal/package-lock.json
-Seyat Khani Portal/server.js
+assests/photos/       Frontend images and branding assets
+Backend/              Node.js/Express API
+	app.js              Express app and route registration
+	index.js            Database connection and server startup
+	package.json        Backend scripts and dependencies
+	src/config/         MongoDB connection
+	src/controllers/    Authentication handlers
+	src/middlewares/    JWT and role authorization
+	src/models/         Mongoose models
+	src/routes/         Authentication and admin routes
+	src/script/         Database seed scripts
+CSS/                  Page-specific and shared stylesheets
+HTML/                 10 frontend pages
+JS/app.js             Shared frontend behavior and API calls
+README.md             Project documentation
 ```
 
-## Total Pages
-Detected HTML pages: **9**
+## Pages
+- `index.html` - Landing page
+- `about.html` - About page
+- `login.html` - Patient/doctor login
+- `sign-up.html` - Patient registration
+- `patient-dashboard.html` - Patient dashboard
+- `doctor-dashboard.html` - Doctor dashboard
+- `appointment.html` - Appointment page
+- `Health-vault.html` - Health vault page
+- `medical-records.html` - Medical records page
+- `patient-directory.html` - Patient directory page
 
-- about.html
-- appointment.html
-- doctor-dashboard.html
-- Health-vault.html
-- index.html
-- login.html
-- medical-records.html
-- patient-dashboard.html
-- patient-directory.html
-- sign-up.html
+## Backend API
+
+Base URL: `http://localhost:3000/api`
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/auth/signup` | Create a patient account |
+| `POST` | `/auth/login` | Verify credentials and return a JWT |
+| `GET` | `/admin/Users` | List users for an authorized doctor |
+| `DELETE` | `/admin/Users/:id` | Delete a user for an authorized doctor |
+
+The admin endpoints require an `Authorization: Bearer <token>` header. The current middleware implementation expects the lowercase `bearer` prefix, and the admin route currently checks `doctor` while user records store `Doctor`; this authorization mismatch remains to be fixed.
+
+## Backend Tech Stack
+- Node.js
+- Express.js
+- Mongoose/MongoDB
+- JWT (`jsonwebtoken`)
+- bcrypt (`bcryptjs`)
+- CORS
+- dotenv
+- Nodemon for development
+
+## Environment Configuration
+Create `Backend/.env` with the required local values:
+
+```env
+PORT=5000
+MONGODB_URI=your-mongodb-connection-string
+JWT_SECRET_KEY=your-secret-key
+```
+
+Do not commit `.env` or expose database credentials and JWT secrets. The backend currently listens on port `3000` because its startup code hard-codes that value; the port configuration should be corrected before relying on `PORT`.
+
+## Installation and Development
+```bash
+cd Backend
+npm install
+npm run dev
+```
+
+The API is then available at `http://localhost:3000`. Open `HTML/index.html` through a frontend static server or VS Code Live Server. The frontend authentication code currently calls `http://localhost:3000/api/auth`.
+
+To seed the initial doctor accounts, run the seed script from the `Backend` directory after configuring MongoDB:
+
+```bash
+node src/script/createAdmin.js
+```
 
 ## Design System
 
@@ -125,25 +175,13 @@ correctly inherit the new fonts from their parent elements.
 - CSS3
 - JavaScript
 
-## Planned Backend
-- Node.js
-- Express.js
-- REST API
-- MongoDB
-- JWT Authentication
-- bcrypt
-- Multer
-- dotenv
-
-## Suggested Database
-Users, Roles, Services, Bookings, Notifications, Settings.
-
-## API Modules
-- Auth
-- Users
-- Dashboard
-- Content
-- Uploads
+## Planned API Expansion
+- Appointments and bookings
+- Medical records and health-vault files
+- Notifications
+- Profile and settings
+- Dashboard data
+- Upload handling (Multer or equivalent)
 
 ## Development Phases
 
@@ -153,14 +191,14 @@ Users, Roles, Services, Bookings, Notifications, Settings.
 | UI/UX Design | ✅ Completed |
 | Frontend Layout | ✅ Completed |
 | Responsive Polish | 🟡 Partial |
-| Backend (Node/Express) | ⏳ Pending |
-| Database | ⏳ Pending |
-| Authentication | ⏳ Pending |
-| API Integration | ⏳ Pending |
+| Backend (Node/Express) | 🟡 Initial implementation |
+| Database (MongoDB/Mongoose) | 🟡 User data implemented |
+| Authentication | 🟡 Signup/login implemented |
+| API Integration | 🟡 Authentication flows implemented |
 | Testing | ⏳ Pending |
 | Deployment | ⏳ Pending |
 
-Completed: **3/10** (estimated from uploaded frontend).
+The project is beyond the initial frontend-only phase. Authentication and user administration are implemented, while feature-page APIs, testing, deployment, and production hardening remain.
 
 ## User Flow
 Landing → Login/Register → Dashboard → Feature Pages → Profile/Settings → Logout
@@ -172,25 +210,7 @@ Landing → Login/Register → Dashboard → Feature Pages → Profile/Settings 
 - RESTful APIs
 - Environment variables
 
-## Local Preview Server
-`server.js` is a minimal, zero-dependency static file server (built with Node's
-built-in `http`/`fs` modules only). It serves the existing HTML/CSS/JS/assets
-as-is so the frontend can be previewed at `http://localhost:3000/` without
-opening files directly in the browser. It is **not** the planned Express/REST
-backend described below — no routes, database, or authentication logic exist
-yet. `package.json` currently has no dependencies; it only wires up the
-`dev`/`start` scripts to run this preview server.
-
-## Installation
-```bash
-npm install
-npm run dev
-```
-Then open `http://localhost:3000/` to preview the frontend.
-
 ## Future Improvements
-- Admin panel
-- RBAC
-- Email notifications
-- Analytics
-- PWA
+- Complete admin panel workflows and RBAC.
+- Add email notifications and verification.
+- Add analytics and PWA support.
