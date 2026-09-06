@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api/auth';
+const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
 
 function switchTab(role) {
     const patientTab = document.querySelector('#patientTab');
