@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
-import authRoute from "../Backend/src/routes/authRoute.js";
-import adminRoute from "../Backend/src/routes/adminRoute.js";
+import authRoute from "./src/routes/authRoute.js";
+import adminRoute from "./src/routes/adminRoute.js";
 
 const app = express();
 
