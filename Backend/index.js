@@ -8,7 +8,7 @@ import connectDB from "./src/config/db.js";
 
 connectDB();
 
-const PORT = prpocess.env.PORT || 3000 
+const PORT = pocess.env.PORT || 3000 
 app.listen(PORT, () =>{
     console.log(`server is running on port ${PORT}`)
 });
