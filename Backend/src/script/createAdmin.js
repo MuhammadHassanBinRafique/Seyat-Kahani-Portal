@@ -24,7 +24,7 @@ const createadmins = async() =>{
                 continue;
             }
             const hashedPassword = await bcrypt.hash(data.password, 10)
-            const doctor = new User({...data, password: hashedPassword, role: "Doctor"})
+            const doctor = new User({...data, password: hashedPassword, role: "doctor"})
             await doctor.save();
             console.log(`Created admin: ${data.email}`);
          }
