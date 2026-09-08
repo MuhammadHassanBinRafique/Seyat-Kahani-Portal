@@ -1,5 +1,5 @@
-//const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
-const API_BASE_URL = 'http://localhost:5000/api/auth';
+const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
+//const API_BASE_URL = 'http://localhost:5000/api/auth';
 
 
 function switchTab(role) {
