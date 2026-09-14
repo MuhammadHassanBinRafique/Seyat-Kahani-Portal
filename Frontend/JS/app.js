@@ -150,8 +150,8 @@ function switchTab(role) {
                 localStorage.setItem('user', JSON.stringify(data.user));
 
                 const targetUrl = data.user && data.user.role === 'Doctor'
-                    ? '../HTML/doctor-dashboard.html'
-                    : '../HTML/patient-dashboard.html';
+                    ? '/Frontend/HTML/doctor-dashboard.html'
+                    : '/Frontend/HTML/patient-dashboard.html';
 
                 window.location.href = targetUrl;
             } catch (error) {
