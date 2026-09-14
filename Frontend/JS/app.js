@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
+const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/v1/auth';
 //const API_BASE_URL = 'http://localhost:5000/api/auth';
 
 
@@ -217,9 +217,59 @@ function showToast() {
   if (signupForm) {
       const nameInput = signupForm.querySelector('#name');
       const emailInput = signupForm.querySelector('#email');
+      const phoneInput = signupForm.querySelector('#phone');
       const passwordInput = signupForm.querySelector('#password');
       const termsInput = signupForm.querySelector('#terms');
       const submitButton = signupForm.querySelector('.submit-btn');
+
+      const sanitizePhone = function(value) {
+          let sanitizedValue = value.replace(/[^\d+]/g, '');
+
+          if (sanitizedValue.startsWith('00')) {
+              sanitizedValue = `+${sanitizedValue.slice(2)}`;
+          }
+
+          if (sanitizedValue.includes('+')) {
+              sanitizedValue = `+${sanitizedValue.slice(1).replace(/\+/g, '')}`;
+          }
+
+          return sanitizedValue;
+      };
+
+      const formatPhone = function(value) {
+          const digits = sanitizePhone(value).replace(/\D/g, '');
+
+          if (digits.startsWith('92')) {
+              const subscriberDigits = digits.slice(2, 12);
+              return `+92 ${subscriberDigits.slice(0, 3)}${subscriberDigits.length > 3 ? ` ${subscriberDigits.slice(3)}` : ''}`.trim();
+          }
+
+          if (digits.startsWith('0')) {
+              const localDigits = digits.slice(0, 11);
+              return `${localDigits.slice(0, 4)}${localDigits.length > 4 ? ` ${localDigits.slice(4)}` : ''}`.trim();
+          }
+
+          if (digits.startsWith('3')) {
+              const subscriberDigits = digits.slice(0, 10);
+              return `+92 ${subscriberDigits.slice(0, 3)}${subscriberDigits.length > 3 ? ` ${subscriberDigits.slice(3)}` : ''}`.trim();
+          }
+
+          return sanitizePhone(value).slice(0, 15);
+      };
+
+      const validatePhone = function(value) {
+          const phoneDigits = sanitizePhone(value).replace(/\D/g, '');
+
+          if (!phoneDigits) {
+              return '';
+          }
+
+          if (!/^(?:92|0)?3\d{9}$/.test(phoneDigits)) {
+              return 'Enter a valid Pakistani phone number, e.g. +92 300 1234567.';
+          }
+
+          return '';
+      };
 
       signupForm.removeAttribute('onsubmit');
 
@@ -278,6 +328,14 @@ function showToast() {
               }
           }
       ];
+
+      const phoneFieldConfig = {
+          input: phoneInput,
+          wrapper: phoneInput ? phoneInput.closest('.field') : null,
+          validate: validatePhone
+      };
+
+      fieldConfig.push(phoneFieldConfig);
 
       const createErrorElement = function(wrapper) {
           if (!wrapper) {
@@ -356,6 +414,29 @@ function showToast() {
               validateField(config);
           });
       });
+
+      if (phoneInput) {
+          phoneInput.setAttribute('inputmode', 'tel');
+          phoneInput.setAttribute('autocomplete', 'tel');
+          phoneInput.setAttribute('maxlength', '16');
+
+          phoneInput.addEventListener('keydown', function(event) {
+              const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Tab'];
+
+              if (event.ctrlKey || event.metaKey) {
+                  return;
+              }
+
+              if (!allowedKeys.includes(event.key) && !/^\d$/.test(event.key) && event.key !== '+') {
+                  event.preventDefault();
+              }
+          });
+
+          phoneInput.addEventListener('input', function() {
+              phoneInput.value = formatPhone(phoneInput.value);
+              validateField(phoneFieldConfig);
+          });
+      }
 
       if (termsInput) {
           termsInput.addEventListener('change', function() {
@@ -447,7 +528,8 @@ function showToast() {
                   body: JSON.stringify({
                       name: nameInput.value.trim(),
                       email: emailInput.value.trim(),
-                      password: passwordInput.value
+                      password: passwordInput.value,
+                      phone: sanitizePhone(phoneInput ? phoneInput.value : '')
                   })
               });
 
@@ -557,7 +639,7 @@ function showToast() {
         }
     });
 
-    //   Health-vault functionality starts from here:
+    //   health-vault functionality starts from here:
 
  // Micro-interactions for buttons
   document.querySelectorAll('button').forEach(function(button){
