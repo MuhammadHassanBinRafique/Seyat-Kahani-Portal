@@ -349,6 +349,44 @@ body.doctor-dashboard main.content {
             background-color: var(--surface-container-low);
         }
 
+        body.doctor-dashboard .mobile-menu-toggle {
+            display: none;
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--sage-light);
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            padding: 9px 8px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            color: var(--forest-deep);
+            flex-shrink: 0;
+        }
+
+        body.doctor-dashboard .mobile-menu-toggle span {
+            display: block;
+            width: 18px;
+            height: 2px;
+            border-radius: 99px;
+            background: currentColor;
+            transition: transform 0.25s ease, opacity 0.2s ease;
+        }
+
+        body.doctor-dashboard .mobile-menu-toggle[aria-expanded="true"] span:nth-child(1) {
+            transform: translateY(6px) rotate(45deg);
+        }
+
+        body.doctor-dashboard .mobile-menu-toggle[aria-expanded="true"] span:nth-child(2) {
+            opacity: 0;
+        }
+
+        body.doctor-dashboard .mobile-menu-toggle[aria-expanded="true"] span:nth-child(3) {
+            transform: translateY(-6px) rotate(-45deg);
+        }
+
         body.doctor-dashboard .divider-v {
             height: 32px;
             width: 1px;
@@ -917,6 +955,88 @@ body.doctor-dashboard main.content {
             }
         }
 
+        .mobile-nav-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(24, 28, 27, 0.46);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 45;
+        }
+
+        .mobile-nav-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (max-width: 900px) {
+            body.doctor-dashboard {
+                display: block;
+            }
+
+            body.doctor-dashboard aside.sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 256px;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                z-index: 60;
+            }
+
+            body.doctor-dashboard aside.sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            body.doctor-dashboard main.content {
+                margin-left: 0;
+            }
+
+            body.doctor-dashboard header.topbar {
+                width: 100%;
+                left: 0;
+                right: 0;
+                padding: 0 16px;
+            }
+
+            body.doctor-dashboard .mobile-menu-toggle {
+                display: inline-flex;
+            }
+
+            body.doctor-dashboard .topbar-actions {
+                margin-left: auto;
+            }
+
+            body.doctor-dashboard .search-box {
+                display: none;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body.doctor-dashboard .scroll-content {
+                padding: 88px 16px 32px;
+            }
+
+            body.doctor-dashboard .stat-card {
+                padding: 16px;
+            }
+
+            body.doctor-dashboard .page-header h2 {
+                font-size: 28px;
+                line-height: 34px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
         @media (min-width: 1024px) {
             body.doctor-dashboard .stats-grid {
                 grid-template-columns: repeat(4, 1fr);
@@ -986,6 +1106,25 @@ body.doctor-dashboard main.content {
             body.doctor-dashboard .fab {
                 right: 16px;
                 bottom: 16px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body.doctor-dashboard aside.sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                width: 256px;
+                height: 100vh;
+                min-height: 100vh;
+                padding: 24px 16px;
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+                z-index: 60;
+            }
+
+            body.doctor-dashboard aside.sidebar.mobile-open {
+                transform: translateX(0);
             }
         }
 

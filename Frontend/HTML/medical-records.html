@@ -11,6 +11,7 @@
 <link rel="icon" type="image/png" href="/assests/photos/favicon.png">
 </head>
 <body>
+<div class="mobile-nav-overlay" aria-hidden="true"></div>
 
 <!-- Sidebar Navigation -->
 <aside class="sidenav">
@@ -55,6 +56,9 @@
 
 <!-- Topbar -->
 <header class="topbar">
+    <button class="mobile-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+    </button>
     <div class="search-box">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <input type="text" placeholder="Search records, doctors...">

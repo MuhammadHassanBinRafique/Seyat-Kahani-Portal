@@ -609,6 +609,65 @@ function showToast() {
 
 
 
+// shared mobile navigation toggle for dashboard pages starts here:
+
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileNavOverlay = document.querySelector('.mobile-nav-overlay');
+    const sideNav = document.querySelector('.sidenav, aside.sidebar');
+
+    function closeMobileMenu() {
+        if (sideNav) {
+            sideNav.classList.remove('mobile-open');
+        }
+        if (mobileNavOverlay) {
+            mobileNavOverlay.classList.remove('visible');
+        }
+        if (mobileMenuToggle) {
+            mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            mobileMenuToggle.setAttribute('aria-label', 'Open navigation menu');
+        }
+    }
+
+    function openMobileMenu() {
+        if (sideNav) {
+            sideNav.classList.add('mobile-open');
+        }
+        if (mobileNavOverlay) {
+            mobileNavOverlay.classList.add('visible');
+        }
+        if (mobileMenuToggle) {
+            mobileMenuToggle.setAttribute('aria-expanded', 'true');
+            mobileMenuToggle.setAttribute('aria-label', 'Close navigation menu');
+        }
+    }
+
+    if (mobileMenuToggle && sideNav) {
+        mobileMenuToggle.addEventListener('click', function () {
+            const isExpanded = mobileMenuToggle.getAttribute('aria-expanded') === 'true';
+            if (isExpanded) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        });
+
+        sideNav.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', closeMobileMenu);
+        });
+    }
+
+    if (mobileNavOverlay) {
+        mobileNavOverlay.addEventListener('click', closeMobileMenu);
+    }
+
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 900) {
+            closeMobileMenu();
+        }
+    });
+
+// shared mobile navigation toggle for dashboard pages ends here:
+
 // patient-dashboard functionality starts from here:
 
     document.querySelectorAll('.logout-link').forEach(function (logoutLink) {

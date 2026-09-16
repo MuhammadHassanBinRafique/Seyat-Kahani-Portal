@@ -11,6 +11,7 @@
 <link rel="icon" type="image/png" href="/assests/photos/favicon.png">
 </head>
 <body class="doctor-dashboard">
+<div class="mobile-nav-overlay" aria-hidden="true"></div>
 
 <!-- SideNavBar -->
 <aside class="sidebar">
@@ -58,6 +59,9 @@
 
     <!-- TopAppBar -->
     <header class="topbar">
+        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
         <div class="search-box">
             <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
             <input placeholder="Search patients, records, or labs..." type="text">
