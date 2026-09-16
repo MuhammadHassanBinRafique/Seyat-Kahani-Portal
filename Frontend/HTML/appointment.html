@@ -11,6 +11,7 @@
 <link rel="icon" type="image/png" href="/assests/photos/favicon.png">
 </head>
 <body>
+<div class="mobile-nav-overlay" aria-hidden="true"></div>
 
 <!-- Sidebar -->
 <aside class="sidebar">
@@ -54,6 +55,9 @@
 
 <!-- Topbar -->
 <header class="topbar">
+    <button class="mobile-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+    </button>
     <div class="search-wrap">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <input type="text" placeholder="Search patients, dates or IDs...">
@@ -256,5 +260,26 @@
         </div>
     </div>
 </main>
+<script>
+    const appointmentMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const appointmentSidebar = document.querySelector('aside.sidebar');
+    const appointmentOverlay = document.querySelector('.mobile-nav-overlay');
+
+    if (appointmentMenuToggle && appointmentSidebar && appointmentOverlay) {
+        appointmentMenuToggle.addEventListener('click', function () {
+            const isOpen = appointmentSidebar.classList.toggle('mobile-open');
+            appointmentOverlay.classList.toggle('visible', isOpen);
+            appointmentMenuToggle.setAttribute('aria-expanded', String(isOpen));
+            appointmentMenuToggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+        });
+
+        appointmentOverlay.addEventListener('click', function () {
+            appointmentSidebar.classList.remove('mobile-open');
+            appointmentOverlay.classList.remove('visible');
+            appointmentMenuToggle.setAttribute('aria-expanded', 'false');
+            appointmentMenuToggle.setAttribute('aria-label', 'Open navigation menu');
+        });
+    }
+</script>
 </body>
 </html>

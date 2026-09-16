@@ -246,6 +246,36 @@ h6 { font-weight: 500; }
     gap: 20px;
   }
 
+  .mobile-menu-toggle {
+    display: none;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--sage-light);
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px;
+    padding: 9px 8px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    color: var(--forest-deep);
+    flex-shrink: 0;
+  }
+
+  .mobile-menu-toggle span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    border-radius: 99px;
+    background: currentColor;
+    transition: transform 0.25s ease, opacity 0.2s ease;
+  }
+
+  .mobile-menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .mobile-menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .mobile-menu-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
   .icon-btn {
     position: relative;
     background: none;
@@ -304,6 +334,21 @@ h6 { font-weight: 500; }
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin: 2px 0 0 0;
+  }
+
+  .mobile-nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(24, 28, 27, 0.46);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 45;
+  }
+
+  .mobile-nav-overlay.visible {
+    opacity: 1;
+    visibility: visible;
   }
 
   .canvas {
@@ -798,4 +843,69 @@ h6 { font-weight: 500; }
 
   .legend-label {
     color: var(--on-surface-variant);
+  }
+
+  @media (max-width: 900px) {
+    .sidebar {
+      display: flex;
+      left: 0;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 60;
+    }
+
+    .sidebar.mobile-open {
+      transform: translateX(0);
+    }
+
+    header.topbar {
+      width: 100%;
+      left: 0;
+      right: 0;
+      padding: 0 16px;
+    }
+
+    main {
+      margin-left: 0;
+    }
+
+    .mobile-menu-toggle {
+      display: inline-flex;
+    }
+
+    .search-wrap {
+      display: none;
+    }
+
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .topbar-right {
+      gap: 8px;
+    }
+
+    .user-chip .name,
+    .user-chip .role {
+      display: none;
+    }
+
+    .page-header {
+      margin-bottom: 20px;
+    }
+
+    .page-header h2 {
+      font-size: 28px;
+      line-height: 34px;
+    }
+
+    .table-toolbar {
+      padding: 12px 16px;
+    }
+
+    .table-card {
+      overflow-x: auto;
+    }
   }
