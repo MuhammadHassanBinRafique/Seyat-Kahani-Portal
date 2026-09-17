@@ -340,7 +340,7 @@ h6 { font-weight: 500; }
   .password-wrap button {
     position: absolute;
     right: 12px;
-    top: 50%;
+    top: 28%;
     transform: translateY(-50%);
     background: none;
     border: none;
