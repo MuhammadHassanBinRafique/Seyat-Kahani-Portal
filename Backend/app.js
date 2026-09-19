@@ -4,6 +4,8 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import authRoute from "./src/routes/authRoute.js";
 import adminRoute from "./src/routes/adminRoute.js";
+import appointmentRoute from "./src/routes/appointmentRoute.js";
+import doctorRoute from "./src/routes/doctorRoute.js";
 
 const app = express();
 
@@ -16,6 +18,7 @@ const allowedOrigins = [
   "https://seyat-kahani-portal.vercel.app",
   "http://localhost:5500",
   "http://127.0.0.1:5500",
+  "http://localhost:51337"
 ];
 
 app.use(cors({
@@ -47,5 +50,7 @@ app.get("/", (req, res) =>{
 
 app.use("/api/auth", authLimiter, authRoute);
 app.use("/api/admin", adminRoute);
+app.use("/api/appointments", appointmentRoute);
+app.use("/api/doctors", doctorRoute);
 
 export default app;

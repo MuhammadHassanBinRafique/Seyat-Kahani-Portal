@@ -38,7 +38,7 @@
         </a>
     </nav>
 
-    <button class="book-appt-btn">
+    <button class="book-appt-btn" id="bookApptBtn">
         <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
         Book Appointment
     </button>
@@ -153,7 +153,8 @@
                 <h3><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01"></path></svg></span>Upcoming Appointments</h3>
                 <a href="#">View Calendar</a>
             </div>
-            <div class="appt-card">
+            <div id="upcomingApptContainer">
+             <div class="appt-card">
                 <div class="appt-avatar"></div>
                 <div class="appt-details">
                     <span class="appt-tag">Primary Care</span>
@@ -171,6 +172,7 @@
                     <button class="btn-primary-solid"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>Take Appointment</button>
                     <button class="btn-outline">Reschedule</button>
                 </div>
+             </div>
             </div>
         </div>
 
@@ -219,6 +221,34 @@
     <span class="icon" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
 </button>
 
+<!-- Booking Modal -->
+<div id="bookingModalOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:420px;">
+    <h3 style="margin-top:0;">Book an Appointment</h3>
+    <form id="bookingForm">
+      <label style="display:block; margin-top:12px; font-size:14px;">Doctor</label>
+      <select id="doctorSelect" required style="width:100%; padding:8px; margin-top:4px;">
+        option value="">Select a doctor</option>
+      </select>
+
+      <label style="display:block; margin-top:12px; font-size:14px;">Date</label>
+      <input type="date" id="apptDate" required style="width:100%; padding:8px; margin-top:4px;">
+
+      <label style="display:block; margin-top:12px; font-size:14px;">Time</label>
+      <input type="time" id="apptTime" required style="width:100%; padding:8px; margin-top:4px;">
+
+      <label style="display:block; margin-top:12px; font-size:14px;">Reason</label>
+      <textarea id="apptReason" required maxlength="300" style="width:100%; padding:8px; margin-top:4px;" rows="3"></textarea>
+
+      <p id="bookingError" style="color:#c62828; font-size:14px; margin-top:8px;"></p>
+
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button type="submit" class="btn-primary-solid">Confirm Booking</button>
+        <button type="button" id="closeBookingModal" class="btn-outline">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
 <script src="/Frontend/JS/app.js"></script>
 </body>
 </html>
