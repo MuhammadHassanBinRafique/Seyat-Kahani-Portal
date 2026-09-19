@@ -1,5 +1,5 @@
 const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
-//const API_BASE_URL = 'http://localhost:5000/api/auth';
+// const API_BASE_URL = 'http://localhost:5000/api/auth';
 
 
 function switchTab(role) {
@@ -149,7 +149,7 @@ function switchTab(role) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
-                const targetUrl = data.user && data.user.role === 'Doctor'
+                const targetUrl = data.user && data.user.role === 'doctor'
                     ? '/Frontend/HTML/doctor-dashboard.html'
                     : '/Frontend/HTML/patient-dashboard.html';
 
@@ -720,4 +720,222 @@ document.querySelectorAll('.doc-row').forEach(item => {
 
     // medical-records functionality ends here:
 
-// patient-dashboard functionality ends here:
+// ===================== Appointments module =====================
+
+ const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
+ // const API_ROOT = 'http://localhost:5000/api';
+
+function getToken() {
+  return localStorage.getItem('token');
+}
+
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${getToken()}`
+  };
+}
+
+// ---------- Booking modal (patient-dashboard.html) ----------
+const bookApptBtn = document.querySelector('#bookApptBtn');
+const bookingModalOverlay = document.querySelector('#bookingModalOverlay');
+const closeBookingModal = document.querySelector('#closeBookingModal');
+const bookingForm = document.querySelector('#bookingForm');
+const doctorSelect = document.querySelector('#doctorSelect');
+const bookingError = document.querySelector('#bookingError');
+
+async function loadDoctorsIntoSelect() {
+  if (!doctorSelect) return;
+  try {
+    const res = await fetch(`${API_ROOT}/doctors`, { headers: authHeaders() });
+    const doctors = await res.json();
+    doctorSelect.innerHTML = '';
+    doctors.forEach((doc) => {
+      const option = document.createElement('option');
+      option.value = doc._id;
+      option.textContent = doc.name;
+      doctorSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Failed to load doctors:', error);
+  }
+}
+
+if (bookApptBtn && bookingModalOverlay) {
+  bookApptBtn.addEventListener('click', () => {
+    bookingModalOverlay.style.display = 'flex';
+    loadDoctorsIntoSelect();
+  });
+}
+
+if (closeBookingModal && bookingModalOverlay) {
+  closeBookingModal.addEventListener('click', () => {
+    bookingModalOverlay.style.display = 'none';
+  });
+}
+
+if (bookingForm) {
+  bookingForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (bookingError) bookingError.textContent = '';
+
+    const doctorId = doctorSelect.value;
+    const date = document.querySelector('#apptDate').value;
+    const time = document.querySelector('#apptTime').value;
+    const reason = document.querySelector('#apptReason').value;
+
+    try {
+      const res = await fetch(`${API_ROOT}/appointments`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ doctorId, date, time, reason })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (bookingError) bookingError.textContent = data.message || 'Booking failed';
+        return;
+      }
+
+      bookingModalOverlay.style.display = 'none';
+      bookingForm.reset();
+      loadMyAppointments(); // refresh the list below
+    } catch (error) {
+      console.error('Booking error:', error);
+      if (bookingError) bookingError.textContent = 'Unable to reach the server. Please try again.';
+    }
+  });
+}
+
+// ---------- Load + render patient's own appointments ----------
+const upcomingApptContainer = document.querySelector('#upcomingApptContainer');
+
+async function loadMyAppointments() {
+  if (!upcomingApptContainer) return;
+
+  try {
+    const res = await fetch(`${API_ROOT}/appointments/my`, { headers: authHeaders() });
+    const appointments = await res.json();
+
+    if (!res.ok) {
+      upcomingApptContainer.innerHTML = `<p>${appointments.message || 'Could not load appointments'}</p>`;
+      return;
+    }
+
+    if (appointments.length === 0) {
+      upcomingApptContainer.innerHTML = '<p>No upcoming appointments yet.</p>';
+      return;
+    }
+
+    upcomingApptContainer.innerHTML = appointments.map((appt) => `
+      <div class="appt-card">
+        <div class="appt-avatar"></div>
+        <div class="appt-details">
+          <span class="appt-tag">${appt.status.toUpperCase()}</span>
+          <h4>${appt.doctor?.name || 'Unknown'}</h4>
+          <div class="appt-meta">
+            <span class="appt-meta-item">${appt.date}</span>
+            <span class="appt-meta-item">${appt.time}</span>
+          </div>
+        </div>
+        <div class="appt-actions">
+          ${appt.status === 'pending'
+            ? `<button class="btn-outline cancel-appt-btn" data-id="${appt._id}">Cancel</button>`
+            : ''}
+        </div>
+      </div>
+    `).join('');
+
+    document.querySelectorAll('.cancel-appt-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        try {
+          const res = await fetch(`${API_ROOT}/appointments/${id}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            alert(data.message || 'Could not cancel');
+            return;
+          }
+          loadMyAppointments();
+        } catch (error) {
+          console.error('Cancel error:', error);
+        }
+      });
+    });
+
+  } catch (error) {
+    console.error('Load appointments error:', error);
+  }
+}
+
+if (upcomingApptContainer) {
+  loadMyAppointments();
+}
+
+// ---------- Doctor-side: appointment.html table ----------
+const doctorApptTableBody = document.querySelector('#doctorApptTableBody');
+
+async function loadDoctorAppointments() {
+  if (!doctorApptTableBody) return;
+
+  try {
+    const res = await fetch(`${API_ROOT}/appointments/my`, { headers: authHeaders() });
+    const appointments = await res.json();
+
+    if (!res.ok || appointments.length === 0) {
+      doctorApptTableBody.innerHTML = `<tr><td colspan="5">No appointments found.</td></tr>`;
+      return;
+    }
+
+    doctorApptTableBody.innerHTML = appointments.map((appt) => `
+      <tr>
+        <td>${appt.patient?.name || 'Unknown'}</td>
+        <td>${appt.date} &nbsp; ${appt.time}</td>
+        <td>${appt.reason}</td>
+        <td><span class="badge badge-${appt.status}">${appt.status.toUpperCase()}</span></td>
+        <td class="right">
+          <div class="row-actions">
+            ${appt.status === 'pending' ? `<button class="action-btn confirm-btn" data-id="${appt._id}">Confirm</button>` : ''}
+            ${appt.status === 'confirmed' ? `<button class="action-btn complete-btn" data-id="${appt._id}">Complete</button>` : ''}
+            ${['pending', 'confirmed'].includes(appt.status) ? `<button class="action-btn cancel-btn" data-id="${appt._id}">Cancel</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    const updateStatus = async (id, status) => {
+      try {
+        const res = await fetch(`${API_ROOT}/appointments/${id}/status`, {
+          method: 'PATCH',
+          headers: authHeaders(),
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || 'Could not update status');
+          return;
+        }
+        loadDoctorAppointments();
+      } catch (error) {
+        console.error('Update status error:', error);
+      }
+    };
+
+    document.querySelectorAll('.confirm-btn').forEach((btn) =>
+      btn.addEventListener('click', () => updateStatus(btn.getAttribute('data-id'), 'confirmed')));
+    document.querySelectorAll('.complete-btn').forEach((btn) =>
+      btn.addEventListener('click', () => updateStatus(btn.getAttribute('data-id'), 'completed')));
+    document.querySelectorAll('.cancel-btn').forEach((btn) =>
+      btn.addEventListener('click', () => updateStatus(btn.getAttribute('data-id'), 'cancelled')));
+
+  } catch (error) {
+    console.error('Load doctor appointments error:', error);
+  }
+}
+
+if (doctorApptTableBody) {
+  loadDoctorAppointments();
+}
