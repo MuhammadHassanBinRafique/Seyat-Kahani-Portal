@@ -37,7 +37,7 @@
         </a>
     </nav>
 
-    <button class="book-appt-btn">
+    <button class="book-appt-btn" id="bookApptBtn">
         <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
         Book Appointment
     </button>
@@ -230,6 +230,46 @@
         </div>
     </div>
 </main>
+
+<div id="bookingModalOverlay" class="booking-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="bookingTitle" aria-hidden="true" style="display:none;">
+  <div class="booking-modal-card">
+    <div class="booking-modal-header">
+      <h3 id="bookingTitle">Book an Appointment</h3>
+      <button type="button" id="closeBookingModal" class="booking-close-btn" aria-label="Close booking form">×</button>
+    </div>
+
+    <form id="bookingForm" class="booking-form">
+      <label class="booking-field">
+        <span>Doctor</span>
+        <select id="doctorSelect" class="booking-input" required>
+          <option value="">Select a doctor</option>
+        </select>
+      </label>
+
+      <label class="booking-field">
+        <span>Date</span>
+        <input type="date" id="apptDate" class="booking-input" required>
+      </label>
+
+      <label class="booking-field">
+        <span>Time</span>
+        <input type="time" id="apptTime" class="booking-input" required>
+      </label>
+
+      <label class="booking-field">
+        <span>Reason</span>
+        <textarea id="apptReason" class="booking-input booking-textarea" rows="3" maxlength="300" required></textarea>
+      </label>
+
+      <p id="bookingError" class="booking-error" aria-live="polite"></p>
+
+      <div class="booking-actions">
+        <button type="submit" class="btn-primary-solid">Confirm Booking</button>
+        <button type="button" id="closeBookingModalSecondary" class="btn-outline">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- FAB -->
 <button class="fab" title="Add">

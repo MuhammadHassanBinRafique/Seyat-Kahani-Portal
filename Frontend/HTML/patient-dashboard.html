@@ -69,10 +69,10 @@
         <button class="icon-btn"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span></button>
         <div class="profile-block">
             <div class="profile-text">
-                <p>Zainab Khan</p>
-                <p>Premium Member</p>
+                <p id="userProfileName">Loading...</p>
+                <p id="userProfileRole">Patient</p>
             </div>
-            <div class="avatar-circle">ZK</div>
+            <div class="avatar-circle" id="userAvatarCircle">--</div>
         </div>
     </div>
 </header>
@@ -83,7 +83,7 @@
     <!-- Welcome Hero Section -->
     <section class="hero">
         <div>
-            <h2>Good Morning, Zainab</h2>
+            <h2 id="dashboardGreeting">Good Morning</h2>
             <p>Your restorative journey continues today. Take a deep breath and review your upcoming schedule for professional care.</p>
             <div class="tip-card">
                 <div class="tip-icon">
@@ -106,10 +106,10 @@
             <div>
                 <div class="card-top-row">
                     <span class="card-icon-wrap"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span></span>
-                    <span class="card-badge badge-upcoming">Next: 3 days</span>
+                    <span class="card-badge badge-upcoming" id="upcomingVisitsBadge">Next: --</span>
                 </div>
                 <p class="card-label">Upcoming Visits</p>
-                <p class="card-value">2 Appointments</p>
+                <p class="card-value" id="upcomingVisitsValue">-- Appointments</p>
             </div>
         </div>
         <div class="glass-card">
@@ -154,25 +154,7 @@
                 <a href="#">View Calendar</a>
             </div>
             <div id="upcomingApptContainer">
-             <div class="appt-card">
-                <div class="appt-avatar"></div>
-                <div class="appt-details">
-                    <span class="appt-tag">Primary Care</span>
-                    <h4>Dr. Sarah Ahmed</h4>
-                    <p class="appt-mode">
-                        <span class="icon xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg></span>
-                        Virtual Tele-Consultation
-                    </p>
-                    <div class="appt-meta">
-                        <span class="appt-meta-item"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span> Oct 24, 2023</span>
-                        <span class="appt-meta-item"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span> 10:30 AM</span>
-                    </div>
-                </div>
-                <div class="appt-actions">
-                    <button class="btn-primary-solid"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>Take Appointment</button>
-                    <button class="btn-outline">Reschedule</button>
-                </div>
-             </div>
+             
             </div>
         </div>
 
@@ -182,35 +164,7 @@
                 <h3><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg></span>Recent Records</h3>
                 <a href="#">View All</a>
             </div>
-            <div class="activity-list">
-                <div class="activity-item">
-                    <div class="activity-icon"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6l-4 10a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-4-10V2"></path><path d="M9 2h6"></path></svg></span></div>
-                    <div class="activity-body">
-                        <p class="title">Blood Test Results</p>
-                        <p class="meta">General Health Panel â€¢ 2 days ago</p>
-                        <button class="download-link"><span class="icon xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span>Download PDF</button>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 1 1 7-7l7 7a4.95 4.95 0 1 1-7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg></span></div>
-                    <div class="activity-body">
-                        <p class="title">New Prescription</p>
-                        <p class="meta">Dr. Amna (Dermatology) â€¢ 1 week ago</p>
-                        <p class="note">3 Items prescribed</p>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></span></div>
-                    <div class="activity-body">
-                        <p class="title">Vitals Updated</p>
-                        <p class="meta">Synced from Health Vault â€¢ Today, 8:15 AM</p>
-                        <div class="vitals-row">
-                            <span class="vitals-chip">BP: 120/80</span>
-                            <span class="vitals-chip">HR: 72 bpm</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="recentAppointmentsContainer" class="activity-list"></div>
         </div>
 
     </div>
@@ -228,7 +182,7 @@
     <form id="bookingForm">
       <label style="display:block; margin-top:12px; font-size:14px;">Doctor</label>
       <select id="doctorSelect" required style="width:100%; padding:8px; margin-top:4px;">
-        option value="">Select a doctor</option>
+        <option value="">Select a doctor</option>
       </select>
 
       <label style="display:block; margin-top:12px; font-size:14px;">Date</label>
