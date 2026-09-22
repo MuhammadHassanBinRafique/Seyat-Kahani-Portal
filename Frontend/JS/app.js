@@ -675,7 +675,7 @@ function showToast() {
             event.preventDefault();
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '../HTML/login.html';
+            window.location.href = '/Frontend/HTML/login.html';
         });
     });
 
@@ -761,18 +761,48 @@ async function loadDoctorsIntoSelect() {
   }
 }
 
+const closeBookingModalSecondary = document.querySelector('#closeBookingModalSecondary');
+
+function showBookingModal() {
+  if (!bookingModalOverlay) return;
+  bookingModalOverlay.style.display = 'flex';
+  bookingModalOverlay.setAttribute('aria-hidden', 'false');
+  bookingModalOverlay.classList.add('visible');
+  loadDoctorsIntoSelect();
+}
+
+function hideBookingModal() {
+  if (!bookingModalOverlay) return;
+  bookingModalOverlay.style.display = 'none';
+  bookingModalOverlay.setAttribute('aria-hidden', 'true');
+  bookingModalOverlay.classList.remove('visible');
+  if (bookingForm) bookingForm.reset();
+  if (bookingError) bookingError.textContent = '';
+}
+
 if (bookApptBtn && bookingModalOverlay) {
-  bookApptBtn.addEventListener('click', () => {
-    bookingModalOverlay.style.display = 'flex';
-    loadDoctorsIntoSelect();
-  });
+  bookApptBtn.addEventListener('click', showBookingModal);
 }
 
 if (closeBookingModal && bookingModalOverlay) {
-  closeBookingModal.addEventListener('click', () => {
-    bookingModalOverlay.style.display = 'none';
+  closeBookingModal.addEventListener('click', hideBookingModal);
+}
+
+if (closeBookingModalSecondary && bookingModalOverlay) {
+  closeBookingModalSecondary.addEventListener('click', hideBookingModal);
+}
+
+if (bookingModalOverlay) {
+  bookingModalOverlay.addEventListener('click', (event) => {
+    if (event.target === bookingModalOverlay) hideBookingModal();
   });
 }
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && bookingModalOverlay && bookingModalOverlay.style.display === 'flex') {
+    hideBookingModal();
+  }
+});
 
 if (bookingForm) {
   bookingForm.addEventListener('submit', async (event) => {
@@ -797,9 +827,10 @@ if (bookingForm) {
         return;
       }
 
-      bookingModalOverlay.style.display = 'none';
-      bookingForm.reset();
-      loadMyAppointments(); // refresh the list below
+      hideBookingModal();
+      if (typeof loadMyAppointments === 'function') {
+        loadMyAppointments();
+      }
     } catch (error) {
       console.error('Booking error:', error);
       if (bookingError) bookingError.textContent = 'Unable to reach the server. Please try again.';
@@ -809,6 +840,285 @@ if (bookingForm) {
 
 // ---------- Load + render patient's own appointments ----------
 const upcomingApptContainer = document.querySelector('#upcomingApptContainer');
+const userProfileName = document.querySelector('#userProfileName');
+const userProfileRole = document.querySelector('#userProfileRole');
+const userAvatarCircle = document.querySelector('#userAvatarCircle');
+const dashboardGreeting = document.querySelector('#dashboardGreeting');
+const upcomingVisitsBadge = document.querySelector('#upcomingVisitsBadge');
+const upcomingVisitsValue = document.querySelector('#upcomingVisitsValue');
+const recentAppointmentsContainer = document.querySelector('#recentAppointmentsContainer');
+const APPT_PAGE_SIZE = 2;
+let upcomingAppointments = [];
+let currentUpcomingPage = 1;
+let recentAppointments = [];
+let currentRecentPage = 1;
+
+function getInitials(name = '') {
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('') || 'P';
+}
+
+function getDisplayName(user) {
+  if (!user || !user.name) return 'Patient';
+  return user.name.trim();
+}
+
+function escapeHtml(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+async function loadCurrentUserProfile() {
+  try {
+    const storedUser = localStorage.getItem('user');
+    const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+
+    if (parsedUser?.name) {
+      const fullName = getDisplayName(parsedUser);
+      const firstName = fullName.split(' ')[0] || fullName;
+
+      if (userProfileName) {
+        userProfileName.textContent = fullName;
+      }
+
+      if (userProfileRole) {
+        userProfileRole.textContent = parsedUser.role === 'doctor' ? 'Doctor' : 'Premium Member';
+      }
+
+      if (userAvatarCircle) {
+        userAvatarCircle.textContent = getInitials(fullName);
+      }
+
+      if (dashboardGreeting) {
+        const hour = new Date().getHours();
+        const label = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+        dashboardGreeting.textContent = `${label}, ${firstName}`;
+      }
+
+      return;
+    }
+
+    if (userProfileName) {
+      userProfileName.textContent = 'Patient';
+    }
+    if (userProfileRole) {
+      userProfileRole.textContent = 'Premium Member';
+    }
+    if (userAvatarCircle) {
+      userAvatarCircle.textContent = 'P';
+    }
+  } catch (error) {
+    console.error('Failed to load user profile:', error);
+    if (userProfileName) {
+      userProfileName.textContent = 'Patient';
+    }
+    if (userProfileRole) {
+      userProfileRole.textContent = 'Premium Member';
+    }
+    if (userAvatarCircle) {
+      userAvatarCircle.textContent = 'P';
+    }
+  }
+}
+
+function updateUpcomingVisitsSummary() {
+  if (!upcomingVisitsBadge || !upcomingVisitsValue) return;
+
+  const validAppointments = upcomingAppointments.filter((appt) => {
+    if (!appt || !appt.date) return false;
+    const status = (appt.status || '').toLowerCase();
+    if (['cancelled', 'completed'].includes(status)) return false;
+    const appointmentDate = new Date(`${appt.date}T${appt.time || '00:00'}`);
+    return !Number.isNaN(appointmentDate.getTime());
+  });
+
+  if (validAppointments.length === 0) {
+    upcomingVisitsBadge.textContent = 'Next: --';
+    upcomingVisitsValue.textContent = '0 Appointments';
+    return;
+  }
+
+  const nextAppointment = validAppointments.sort((a, b) => {
+    const first = new Date(`${a.date}T${a.time || '00:00'}`).getTime();
+    const second = new Date(`${b.date}T${b.time || '00:00'}`).getTime();
+    return first - second;
+  })[0];
+
+  const nextDate = new Date(`${nextAppointment.date}T${nextAppointment.time || '00:00'}`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffMs = nextDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  const dayText = diffDays <= 0 ? 'Today' : `${diffDays} day${diffDays === 1 ? '' : 's'}`;
+  upcomingVisitsBadge.textContent = `Next: ${dayText}`;
+  upcomingVisitsValue.textContent = `${validAppointments.length} Appointment${validAppointments.length === 1 ? '' : 's'}`;
+}
+
+function getAppointmentSortValue(appt) {
+  const datePart = appt?.date || '1970-01-01';
+  const timePart = appt?.time || '00:00';
+  const dateTime = new Date(`${datePart}T${timePart}`);
+  return Number.isNaN(dateTime.getTime()) ? 0 : dateTime.getTime();
+}
+
+function getVisibleUpcomingAppointments(appointments = []) {
+  return appointments
+    .filter((appt) => {
+      if (!appt || !appt.date) return false;
+
+      const status = (appt.status || '').toLowerCase();
+      if (['cancelled', 'completed'].includes(status)) return false;
+
+      const dateTime = new Date(`${appt.date}T${appt.time || '00:00'}`);
+      return !Number.isNaN(dateTime.getTime());
+    })
+    .sort((a, b) => getAppointmentSortValue(b) - getAppointmentSortValue(a));
+}
+
+function getUpcomingPageItems() {
+  const start = (currentUpcomingPage - 1) * APPT_PAGE_SIZE;
+  return upcomingAppointments.slice(start, start + APPT_PAGE_SIZE);
+}
+
+function renderUpcomingAppointmentsPage() {
+  if (!upcomingApptContainer) return;
+
+  const totalPages = Math.max(1, Math.ceil(upcomingAppointments.length / APPT_PAGE_SIZE));
+  currentUpcomingPage = Math.min(currentUpcomingPage, totalPages);
+
+  const pageItems = getUpcomingPageItems();
+
+  if (upcomingAppointments.length === 0) {
+    upcomingApptContainer.innerHTML = '<p class="appt-empty-state">No upcoming appointments yet.</p>';
+    return;
+  }
+
+  const pager = totalPages > 1 ? `
+    <div class="appt-pagination" aria-label="Appointment pagination">
+      <button class="appt-page-btn" type="button" data-page="prev" ${currentUpcomingPage === 1 ? 'disabled' : ''}>Previous</button>
+      <span class="appt-page-indicator">Page ${currentUpcomingPage} of ${totalPages}</span>
+      <button class="appt-page-btn" type="button" data-page="next" ${currentUpcomingPage === totalPages ? 'disabled' : ''}>Next</button>
+    </div>
+  ` : '';
+
+  upcomingApptContainer.innerHTML = `
+    <div class="appt-page-list">
+      ${pageItems.map((appt) => `
+        <div class="appt-card">
+          <div class="appt-avatar"></div>
+          <div class="appt-details">
+            <span class="appt-tag">${(appt.status || 'pending').toUpperCase()}</span>
+            <h4>${appt.doctor?.name || 'Unknown'}</h4>
+            <div class="appt-meta">
+              <span class="appt-meta-item">${appt.date || 'Date not set'}</span>
+              <span class="appt-meta-item">${appt.time || 'Time not set'}</span>
+            </div>
+          </div>
+          <div class="appt-actions">
+            ${appt.status === 'pending'
+              ? `<button class="btn-outline cancel-appt-btn" data-id="${appt._id}">Cancel</button>`
+              : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    ${pager}
+  `;
+
+  document.querySelectorAll('.cancel-appt-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      try {
+        const res = await fetch(`${API_ROOT}/appointments/${id}`, {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || 'Could not cancel');
+          return;
+        }
+        loadMyAppointments();
+      } catch (error) {
+        console.error('Cancel error:', error);
+      }
+    });
+  });
+
+  document.querySelectorAll('.appt-page-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const nextPage = btn.getAttribute('data-page');
+      if (nextPage === 'prev') {
+        currentUpcomingPage = Math.max(1, currentUpcomingPage - 1);
+      }
+      if (nextPage === 'next') {
+        currentUpcomingPage = Math.min(Math.ceil(upcomingAppointments.length / APPT_PAGE_SIZE), currentUpcomingPage + 1);
+      }
+      renderUpcomingAppointmentsPage();
+    });
+  });
+}
+
+function renderRecentAppointmentsPage() {
+  if (!recentAppointmentsContainer) return;
+
+  const totalPages = Math.max(1, Math.ceil(recentAppointments.length / APPT_PAGE_SIZE));
+  currentRecentPage = Math.min(currentRecentPage, totalPages);
+  const start = (currentRecentPage - 1) * APPT_PAGE_SIZE;
+  const pageItems = recentAppointments.slice(start, start + APPT_PAGE_SIZE);
+
+  if (recentAppointments.length === 0) {
+    recentAppointmentsContainer.innerHTML = '<p class="appt-empty-state">No completed appointments yet.</p>';
+    return;
+  }
+
+  const pager = totalPages > 1 ? `
+    <div class="appt-pagination" aria-label="Recent appointment pagination">
+      <button class="appt-page-btn recent-page-btn" type="button" data-page="prev" ${currentRecentPage === 1 ? 'disabled' : ''}>Previous</button>
+      <span class="appt-page-indicator">Page ${currentRecentPage} of ${totalPages}</span>
+      <button class="appt-page-btn recent-page-btn" type="button" data-page="next" ${currentRecentPage === totalPages ? 'disabled' : ''}>Next</button>
+    </div>
+  ` : '';
+
+  recentAppointmentsContainer.innerHTML = `
+    <div class="activity-page-list">
+      ${pageItems.map((appt) => `
+        <div class="activity-item">
+          <div class="activity-icon"><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="m8 16 2 2 5-5"></path></svg></span></div>
+          <div class="activity-body">
+            <p class="title">Appointment with ${escapeHtml(appt.doctor?.name || 'Unknown doctor')}</p>
+            <p class="meta">${escapeHtml(appt.date || 'Date not set')} at ${escapeHtml(appt.time || 'Time not set')} | ${escapeHtml((appt.status || 'completed').toUpperCase())}</p>
+            <p class="note">Reason: ${escapeHtml(appt.reason || 'No reason provided')}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    ${pager}
+  `;
+
+  recentAppointmentsContainer.querySelectorAll('.recent-page-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const nextPage = btn.getAttribute('data-page');
+      if (nextPage === 'prev') {
+        currentRecentPage = Math.max(1, currentRecentPage - 1);
+      }
+      if (nextPage === 'next') {
+        currentRecentPage = Math.min(totalPages, currentRecentPage + 1);
+      }
+      renderRecentAppointmentsPage();
+    });
+  });
+}
 
 async function loadMyAppointments() {
   if (!upcomingApptContainer) return;
@@ -818,62 +1128,43 @@ async function loadMyAppointments() {
     const appointments = await res.json();
 
     if (!res.ok) {
-      upcomingApptContainer.innerHTML = `<p>${appointments.message || 'Could not load appointments'}</p>`;
+      upcomingAppointments = [];
+      upcomingApptContainer.innerHTML = `<p class="appt-empty-state">${appointments.message || 'Could not load appointments'}</p>`;
       return;
     }
 
-    if (appointments.length === 0) {
-      upcomingApptContainer.innerHTML = '<p>No upcoming appointments yet.</p>';
-      return;
-    }
+    recentAppointments = Array.isArray(appointments)
+      ? appointments
+        .filter((appt) => (appt?.status || '').toLowerCase() === 'completed')
+        .sort((a, b) => getAppointmentSortValue(b) - getAppointmentSortValue(a))
+      : [];
+    currentRecentPage = 1;
+    renderRecentAppointmentsPage();
 
-    upcomingApptContainer.innerHTML = appointments.map((appt) => `
-      <div class="appt-card">
-        <div class="appt-avatar"></div>
-        <div class="appt-details">
-          <span class="appt-tag">${appt.status.toUpperCase()}</span>
-          <h4>${appt.doctor?.name || 'Unknown'}</h4>
-          <div class="appt-meta">
-            <span class="appt-meta-item">${appt.date}</span>
-            <span class="appt-meta-item">${appt.time}</span>
-          </div>
-        </div>
-        <div class="appt-actions">
-          ${appt.status === 'pending'
-            ? `<button class="btn-outline cancel-appt-btn" data-id="${appt._id}">Cancel</button>`
-            : ''}
-        </div>
-      </div>
-    `).join('');
+    upcomingAppointments = Array.isArray(appointments)
+      ? getVisibleUpcomingAppointments(appointments)
+      : [];
 
-    document.querySelectorAll('.cancel-appt-btn').forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        const id = btn.getAttribute('data-id');
-        try {
-          const res = await fetch(`${API_ROOT}/appointments/${id}`, {
-            method: 'DELETE',
-            headers: authHeaders()
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            alert(data.message || 'Could not cancel');
-            return;
-          }
-          loadMyAppointments();
-        } catch (error) {
-          console.error('Cancel error:', error);
-        }
-      });
-    });
+    updateUpcomingVisitsSummary();
+    currentUpcomingPage = 1;
+    renderUpcomingAppointmentsPage();
 
   } catch (error) {
     console.error('Load appointments error:', error);
+    upcomingAppointments = [];
+    recentAppointments = [];
+    upcomingApptContainer.innerHTML = '<p class="appt-empty-state">Unable to load appointments right now.</p>';
+    if (recentAppointmentsContainer) {
+      recentAppointmentsContainer.innerHTML = '<p class="appt-empty-state">Unable to load recent appointments right now.</p>';
+    }
   }
 }
 
 if (upcomingApptContainer) {
   loadMyAppointments();
 }
+
+loadCurrentUserProfile();
 
 // ---------- Doctor-side: appointment.html table ----------
 const doctorApptTableBody = document.querySelector('#doctorApptTableBody');
