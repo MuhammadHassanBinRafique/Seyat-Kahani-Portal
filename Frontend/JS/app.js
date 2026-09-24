@@ -670,13 +670,15 @@ function showToast() {
 
 // patient-dashboard functionality starts from here:
 
+  function logoutUser(event) {
+    if (event) event.preventDefault();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/Frontend/HTML/login.html';
+  }
+
     document.querySelectorAll('.logout-link').forEach(function (logoutLink) {
-        logoutLink.addEventListener('click', function (event) {
-            event.preventDefault();
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/Frontend/HTML/login.html';
-        });
+    logoutLink.addEventListener('click', logoutUser);
     });
 
  // Simple micro-interaction for smooth scrolling or active states
@@ -1229,4 +1231,248 @@ async function loadDoctorAppointments() {
 
 if (doctorApptTableBody) {
   loadDoctorAppointments();
+}
+
+// ===================== Shared profile card =====================
+
+if (document.querySelector('.profile-block, .profile, .user-chip')) {
+  const profileTriggers = document.querySelectorAll('.profile-block, .profile, .user-chip');
+  const profileCardStyle = document.createElement('style');
+  profileCardStyle.textContent = `
+    .profile-card-overlay { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 20px; background: rgba(24, 28, 27, 0.58); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; }
+    .profile-card-overlay.is-open { opacity: 1; visibility: visible; }
+    .profile-card { position: relative; width: min(100%, 480px); max-height: min(760px, calc(100vh - 40px)); overflow-y: auto; padding: 28px; color: var(--on-surface, #181c1b); background: var(--surface, #fff); border: 1px solid var(--outline-variant, #c1c8c4); border-radius: var(--radius-lg, 12px); box-shadow: 0 24px 70px rgba(24, 28, 27, .24); font-family: var(--font-primary, sans-serif); transform: translateY(10px); transition: transform .2s ease; }
+    .profile-card-overlay.is-open .profile-card { transform: translateY(0); }
+    .profile-card-close { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border: 0; border-radius: var(--radius-full, 999px); color: var(--on-surface, #181c1b); background: transparent; font-size: 26px; line-height: 1; cursor: pointer; }
+    .profile-card-close:hover, .profile-card-close:focus-visible { background: var(--secondary-container, #cde9dd); outline: none; }
+    .profile-card-heading { margin: 0 0 20px; text-align: center; }
+    .profile-card-avatar-wrap { position: relative; width: 88px; height: 88px; margin: 4px auto 14px; }
+    .profile-card-avatar { width: 88px; height: 88px; display: grid; place-items: center; overflow: hidden; border-radius: var(--radius-full, 999px); color: var(--on-primary, #fff); background: var(--primary, #324f46); font-size: 26px; font-weight: 700; }
+    .profile-card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-card-edit { position: absolute; right: -4px; bottom: -4px; width: 34px; height: 34px; display: grid; place-items: center; border: 2px solid var(--surface, #fff); border-radius: var(--radius-full, 999px); color: var(--on-primary, #fff); background: var(--primary, #324f46); cursor: pointer; }
+    .profile-card-heading h2 { margin: 0; color: var(--on-surface, #181c1b); font-size: 24px; }
+    .profile-card-heading p { margin: 4px 0 0; color: var(--on-surface-variant, #414845); font-size: 14px; }
+    .profile-card-section { margin-top: 20px; }
+    .profile-card-section h3 { margin: 0 0 10px; color: var(--on-surface, #181c1b); font-size: 16px; }
+    .profile-card-field { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; color: var(--on-surface-variant, #414845); font-size: 13px; font-weight: 600; }
+    .profile-card-field input { min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid var(--outline-variant, #c1c8c4); border-radius: var(--radius, 4px); color: var(--on-surface, #181c1b); background: var(--surface, #fff); font: inherit; font-weight: 400; }
+    .profile-card-field input:focus { border-color: var(--primary, #324f46); outline: 2px solid var(--secondary-container, #cde9dd); }
+    .profile-card-field input:disabled { color: var(--on-surface-variant, #414845); background: var(--surface-container-highest, #f1f4f2); }
+    .profile-card-inline { display: flex; gap: 8px; align-items: end; }
+    .profile-card-inline .profile-card-field { flex: 1; }
+    .profile-card-button { min-height: 44px; padding: 10px 14px; border: 1px solid var(--primary, #324f46); border-radius: var(--radius, 4px); color: var(--on-primary, #fff); background: var(--primary, #324f46); font-weight: 700; cursor: pointer; }
+    .profile-card-button.secondary { color: var(--primary, #324f46); background: var(--surface, #fff); }
+    .profile-card-button.danger { width: 100%; border-color: var(--error, #ba1a1a); color: #fff; background: var(--error, #ba1a1a); }
+    .profile-card-button.logout { width: 100%; margin-top: 10px; color: var(--on-surface, #181c1b); border-color: var(--outline-variant, #c1c8c4); background: var(--surface-container-highest, #f1f4f2); }
+    .profile-card-message { min-height: 18px; margin: 8px 0 0; color: var(--status-success, #2e7d32); font-size: 12px; opacity: 0; transition: opacity .2s ease; }
+    .profile-card-message.is-visible { opacity: 1; }
+    .profile-card-error { min-height: 18px; margin: 8px 0 0; color: var(--error, #ba1a1a); font-size: 12px; }
+    .profile-card-email-row { display: flex; gap: 8px; align-items: center; }
+    .profile-card-email-row .profile-card-field { flex: 1; }
+    .profile-card-badge { flex-shrink: 0; padding: 4px 8px; border-radius: var(--radius-full, 999px); color: var(--error, #ba1a1a); background: var(--error-container, #ffdad6); font-size: 11px; font-weight: 700; }
+    .profile-card-badge.is-verified { color: var(--status-success, #2e7d32); background: var(--secondary-container, #cde9dd); }
+    .profile-card-divider { height: 1px; margin: 24px 0 18px; background: var(--outline-variant, #c1c8c4); }
+    .profile-card-delete-panel { display: none; margin-top: 10px; padding: 12px; border: 1px solid var(--error, #ba1a1a); border-radius: var(--radius, 4px); background: var(--error-container, #ffdad6); }
+    .profile-card-delete-panel.is-visible { display: block; }
+      .profile-card-delete-panel p { margin: 0 0 8px; color: var(--error, #ba1a1a); font-size: 12px; }
+      .profile-card-delete-panel p.profile-card-message { color: var(--status-success, #2e7d32); }
+    .profile-card-delete-panel input { min-height: 44px; width: 100%; padding: 10px; border: 1px solid var(--error, #ba1a1a); border-radius: var(--radius, 4px); }
+    .profile-card-delete-panel .profile-card-button { width: 100%; margin-top: 8px; }
+    .profile-card-delete-panel .profile-card-button:disabled { cursor: not-allowed; opacity: .5; }
+    @media (max-width: 480px) { .profile-card-overlay { padding: 10px; } .profile-card { max-height: calc(100vh - 20px); padding: 24px 18px; } .profile-card-inline, .profile-card-email-row { align-items: stretch; flex-direction: column; } .profile-card-inline .profile-card-button, .profile-card-email-row .profile-card-badge { width: 100%; text-align: center; } }
+  `;
+  document.head.appendChild(profileCardStyle);
+
+  const storedProfile = localStorage.getItem('user');
+  let profileUser = {};
+  try {
+    profileUser = storedProfile ? JSON.parse(storedProfile) : {};
+  } catch (error) {
+    console.error('Failed to read profile data:', error);
+  }
+
+  const profileName = getDisplayName(profileUser);
+  const profileRole = profileUser.role === 'doctor' ? 'Doctor' : 'Premium Member';
+  const profileEmail = profileUser.email || '';
+  const isDoctorProfile = profileUser.role === 'doctor';
+  const profileCardOverlay = document.createElement('div');
+  profileCardOverlay.className = 'profile-card-overlay';
+  profileCardOverlay.setAttribute('aria-hidden', 'true');
+  profileCardOverlay.innerHTML = `
+    <section class="profile-card" role="dialog" aria-modal="true" aria-labelledby="profileCardName">
+      <button type="button" class="profile-card-close" aria-label="Close profile">&times;</button>
+      <div class="profile-card-heading">
+        <div class="profile-card-avatar-wrap">
+          <div class="profile-card-avatar" id="profileCardAvatar">${escapeHtml(getInitials(profileName))}</div>
+          <button type="button" class="profile-card-edit" id="profileCardEdit" aria-label="Choose profile photo">&#9998;</button>
+          <input type="file" id="profileCardPhotoInput" accept="image/*" hidden>
+        </div>
+        <h2 id="profileCardName">${escapeHtml(profileName)}</h2>
+        <p id="profileCardRole">${escapeHtml(profileRole)}</p>
+      </div>
+      <form id="profileCardForm" class="profile-card-section">
+        <div class="profile-card-inline">
+          <label class="profile-card-field">Full Name<input id="profileCardFullName" type="text" value="${escapeHtml(profileName)}" autocomplete="name" required></label>
+          <button type="submit" class="profile-card-button">Save</button>
+        </div>
+        <p class="profile-card-message" id="profileCardNameMessage" aria-live="polite"></p>
+      </form>
+      ${isDoctorProfile ? `
+        <div class="profile-card-section" id="profileCardDoctorFields">
+          <h3>Professional Details</h3>
+          <label class="profile-card-field">Specialization<input id="profileCardSpecialization" type="text" placeholder="Your specialization"></label>
+          <label class="profile-card-field">License Number<input id="profileCardLicense" type="text" placeholder="Your license number"></label>
+        </div>
+      ` : ''}
+      <div class="profile-card-section">
+        <div class="profile-card-email-row">
+          <label class="profile-card-field">Email<input type="email" value="${escapeHtml(profileEmail)}" disabled></label>
+          <span class="profile-card-badge${profileUser.emailVerified ? ' is-verified' : ''}">${profileUser.emailVerified ? 'Verified' : 'Not Verified'}</span>
+        </div>
+        <button type="button" class="profile-card-button secondary" id="profileCardVerify" style="width:100%;margin-top:10px;">Send Verification Email</button>
+        <p class="profile-card-message" id="profileCardVerifyMessage" aria-live="polite"></p>
+      </div>
+      <form id="profileCardPasswordForm" class="profile-card-section" novalidate>
+        <h3>Change Password</h3>
+        <label class="profile-card-field">Current Password<input id="profileCardCurrentPassword" type="password" autocomplete="current-password" required></label>
+        <label class="profile-card-field">New Password<input id="profileCardNewPassword" type="password" autocomplete="new-password" minlength="6" required></label>
+        <label class="profile-card-field">Confirm New Password<input id="profileCardConfirmPassword" type="password" autocomplete="new-password" minlength="6" required></label>
+        <p class="profile-card-error" id="profileCardPasswordError" aria-live="polite"></p>
+        <button type="submit" class="profile-card-button" style="width:100%;">Update Password</button>
+        <p class="profile-card-message" id="profileCardPasswordMessage" aria-live="polite"></p>
+      </form>
+      <div class="profile-card-divider"></div>
+      <div class="profile-card-section">
+        <button type="button" class="profile-card-button danger" id="profileCardDelete">Delete Account</button>
+        <div class="profile-card-delete-panel" id="profileCardDeletePanel">
+          <p>Type DELETE to enable account deletion.</p>
+          <input id="profileCardDeleteInput" type="text" autocomplete="off" aria-label="Type DELETE to confirm">
+          <button type="button" class="profile-card-button danger" id="profileCardConfirmDelete" disabled>Confirm Delete</button>
+          <p class="profile-card-message" id="profileCardDeleteMessage" aria-live="polite"></p>
+        </div>
+      </div>
+      <button type="button" class="profile-card-button logout logout-link">Logout</button>
+    </section>
+  `;
+  document.body.appendChild(profileCardOverlay);
+
+  const profileCardName = profileCardOverlay.querySelector('#profileCardName');
+  const profileCardRole = profileCardOverlay.querySelector('#profileCardRole');
+  const profileCardAvatar = profileCardOverlay.querySelector('#profileCardAvatar');
+  const profileCardFullName = profileCardOverlay.querySelector('#profileCardFullName');
+
+  function closeProfileCard() {
+    profileCardOverlay.classList.remove('is-open');
+    profileCardOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  function showProfileMessage(element, message) {
+    if (!element) return;
+    element.textContent = message;
+    element.classList.add('is-visible');
+    window.setTimeout(() => element.classList.remove('is-visible'), 2000);
+  }
+
+  function syncHeaderProfile(user) {
+    const fullName = getDisplayName(user);
+    const role = user.role === 'doctor' ? 'Doctor' : 'Premium Member';
+    document.querySelectorAll('.profile-block, .profile, .user-chip').forEach((profileElement) => {
+      const nameElement = profileElement.querySelector('.profile-name, .name, p:first-of-type');
+      const roleElement = profileElement.querySelector('.profile-role, .role, .profile-id, p:nth-of-type(2)');
+      const avatarElement = profileElement.querySelector('.avatar-circle, .avatar-patient, img');
+      if (nameElement) nameElement.textContent = fullName;
+      if (roleElement) roleElement.textContent = role;
+      if (avatarElement && avatarElement.tagName !== 'IMG') avatarElement.textContent = getInitials(fullName);
+    });
+  }
+
+  profileTriggers.forEach((trigger) => {
+    trigger.setAttribute('role', 'button');
+    trigger.setAttribute('tabindex', '0');
+    trigger.addEventListener('click', (event) => {
+      if (event.target.closest('a, button')) return;
+      profileCardOverlay.classList.add('is-open');
+      profileCardOverlay.setAttribute('aria-hidden', 'false');
+    });
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        profileCardOverlay.classList.add('is-open');
+        profileCardOverlay.setAttribute('aria-hidden', 'false');
+      }
+    });
+  });
+
+  profileCardOverlay.querySelector('.profile-card-close').addEventListener('click', closeProfileCard);
+  profileCardOverlay.addEventListener('click', (event) => {
+    if (event.target === profileCardOverlay) closeProfileCard();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && profileCardOverlay.classList.contains('is-open')) closeProfileCard();
+  });
+
+  profileCardOverlay.querySelector('#profileCardEdit').addEventListener('click', () => {
+    profileCardOverlay.querySelector('#profileCardPhotoInput').click();
+  });
+  profileCardOverlay.querySelector('#profileCardPhotoInput').addEventListener('change', (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      profileCardAvatar.innerHTML = `<img src="${reader.result}" alt="Profile photo preview">`;
+    });
+    reader.readAsDataURL(file);
+  });
+
+  profileCardOverlay.querySelector('#profileCardForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const fullName = profileCardFullName.value.trim();
+    if (!fullName) {
+      profileCardFullName.focus();
+      return;
+    }
+    profileUser.name = fullName;
+    localStorage.setItem('user', JSON.stringify(profileUser));
+    profileCardName.textContent = fullName;
+    if (!profileCardAvatar.querySelector('img')) {
+      profileCardAvatar.textContent = getInitials(fullName);
+    }
+    syncHeaderProfile(profileUser);
+    showProfileMessage(profileCardOverlay.querySelector('#profileCardNameMessage'), 'Saved locally (backend not yet connected)');
+  });
+
+  profileCardOverlay.querySelector('#profileCardVerify').addEventListener('click', () => {
+    showProfileMessage(profileCardOverlay.querySelector('#profileCardVerifyMessage'), 'Verification email would be sent (backend not yet connected)');
+  });
+
+  profileCardOverlay.querySelector('#profileCardPasswordForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const newPassword = profileCardOverlay.querySelector('#profileCardNewPassword').value;
+    const confirmPassword = profileCardOverlay.querySelector('#profileCardConfirmPassword').value;
+    const errorElement = profileCardOverlay.querySelector('#profileCardPasswordError');
+    if (newPassword.length < 6 || newPassword !== confirmPassword) {
+      errorElement.textContent = newPassword.length < 6 ? 'New password must be at least 6 characters.' : 'Passwords do not match.';
+      return;
+    }
+    errorElement.textContent = '';
+    showProfileMessage(profileCardOverlay.querySelector('#profileCardPasswordMessage'), 'Password would be updated (backend not yet connected)');
+    event.target.reset();
+  });
+
+  const deletePanel = profileCardOverlay.querySelector('#profileCardDeletePanel');
+  const deleteInput = profileCardOverlay.querySelector('#profileCardDeleteInput');
+  const confirmDelete = profileCardOverlay.querySelector('#profileCardConfirmDelete');
+  profileCardOverlay.querySelector('#profileCardDelete').addEventListener('click', () => {
+    deletePanel.classList.add('is-visible');
+    deleteInput.focus();
+  });
+  deleteInput.addEventListener('input', () => {
+    confirmDelete.disabled = deleteInput.value.trim() !== 'DELETE';
+  });
+  confirmDelete.addEventListener('click', () => {
+    showProfileMessage(profileCardOverlay.querySelector('#profileCardDeleteMessage'), 'This would delete your account (backend not yet connected)');
+  });
+
+  profileCardOverlay.querySelector('.logout-link').addEventListener('click', logoutUser);
+  syncHeaderProfile(profileUser);
 }
