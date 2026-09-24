@@ -260,27 +260,6 @@
         </div>
     </div>
 </main>
-<script>
-    const appointmentMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const appointmentSidebar = document.querySelector('aside.sidebar');
-    const appointmentOverlay = document.querySelector('.mobile-nav-overlay');
-
-    if (appointmentMenuToggle && appointmentSidebar && appointmentOverlay) {
-        appointmentMenuToggle.addEventListener('click', function () {
-            const isOpen = appointmentSidebar.classList.toggle('mobile-open');
-            appointmentOverlay.classList.toggle('visible', isOpen);
-            appointmentMenuToggle.setAttribute('aria-expanded', String(isOpen));
-            appointmentMenuToggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
-        });
-
-        appointmentOverlay.addEventListener('click', function () {
-            appointmentSidebar.classList.remove('mobile-open');
-            appointmentOverlay.classList.remove('visible');
-            appointmentMenuToggle.setAttribute('aria-expanded', 'false');
-            appointmentMenuToggle.setAttribute('aria-label', 'Open navigation menu');
-        });
-    }
-</script>
 <script src="/Frontend/JS/app.js"></script>
 </body>
 </html>
