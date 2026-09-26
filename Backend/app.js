@@ -6,6 +6,7 @@ import authRoute from "./src/routes/authRoute.js";
 import adminRoute from "./src/routes/adminRoute.js";
 import appointmentRoute from "./src/routes/appointmentRoute.js";
 import doctorRoute from "./src/routes/doctorRoute.js";
+import userRoute from "./src/routes/userRoute.js";
 
 const app = express();
 
@@ -52,5 +53,6 @@ app.use("/api/auth", authLimiter, authRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/appointments", appointmentRoute);
 app.use("/api/doctors", doctorRoute);
+app.use("/api/users", userRoute);
 
 export default app;

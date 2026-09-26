@@ -724,8 +724,8 @@ document.querySelectorAll('.doc-row').forEach(item => {
 
 // ===================== Appointments module =====================
 
- const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
- // const API_ROOT = 'http://localhost:5000/api';
+   const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
+  // const API_ROOT = 'http://localhost:5000/api';
 
 function getToken() {
   return localStorage.getItem('token');
@@ -1276,7 +1276,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
     .profile-card-delete-panel.is-visible { display: block; }
       .profile-card-delete-panel p { margin: 0 0 8px; color: var(--error, #ba1a1a); font-size: 12px; }
       .profile-card-delete-panel p.profile-card-message { color: var(--status-success, #2e7d32); }
-    .profile-card-delete-panel input { min-height: 44px; width: 100%; padding: 10px; border: 1px solid var(--error, #ba1a1a); border-radius: var(--radius, 4px); }
+    .profile-card-delete-panel input { min-height: 44px; width: 100%; padding: 10px; border: 1px solid var(--error, #ba1a1a); border-radius: var(--radius, 4px); margin-bottom: 8px; }
     .profile-card-delete-panel .profile-card-button { width: 100%; margin-top: 8px; }
     .profile-card-delete-panel .profile-card-button:disabled { cursor: not-allowed; opacity: .5; }
     @media (max-width: 480px) { .profile-card-overlay { padding: 10px; } .profile-card { max-height: calc(100vh - 20px); padding: 24px 18px; } .profile-card-inline, .profile-card-email-row { align-items: stretch; flex-direction: column; } .profile-card-inline .profile-card-button, .profile-card-email-row .profile-card-badge { width: 100%; text-align: center; } }
@@ -1345,8 +1345,9 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
       <div class="profile-card-section">
         <button type="button" class="profile-card-button danger" id="profileCardDelete">Delete Account</button>
         <div class="profile-card-delete-panel" id="profileCardDeletePanel">
-          <p>Type DELETE to enable account deletion.</p>
+          <p>Type DELETE and enter your password to permanently delete your account.</p>
           <input id="profileCardDeleteInput" type="text" autocomplete="off" aria-label="Type DELETE to confirm">
+          <input id="profileCardDeletePassword" type="password" autocomplete="current-password" placeholder="Your password" aria-label="Your password">
           <button type="button" class="profile-card-button danger" id="profileCardConfirmDelete" disabled>Confirm Delete</button>
           <p class="profile-card-message" id="profileCardDeleteMessage" aria-live="polite"></p>
         </div>
@@ -1424,53 +1425,125 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
     reader.readAsDataURL(file);
   });
 
-  profileCardOverlay.querySelector('#profileCardForm').addEventListener('submit', (event) => {
+  profileCardOverlay.querySelector('#profileCardForm').addEventListener('submit', async (event) => {
     event.preventDefault();
     const fullName = profileCardFullName.value.trim();
     if (!fullName) {
       profileCardFullName.focus();
       return;
     }
-    profileUser.name = fullName;
-    localStorage.setItem('user', JSON.stringify(profileUser));
-    profileCardName.textContent = fullName;
-    if (!profileCardAvatar.querySelector('img')) {
-      profileCardAvatar.textContent = getInitials(fullName);
+
+    const nameMessageEl = profileCardOverlay.querySelector('#profileCardNameMessage');
+
+    try {
+      const res = await fetch(`${API_ROOT}/users/me`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify({ name: fullName })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showProfileMessage(nameMessageEl, data.message || 'Could not update name');
+        return;
+      }
+
+      profileUser.name = fullName;
+      localStorage.setItem('user', JSON.stringify(profileUser));
+      profileCardName.textContent = fullName;
+      if (!profileCardAvatar.querySelector('img')) {
+        profileCardAvatar.textContent = getInitials(fullName);
+      }
+      syncHeaderProfile(profileUser);
+      showProfileMessage(nameMessageEl, 'Name updated successfully');
+    } catch (error) {
+      console.error('Update name error:', error);
+      showProfileMessage(nameMessageEl, 'Unable to reach the server. Please try again.');
     }
-    syncHeaderProfile(profileUser);
-    showProfileMessage(profileCardOverlay.querySelector('#profileCardNameMessage'), 'Saved locally (backend not yet connected)');
   });
 
   profileCardOverlay.querySelector('#profileCardVerify').addEventListener('click', () => {
-    showProfileMessage(profileCardOverlay.querySelector('#profileCardVerifyMessage'), 'Verification email would be sent (backend not yet connected)');
+    showProfileMessage(profileCardOverlay.querySelector('#profileCardVerifyMessage'), 'Verification email would be sent');
   });
 
-  profileCardOverlay.querySelector('#profileCardPasswordForm').addEventListener('submit', (event) => {
+  profileCardOverlay.querySelector('#profileCardPasswordForm').addEventListener('submit', async (event) => {
     event.preventDefault();
+    const currentPassword = profileCardOverlay.querySelector('#profileCardCurrentPassword').value;
     const newPassword = profileCardOverlay.querySelector('#profileCardNewPassword').value;
     const confirmPassword = profileCardOverlay.querySelector('#profileCardConfirmPassword').value;
     const errorElement = profileCardOverlay.querySelector('#profileCardPasswordError');
+    const messageElement = profileCardOverlay.querySelector('#profileCardPasswordMessage');
+
+    // Client-side checks first — catches obvious mistakes without even hitting the server.
     if (newPassword.length < 6 || newPassword !== confirmPassword) {
       errorElement.textContent = newPassword.length < 6 ? 'New password must be at least 6 characters.' : 'Passwords do not match.';
       return;
     }
     errorElement.textContent = '';
-    showProfileMessage(profileCardOverlay.querySelector('#profileCardPasswordMessage'), 'Password would be updated (backend not yet connected)');
-    event.target.reset();
+
+    try {
+      const res = await fetch(`${API_ROOT}/users/me/password`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        // Server-side checks (e.g. wrong current password) surface here instead.
+        errorElement.textContent = data.message || 'Could not update password';
+        return;
+      }
+
+      showProfileMessage(messageElement, 'Password updated successfully');
+      event.target.reset();
+    } catch (error) {
+      console.error('Change password error:', error);
+      errorElement.textContent = 'Unable to reach the server. Please try again.';
+    }
   });
 
   const deletePanel = profileCardOverlay.querySelector('#profileCardDeletePanel');
   const deleteInput = profileCardOverlay.querySelector('#profileCardDeleteInput');
+  const deletePasswordInput = profileCardOverlay.querySelector('#profileCardDeletePassword');
   const confirmDelete = profileCardOverlay.querySelector('#profileCardConfirmDelete');
+  const deleteMessageEl = profileCardOverlay.querySelector('#profileCardDeleteMessage');
+
   profileCardOverlay.querySelector('#profileCardDelete').addEventListener('click', () => {
     deletePanel.classList.add('is-visible');
     deleteInput.focus();
   });
-  deleteInput.addEventListener('input', () => {
-    confirmDelete.disabled = deleteInput.value.trim() !== 'DELETE';
-  });
-  confirmDelete.addEventListener('click', () => {
-    showProfileMessage(profileCardOverlay.querySelector('#profileCardDeleteMessage'), 'This would delete your account (backend not yet connected)');
+
+  function updateDeleteButtonState() {
+    confirmDelete.disabled = deleteInput.value.trim() !== 'DELETE' || deletePasswordInput.value.length === 0;
+  }
+  deleteInput.addEventListener('input', updateDeleteButtonState);
+  deletePasswordInput.addEventListener('input', updateDeleteButtonState);
+
+  confirmDelete.addEventListener('click', async () => {
+    const password = deletePasswordInput.value;
+
+    try {
+      const res = await fetch(`${API_ROOT}/users/me`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showProfileMessage(deleteMessageEl, data.message || 'Could not delete account');
+        return;
+      }
+
+      // Account is gone — clear local session and send them to login, same as logout.
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '../HTML/login.html';
+    } catch (error) {
+      console.error('Delete account error:', error);
+      showProfileMessage(deleteMessageEl, 'Unable to reach the server. Please try again.');
+    }
   });
 
   profileCardOverlay.querySelector('.logout-link').addEventListener('click', logoutUser);
