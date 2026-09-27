@@ -7,6 +7,7 @@ import adminRoute from "./src/routes/adminRoute.js";
 import appointmentRoute from "./src/routes/appointmentRoute.js";
 import doctorRoute from "./src/routes/doctorRoute.js";
 import userRoute from "./src/routes/userRoute.js";
+import medicalRecordRoute from "./src/routes/medicalRecordRoute.js";
 
 const app = express();
 
@@ -19,7 +20,8 @@ const allowedOrigins = [
   "https://seyat-kahani-portal.vercel.app",
   "http://localhost:5500",
   "http://127.0.0.1:5500",
-  "http://localhost:51337"
+  "http://localhost:51337",
+  "http://localhost:52865"
 ];
 
 app.use(cors({
@@ -54,5 +56,6 @@ app.use("/api/admin", adminRoute);
 app.use("/api/appointments", appointmentRoute);
 app.use("/api/doctors", doctorRoute);
 app.use("/api/users", userRoute);
+app.use("/api/medical-records", medicalRecordRoute);
 
 export default app;

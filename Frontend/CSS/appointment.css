@@ -466,6 +466,17 @@ h6 { font-weight: 500; }
         opacity: 1;
         visibility: visible;
     }
+    .doctor-record-modal { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; background: rgba(24, 28, 27, .52); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; z-index: 1100; }
+    .doctor-record-modal.is-open { opacity: 1; visibility: visible; }
+    .doctor-record-card { position: relative; width: min(100%, 520px); padding: 28px; border: 1px solid var(--sage-light); border-radius: var(--radius-xl); background: #fff; box-shadow: 0 22px 60px rgba(0, 0, 0, .2); }
+    .doctor-record-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--surface-container-low); font-size: 24px; }
+    .record-eyebrow { color: var(--status-upcoming); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .doctor-record-card h3 { margin: 4px 40px 2px 0; color: var(--forest-deep); font-size: 26px; }
+    .record-patient { margin-bottom: 18px; color: var(--on-surface-variant); }
+    .doctor-record-card label { display: grid; gap: 6px; margin-top: 14px; color: var(--on-surface-variant); font-size: 14px; font-weight: 700; }
+    .doctor-record-card input, .doctor-record-card textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--outline-variant); border-radius: var(--radius); background: var(--surface); color: var(--on-surface); font: inherit; resize: vertical; }
+    .doctor-record-error { min-height: 20px; margin-top: 12px; color: var(--error); font-size: 13px; }
+    .record-submit { width: 100%; margin-top: 4px; padding: 11px 16px; border-radius: var(--radius-full); background: var(--forest-deep); color: #fff; font-weight: 700; }
     @media (max-width: 900px){
         aside.sidebar {
             position: fixed;
