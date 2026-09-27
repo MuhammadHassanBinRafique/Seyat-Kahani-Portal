@@ -1,5 +1,5 @@
-//const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
- const API_BASE_URL = 'http://localhost:5000/api/auth';
+const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
+// const API_BASE_URL = 'http://localhost:5000/api/auth';
 
 
 function switchTab(role) {
@@ -724,8 +724,8 @@ document.querySelectorAll('.doc-row').forEach(item => {
 
 // ===================== Appointments module =====================
 
- // const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
-  const API_ROOT = 'http://localhost:5000/api';
+  const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
+  //const API_ROOT = 'http://localhost:5000/api';
 
 function getToken() {
   return localStorage.getItem('token');
