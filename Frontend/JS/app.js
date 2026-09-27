@@ -1,5 +1,5 @@
-const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
-// const API_BASE_URL = 'http://localhost:5000/api/auth';
+//const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
+ const API_BASE_URL = 'http://localhost:5000/api/auth';
 
 
 function switchTab(role) {
@@ -724,8 +724,8 @@ document.querySelectorAll('.doc-row').forEach(item => {
 
 // ===================== Appointments module =====================
 
-   const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
-  // const API_ROOT = 'http://localhost:5000/api';
+ // const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
+  const API_ROOT = 'http://localhost:5000/api';
 
 function getToken() {
   return localStorage.getItem('token');
@@ -1194,6 +1194,7 @@ async function loadDoctorAppointments() {
             ${appt.status === 'pending' ? `<button class="action-btn confirm-btn" data-id="${appt._id}">Confirm</button>` : ''}
             ${appt.status === 'confirmed' ? `<button class="action-btn complete-btn" data-id="${appt._id}">Complete</button>` : ''}
             ${['pending', 'confirmed'].includes(appt.status) ? `<button class="action-btn cancel-btn" data-id="${appt._id}">Cancel</button>` : ''}
+            ${['pending', 'confirmed', 'completed'].includes(appt.status) && appt.patient?._id ? `<button class="action-btn add-record-btn" title="Add medical record" data-patient-id="${appt.patient._id}" data-appointment-id="${appt._id}" data-patient-name="${escapeHtml(appt.patient.name || 'Patient')}">Record</button>` : ''}
           </div>
         </td>
       </tr>
@@ -1223,6 +1224,8 @@ async function loadDoctorAppointments() {
       btn.addEventListener('click', () => updateStatus(btn.getAttribute('data-id'), 'completed')));
     document.querySelectorAll('.cancel-btn').forEach((btn) =>
       btn.addEventListener('click', () => updateStatus(btn.getAttribute('data-id'), 'cancelled')));
+    document.querySelectorAll('.add-record-btn').forEach((btn) =>
+      btn.addEventListener('click', () => openDoctorRecordForm(btn.dataset)));
 
   } catch (error) {
     console.error('Load doctor appointments error:', error);
@@ -1231,6 +1234,70 @@ async function loadDoctorAppointments() {
 
 if (doctorApptTableBody) {
   loadDoctorAppointments();
+}
+
+const doctorRecordModal = document.querySelector('#doctorRecordModal');
+const doctorRecordForm = document.querySelector('#doctorRecordForm');
+
+function openDoctorRecordForm(data) {
+  if (!doctorRecordModal || !doctorRecordForm) return;
+  doctorRecordForm.reset();
+  document.querySelector('#doctorRecordPatientId').value = data.patientId || '';
+  document.querySelector('#doctorRecordAppointmentId').value = data.appointmentId || '';
+  document.querySelector('#doctorRecordPatient').textContent = `For ${data.patientName || 'patient'}`;
+  document.querySelector('#doctorRecordError').textContent = '';
+  doctorRecordModal.classList.add('is-open');
+  doctorRecordModal.setAttribute('aria-hidden', 'false');
+  document.querySelector('#doctorRecordDiagnosis').focus();
+}
+
+function closeDoctorRecordForm() {
+  if (!doctorRecordModal) return;
+  doctorRecordModal.classList.remove('is-open');
+  doctorRecordModal.setAttribute('aria-hidden', 'true');
+}
+
+if (doctorRecordForm) {
+  document.querySelector('#closeDoctorRecordModal').addEventListener('click', closeDoctorRecordForm);
+  doctorRecordModal.addEventListener('click', (event) => {
+    if (event.target === doctorRecordModal) closeDoctorRecordForm();
+  });
+  doctorRecordForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const errorElement = document.querySelector('#doctorRecordError');
+    errorElement.textContent = '';
+    const submitButton = doctorRecordForm.querySelector('[type="submit"]');
+    submitButton.disabled = true;
+
+    try {
+      const response = await fetch(`${API_ROOT}/medical-records`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          patientId: document.querySelector('#doctorRecordPatientId').value,
+          appointmentId: document.querySelector('#doctorRecordAppointmentId').value,
+          diagnosis: document.querySelector('#doctorRecordDiagnosis').value.trim(),
+          notes: document.querySelector('#doctorRecordNotes').value.trim(),
+          prescription: document.querySelector('#doctorRecordPrescription').value.trim()
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        errorElement.textContent = data.message || 'Could not save medical record.';
+        return;
+      }
+      closeDoctorRecordForm();
+      loadDoctorAppointments();
+    } catch (error) {
+      console.error('Create medical record error:', error);
+      errorElement.textContent = 'Unable to reach the server. Please try again.';
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDoctorRecordForm();
+  });
 }
 
 // ===================== Shared profile card =====================
@@ -1548,4 +1615,145 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
 
   profileCardOverlay.querySelector('.logout-link').addEventListener('click', logoutUser);
   syncHeaderProfile(profileUser);
+}
+
+// ===================== Medical records =====================
+
+const medicalRecordList = document.querySelector('#medicalRecordList');
+const recordSearchInput = document.querySelector('.search-box input[placeholder="Search records, doctors..."]');
+const recordModal = document.querySelector('#medicalRecordModal');
+const recordPageSize = 5;
+let medicalRecords = [];
+let visibleRecordCount = recordPageSize;
+
+function formatRecordDate(value) {
+  if (!value) return 'Date unavailable';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'Date unavailable' : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderMedicalRecordSummary(records) {
+  const total = document.querySelector('#recordTotal');
+  const latestDate = document.querySelector('#recordLatestDate');
+  const prescriptionCount = document.querySelector('#recordPrescriptionCount');
+  const doctorCount = document.querySelector('#recordDoctorCount');
+  const newBadge = document.querySelector('#recordNewBadge');
+
+  if (total) total.textContent = records.length;
+  if (latestDate) latestDate.textContent = records[0] ? `Last: ${formatRecordDate(records[0].createdAt)}` : 'Last: --';
+  if (prescriptionCount) prescriptionCount.textContent = records.filter((record) => record.prescription).length;
+  if (doctorCount) doctorCount.textContent = new Set(records.map((record) => record.doctor?._id || record.doctor)).size;
+  if (newBadge) newBadge.textContent = records.length ? `${records.length} LIVE` : 'EMPTY';
+}
+
+function renderMedicalRecords() {
+  if (!medicalRecordList) return;
+
+  const query = (recordSearchInput?.value || '').trim().toLowerCase();
+  const filteredRecords = medicalRecords.filter((record) => [
+    record.diagnosis,
+    record.notes,
+    record.prescription,
+    record.doctor?.name,
+    record.doctor?.email
+  ].some((value) => String(value || '').toLowerCase().includes(query)));
+  const recordsToRender = filteredRecords.slice(0, visibleRecordCount);
+
+  if (!filteredRecords.length) {
+    medicalRecordList.innerHTML = '<p class="record-state">No medical records found.</p>';
+    return;
+  }
+
+  medicalRecordList.innerHTML = recordsToRender.map((record) => `
+    <div>
+      <div class="doc-row">
+        <div class="doc-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg></div>
+        <div class="doc-info">
+          <h5 class="doc-title">${escapeHtml(record.diagnosis)}</h5>
+          <p class="doc-meta">${escapeHtml(formatRecordDate(record.createdAt))} &bull; ${escapeHtml(record.doctor?.name || 'Care team')}</p>
+        </div>
+        <div class="doc-status"><span class="status-badge status-reviewed">DOCUMENTED</span></div>
+        <button class="view-btn view-record-detail" type="button" data-id="${escapeHtml(record._id)}">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          View details
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  medicalRecordList.querySelectorAll('.view-record-detail').forEach((button) => {
+    button.addEventListener('click', () => openMedicalRecord(button.dataset.id));
+  });
+}
+
+function setRecordModalValue(selector, value) {
+  const element = document.querySelector(selector);
+  if (element) element.textContent = value || 'Not provided';
+}
+
+function closeMedicalRecord() {
+  if (!recordModal) return;
+  recordModal.classList.remove('is-open');
+  recordModal.setAttribute('aria-hidden', 'true');
+}
+
+async function openMedicalRecord(recordId) {
+  if (!recordModal || !recordId) return;
+  try {
+    const response = await fetch(`${API_ROOT}/medical-records/${encodeURIComponent(recordId)}`, { headers: authHeaders() });
+    const record = await response.json();
+    if (!response.ok) {
+      alert(record.message || 'Could not load this medical record.');
+      return;
+    }
+
+    setRecordModalValue('#recordModalTitle', record.diagnosis);
+    setRecordModalValue('#recordModalDate', formatRecordDate(record.createdAt));
+    setRecordModalValue('#recordModalDoctor', record.doctor?.name || record.doctor?.email || 'Care team');
+    setRecordModalValue('#recordModalDiagnosis', record.diagnosis);
+    setRecordModalValue('#recordModalNotes', record.notes);
+    setRecordModalValue('#recordModalPrescription', record.prescription);
+    recordModal.classList.add('is-open');
+    recordModal.setAttribute('aria-hidden', 'false');
+  } catch (error) {
+    console.error('Load medical record error:', error);
+    alert('Unable to reach the server. Please try again.');
+  }
+}
+
+async function loadMedicalRecords() {
+  if (!medicalRecordList) return;
+  try {
+    const response = await fetch(`${API_ROOT}/medical-records/my`, { headers: authHeaders() });
+    const data = await response.json();
+    if (!response.ok) {
+      medicalRecordList.innerHTML = `<p class="record-state record-error">${escapeHtml(data.message || 'Could not load medical records.')}</p>`;
+      return;
+    }
+    medicalRecords = Array.isArray(data) ? data : [];
+    renderMedicalRecordSummary(medicalRecords);
+    renderMedicalRecords();
+  } catch (error) {
+    console.error('Load medical records error:', error);
+    medicalRecordList.innerHTML = '<p class="record-state record-error">Unable to reach the server. Please try again.</p>';
+  }
+}
+
+if (medicalRecordList) {
+  loadMedicalRecords();
+  recordSearchInput?.addEventListener('input', () => {
+    visibleRecordCount = recordPageSize;
+    renderMedicalRecords();
+  });
+  document.querySelector('#loadPreviousRecords')?.addEventListener('click', () => {
+    visibleRecordCount += recordPageSize;
+    renderMedicalRecords();
+  });
+  document.querySelector('#closeRecordModal')?.addEventListener('click', closeMedicalRecord);
+  recordModal?.addEventListener('click', (event) => {
+    if (event.target === recordModal) closeMedicalRecord();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMedicalRecord();
+  });
 }

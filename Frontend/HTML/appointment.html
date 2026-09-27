@@ -254,6 +254,22 @@
     </div>
 </main>
 
+<div id="doctorRecordModal" class="doctor-record-modal" role="dialog" aria-modal="true" aria-labelledby="doctorRecordTitle" aria-hidden="true">
+    <form id="doctorRecordForm" class="doctor-record-card">
+        <button type="button" id="closeDoctorRecordModal" class="doctor-record-close" aria-label="Close record form">&times;</button>
+        <p class="record-eyebrow">Clinical documentation</p>
+        <h3 id="doctorRecordTitle">Add medical record</h3>
+        <p id="doctorRecordPatient" class="record-patient"></p>
+        <input type="hidden" id="doctorRecordPatientId">
+        <input type="hidden" id="doctorRecordAppointmentId">
+        <label>Diagnosis<input id="doctorRecordDiagnosis" maxlength="200" required></label>
+        <label>Notes<textarea id="doctorRecordNotes" maxlength="2000" rows="4"></textarea></label>
+        <label>Prescription<textarea id="doctorRecordPrescription" maxlength="1000" rows="3"></textarea></label>
+        <p id="doctorRecordError" class="doctor-record-error" role="alert"></p>
+        <button type="submit" class="record-submit">Save record</button>
+    </form>
+</div>
+
 <script src="/Frontend/JS/app.js?v=profile-card"></script>
 </body>
 </html>
