@@ -96,11 +96,11 @@
           </div>
           <span class="kpi-trend success">
             <span class="icon" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
-            +12%
+            All time
           </span>
         </div>
         <h3>Total Patients</h3>
-        <p class="kpi-value">1,284</p>
+        <p class="kpi-value" id="kpiTotalPatients">-</p>
       </div>
 
       <div class="card">
@@ -110,8 +110,8 @@
           </div>
           <span class="kpi-trend upcoming">Active cases</span>
         </div>
-        <h3>Active Cases</h3>
-        <p class="kpi-value">42</p>
+        <h3>Upcoming Visits</h3>
+        <p class="kpi-value" id="kpiUpcoming">-</p>
       </div>
 
       <div class="card">
@@ -119,10 +119,10 @@
           <div class="kpi-icon c">
             <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
           </div>
-          <span class="kpi-trend pending">Today</span>
+          <span class="kpi-trend pending">Completed</span>
         </div>
-        <h3>New Registrations</h3>
-        <p class="kpi-value">8</p>
+        <h3>Seen Patients</h3>
+        <p class="kpi-value" id="kpiSeen">-</p>
       </div>
     </div>
 
@@ -132,9 +132,9 @@
       <div class="table-card">
         <div class="table-toolbar">
           <div class="tab-group">
-            <button class="tab-btn active">All Patients</button>
-            <button class="tab-btn">Critical</button>
-            <button class="tab-btn">Follow-up</button>
+            <button class="tab-btn active" data-filter="all">All Patients</button>
+            <button class="tab-btn" data-filter="upcoming">Upcoming</button>
+            <button class="tab-btn" data-filter="completed">Completed</button>
           </div>
           <button class="filter-btn">
             <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span>
@@ -146,114 +146,20 @@
             <thead>
               <tr>
                 <th>Patient Name</th>
-                <th>ID Number</th>
+                <th>Email</th>
                 <th>Last Visit</th>
                 <th>Status</th>
                 <th style="text-align:right;">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div class="patient-cell">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMG_FTR6tzltXdEq8A7wnx2G7Au83JcuVyOL7sYpDy3l1Qs7oAHp4WdGNZCIzAV8RQg-Ya__q-bl1XeSAf42GFNUn9XcsweFAk5u0Fq0Wj6FCrXBqc05FyboZzeK4sGWeUVCaS97cVPOSgKNlAaj7AdCH4R1TerCE-Eyr9QlqkwL8g1_u50ftQCmHTju_vTs508KmOdVF8PE9lWTR51CkMVMezG-1grVoXDOEubIgv3XCz1Ip4gO10PA" alt="Zubair Ahmed">
-                    <div>
-                      <p class="p-name">Zubair Ahmed</p>
-                      <p class="p-meta">Male, 64 yrs</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="id-mono">#SK-2023-892</td>
-                <td class="visit-date">Oct 12, 2023</td>
-                <td><span class="status-pill followup">Follow-up</span></td>
-                <td>
-                  <button class="row-action">
-                    <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="patient-cell">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo_2SsQLIEOsLLfO9VwK-bYNJxzQQ4G2XqXZ3auIechmrXg8uEK3o4lnuAJ6H3IkzzIT3fU5bmy0blQomp0xlCMygMJ1WnL5YLwy0X6Ee0qXKxm8RaKMQtzuh_5H83cDI1vcNywsA6MJDnjkcpgQPvnt3zpnRr7gJdrDJQ2uQIbsk9Z1ENKXfsM14jIUu7yxYUwFxd-DBJMvhcuwD6-8PhQ6BxP6vJYPWzP4cUFIlLife1JVXYhiK4bQ" alt="Ayesha Malik">
-                    <div>
-                      <p class="p-name">Ayesha Malik</p>
-                      <p class="p-meta">Female, 28 yrs</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="id-mono">#SK-2023-112</td>
-                <td class="visit-date">Oct 14, 2023</td>
-                <td><span class="status-pill stable">Stable</span></td>
-                <td>
-                  <button class="row-action">
-                    <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="patient-cell">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ8viwWBzRXNU-S_jPI-WdYXh7L0-haqcmPaAAzJ3B_zdIg7-2gSIKGzz1yBZ5-GGTC-CEF2DTcFcOOV0K9zGql680tF5O8awUZ2LLhXSLPPaQNTSYFoHkLGMsTI0qzFn70Ut1OPYTkjm2mUwjanFgULHsMoKs5D4p9obzL8G3mLwZBxEMBn1CfyEmDGB0Jgo2GOT6zHNTAqToOw7CSM24ntSkc7M3hvPYDCuQhaXWdXjgYa4jckhvoA" alt="Hamza Sheikh">
-                    <div>
-                      <p class="p-name">Hamza Sheikh</p>
-                      <p class="p-meta">Male, 45 yrs</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="id-mono">#SK-2023-445</td>
-                <td class="visit-date">Today, 09:15 AM</td>
-                <td><span class="status-pill critical">Critical</span></td>
-                <td>
-                  <button class="row-action">
-                    <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="patient-cell">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLcI7W4LYL6sYl6Yx7-D6XYowNJ6bwkf71ZyWvyt-G74DKA1YSxV1mm0JnSOT_A1jruZDdWvt2NS2XeCxjWKULvtxawgyNUtSFDdiuSOo39-jN-UbwmadO5huNT4sZUg-4fFj2Vrw12fFFHyj0_-6FOpqp1EfdGOu_km4LJutvv34Eob15worMIgb4AOt43b948aYUNC7u3tGd5VSUTRxAqmMQpJzRiofGv0_-uxMARXFVM7hMwV4t0g" alt="Ali Raza">
-                    <div>
-                      <p class="p-name">Ali Raza</p>
-                      <p class="p-meta">Male, 10 yrs</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="id-mono">#SK-2023-771</td>
-                <td class="visit-date">Oct 10, 2023</td>
-                <td><span class="status-pill stable">Stable</span></td>
-                <td>
-                  <button class="row-action">
-                    <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="patient-cell">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaFraV_-pUuSPNSzFULHW_d_iffBVngStFwkPnHOvnDPk8KKsmttoZHbz7NrnPMjxNG04qn78CJub6M5dAGciviZqEbLPyPrG46Dq50JTLqEdTHeVeuw1-8li9HCKVrIcl5zD49Zrx3lfnRRLkFtTjH3C49DUKTWqAZ47qXMgPZqvtsHycFwhwAJaghdRV4VEzybnEWozr_wjiy9kkuO4x3wMo-3yWUtsUaQXazED4RCGzNOO470yQ_g" alt="Fatima Bibi">
-                    <div>
-                      <p class="p-name">Fatima Bibi</p>
-                      <p class="p-meta">Female, 72 yrs</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="id-mono">#SK-2023-092</td>
-                <td class="visit-date">Oct 15, 2023</td>
-                <td><span class="status-pill followup">Follow-up</span></td>
-                <td>
-                  <button class="row-action">
-                    <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></span>
-                  </button>
-                </td>
-              </tr>
+            <tbody id="patientTableBody">
+              <tr><td colspan="5" style="padding:24px;">Loading patients...</td></tr>
             </tbody>
           </table>
         </div>
 
         <div class="table-footer">
-          <span>Showing 1 to 5 of 1,284 patients</span>
+          <span id="patientCountText">Loading...</span>
           <div class="pagination">
             <button class="page-btn">
               <span class="icon" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>

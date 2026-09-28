@@ -8,6 +8,7 @@ import appointmentRoute from "./src/routes/appointmentRoute.js";
 import doctorRoute from "./src/routes/doctorRoute.js";
 import userRoute from "./src/routes/userRoute.js";
 import medicalRecordRoute from "./src/routes/medicalRecordRoute.js";
+import patientRoute from "./src/routes/patientRoute.js";
 
 const app = express();
 
@@ -57,5 +58,6 @@ app.use("/api/appointments", appointmentRoute);
 app.use("/api/doctors", doctorRoute);
 app.use("/api/users", userRoute);
 app.use("/api/medical-records", medicalRecordRoute);
+app.use("/api/patients", patientRoute);
 
 export default app;
