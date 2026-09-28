@@ -5,17 +5,19 @@
 - Backend API: https://seyat-kahani-portal-production.up.railway.app
 
 ## Project Overview
-Seyat Khani Portal is a healthcare platform that combines a modern multi-page frontend with a secure Node.js/Express backend. The project supports patient and doctor authentication, role-based dashboard access, protected admin operations, and appointment management backed by MongoDB.
+Seyat Khani Portal is a healthcare platform that combines a modern multi-page frontend with a secure Node.js/Express backend. The project supports patient and doctor authentication, role-based dashboard access, protected admin operations, appointment management, and Google Sign-In for patient accounts backed by MongoDB.
 
 ## Latest Updates
 The project has moved beyond the initial mock-up stage and is now connected to production-hosted services:
 
 - The frontend is deployed on Vercel and uses the live Railway backend for authentication and API calls.
 - The backend is hosted on Railway with CORS configured for the live frontend and local development ports.
-- The signup, login, and role-based redirect flows are fully connected between the frontend and backend.
+- The signup, login, Google sign-in, and role-based redirect flows are fully connected between the frontend and backend.
 - Patient and doctor dashboards are wired to protected API routes.
 - Appointment booking, listing, status changes, and cancellation APIs are implemented and active.
 - Doctor list and user-management endpoints are already available in the backend.
+- Google Sign-In is available for patient accounts using Google Identity Services and server-side ID-token verification.
+- Google users are created with a random hashed application password to satisfy the current schema, while their actual Google password is never stored or used by the app.
 - Security measures include JWT protection, role checks, rate limiting, input validation, and MongoDB safeguards.
 
 ## Current Development Status
@@ -29,6 +31,7 @@ The project has moved beyond the initial mock-up stage and is now connected to p
 - User schema with name, unique lowercase email, hashed password, role, and timestamps.
 - Patient signup with duplicate-email checks and bcrypt hashing.
 - Login flow with bcrypt verification and JWT issuance.
+- Google patient sign-in with verified Google ID tokens, automatic account creation, and JWT issuance.
 - Protected middleware for JWT verification and role-based authorization.
 - Doctor/admin endpoints for listing users and deleting accounts.
 - Appointment booking and management APIs for patient and doctor workflows.
@@ -111,6 +114,8 @@ Local development base:
 |---|---|---|
 | `POST` | `/auth/signup` | Create a patient account |
 | `POST` | `/auth/login` | Verify credentials and return a JWT |
+| `GET` | `/auth/google-config` | Return the public Google client ID for the frontend |
+| `POST` | `/auth/google` | Verify a Google ID token and sign in or create a patient account |
 | `GET` | `/admin/Users` | List users for an authorized doctor |
 | `DELETE` | `/admin/Users/:id` | Delete a user for an authorized doctor |
 | `GET` | `/doctors` | View all doctors |
@@ -128,6 +133,13 @@ Local development base:
 | `DELETE` | `/appointments/:id` | Cancel a pending appointment |
 
 Protected routes require an `Authorization: Bearer <token>` header.
+
+### Google Account Notes
+- Google sign-in is for patient accounts. The backend verifies the Google ID token before creating or signing in a user.
+- Google-created users have a random bcrypt-hashed application password only to satisfy the current user schema. Their Google password is never stored, accessed, or used by this application.
+- A Google-created user cannot use the current password-change or self-delete form because they do not know that generated application password.
+- An authorized doctor can delete a Google-created patient through `DELETE /admin/Users/:id`.
+- Self-service deletion for Google accounts should use a fresh Google reauthentication flow before it is enabled.
 
 ## Backend Tech Stack
 - Node.js
@@ -148,9 +160,11 @@ Create a `Backend/.env` file with values similar to the following:
 PORT=5000
 MONGODB_URI=your-mongodb-connection-string
 JWT_SECRET_KEY=your-secret-key
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
 ```
 
 Do not commit `.env` to version control. Keep database credentials and JWT secrets private.
+The Google client ID is public configuration, but the Google OAuth client secret must never be exposed in frontend code.
 
 ## Installation and Development
 ```bash
@@ -185,7 +199,7 @@ Typography is standardized across pages using Google Fonts, with Open Sans for g
 | Responsive Polish | ✅ Mostly complete |
 | Backend (Node/Express) | ✅ Core implementation complete |
 | Database (MongoDB/Mongoose) | ✅ User and appointment data implemented |
-| Authentication | ✅ Signup, login, and JWT auth complete |
+| Authentication | ✅ Password and Google signup/login with JWT auth complete |
 | API Integration | ✅ Core flows implemented |
 | Testing | ⏳ Pending |
 | Deployment | ✅ Live frontend + backend deployed |

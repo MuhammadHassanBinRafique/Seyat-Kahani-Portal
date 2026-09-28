@@ -1,5 +1,96 @@
-const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
+ const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
 // const API_BASE_URL = 'http://localhost:5000/api/auth';
+
+const redirectAfterAuth = function(user) {
+  window.location.href = user && user.role === 'doctor'
+    ? '/Frontend/HTML/doctor-dashboard.html'
+    : '/Frontend/HTML/patient-dashboard.html';
+};
+
+const googleSignUpButton = document.querySelector('#googleSignUpButton');
+
+if (googleSignUpButton) {
+  let googleInitialized = false;
+  let googleLoading = false;
+  const googleServerError = document.querySelector('#signupServerError');
+
+  const initializeGoogle = async function() {
+    if (googleInitialized || googleLoading) {
+      return;
+    }
+
+    googleLoading = true;
+    googleSignUpButton.disabled = true;
+    if (googleServerError) {
+      googleServerError.textContent = '';
+    }
+
+    try {
+      const configResponse = await fetch(`${API_BASE_URL}/google-config`);
+      const config = await configResponse.json();
+
+      if (!configResponse.ok || !config.clientId) {
+        throw new Error(config.message || 'Google sign-up is not configured.');
+      }
+
+      await new Promise(function(resolve, reject) {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = function() {
+          reject(new Error('Unable to load Google sign-up.'));
+        };
+        document.head.appendChild(script);
+      });
+
+      window.google.accounts.id.initialize({
+        client_id: config.clientId,
+        callback: async function(response) {
+          googleSignUpButton.disabled = true;
+          googleSignUpButton.querySelector('span').textContent = 'Creating account...';
+
+          try {
+            const authResponse = await fetch(`${API_BASE_URL}/google`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ credential: response.credential })
+            });
+            const data = await authResponse.json();
+
+            if (!authResponse.ok) {
+              throw new Error(data.message || 'Google sign-up failed.');
+            }
+
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            redirectAfterAuth(data.user);
+          } catch (error) {
+            if (googleServerError) {
+              googleServerError.textContent = error.message;
+            }
+          } finally {
+            googleSignUpButton.disabled = false;
+            googleSignUpButton.querySelector('span').textContent = 'Sign up with Google';
+          }
+        }
+      });
+
+      googleInitialized = true;
+      window.google.accounts.id.prompt();
+    } catch (error) {
+      if (googleServerError) {
+        googleServerError.textContent = error.message;
+      }
+    } finally {
+      googleLoading = false;
+      googleSignUpButton.disabled = false;
+    }
+  };
+
+  googleSignUpButton.addEventListener('click', initializeGoogle);
+}
 
 
 function switchTab(role) {
@@ -725,7 +816,7 @@ document.querySelectorAll('.doc-row').forEach(item => {
 // ===================== Appointments module =====================
 
   const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
-  //const API_ROOT = 'http://localhost:5000/api';
+ // const API_ROOT = 'http://localhost:5000/api';
 
 function getToken() {
   return localStorage.getItem('token');
@@ -1020,7 +1111,7 @@ function renderUpcomingAppointmentsPage() {
           <div class="appt-avatar"></div>
           <div class="appt-details">
             <span class="appt-tag">${(appt.status || 'pending').toUpperCase()}</span>
-            <h4>${appt.doctor?.name || 'Unknown'}</h4>
+            <h4>${escapeHtml(appt.doctor?.name || 'Unknown')}</h4>
             <div class="appt-meta">
               <span class="appt-meta-item">${appt.date || 'Date not set'}</span>
               <span class="appt-meta-item">${appt.time || 'Time not set'}</span>
@@ -1185,9 +1276,9 @@ async function loadDoctorAppointments() {
 
     doctorApptTableBody.innerHTML = appointments.map((appt) => `
       <tr>
-        <td>${appt.patient?.name || 'Unknown'}</td>
+        <td>${escapeHtml(appt.patient?.name || 'Unknown')}</td>
         <td>${appt.date} &nbsp; ${appt.time}</td>
-        <td>${appt.reason}</td>
+        <td>${escapeHtml(appt.reason)}</td>
         <td><span class="badge badge-${appt.status}">${appt.status.toUpperCase()}</span></td>
         <td class="right">
           <div class="row-actions">
@@ -1234,6 +1325,100 @@ async function loadDoctorAppointments() {
 
 if (doctorApptTableBody) {
   loadDoctorAppointments();
+}
+
+// ===================== Patient directory (patient-directory.html, doctor only) =====================
+const patientTableBody = document.querySelector('#patientTableBody');
+
+if (patientTableBody) {
+  let allPatients = [];
+  let patientFilter = 'all';
+
+  // Dates arrive as "YYYY-MM-DD". Build the Date from parts so timezones can't shift the day.
+  const formatVisitDate = (dateStr) => {
+    if (!dateStr) return '—';
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const setPatientMessage = (message) => {
+    patientTableBody.innerHTML = `<tr><td colspan="5" style="padding:24px;">${escapeHtml(message)}</td></tr>`;
+  };
+
+  const renderPatients = () => {
+    const visible = allPatients.filter((p) =>
+      patientFilter === 'upcoming' ? p.hasUpcoming :
+      patientFilter === 'completed' ? p.lastVisit :
+      true);
+
+    const kpiTotal = document.querySelector('#kpiTotalPatients');
+    const kpiUpcoming = document.querySelector('#kpiUpcoming');
+    const kpiSeen = document.querySelector('#kpiSeen');
+    const countText = document.querySelector('#patientCountText');
+
+    if (kpiTotal) kpiTotal.textContent = allPatients.length;
+    if (kpiUpcoming) kpiUpcoming.textContent = allPatients.filter((p) => p.hasUpcoming).length;
+    if (kpiSeen) kpiSeen.textContent = allPatients.filter((p) => p.lastVisit).length;
+    if (countText) countText.textContent = `Showing ${visible.length} of ${allPatients.length} patient${allPatients.length === 1 ? '' : 's'}`;
+
+    if (visible.length === 0) {
+      setPatientMessage(allPatients.length === 0
+        ? 'No patients yet. Patients appear here once they book an appointment with you.'
+        : 'No patients match this filter.');
+      return;
+    }
+
+    patientTableBody.innerHTML = visible.map((p) => `
+      <tr>
+        <td>
+          <div class="patient-cell">
+            <div class="patient-initials">${escapeHtml(getInitials(p.name))}</div>
+            <div>
+              <p class="p-name">${escapeHtml(p.name)}</p>
+              <p class="p-meta">${p.totalAppointments} appointment${p.totalAppointments === 1 ? '' : 's'}</p>
+            </div>
+          </div>
+        </td>
+        <td class="id-mono">${escapeHtml(p.email)}</td>
+        <td class="visit-date">${formatVisitDate(p.lastVisit)}</td>
+        <td><span class="status-pill ${p.hasUpcoming ? 'followup' : 'stable'}">${p.hasUpcoming ? 'Upcoming' : 'Completed'}</span></td>
+        <td>
+          <button class="row-action">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></span>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  };
+
+  async function loadPatients() {
+    try {
+      const res = await fetch(`${API_ROOT}/patients`, { headers: authHeaders() });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setPatientMessage(data.message || 'Could not load patients');
+        return;
+      }
+
+      allPatients = data;
+      renderPatients();
+    } catch (error) {
+      console.error('Load patients error:', error);
+      setPatientMessage('Unable to reach the server. Please try again.');
+    }
+  }
+
+  // The shared handler earlier in this file already toggles the .active class on tabs;
+  // this one only decides which patients to show.
+  document.querySelectorAll('.tab-btn[data-filter]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      patientFilter = btn.getAttribute('data-filter');
+      renderPatients();
+    });
+  });
+
+  loadPatients();
 }
 
 const doctorRecordModal = document.querySelector('#doctorRecordModal');

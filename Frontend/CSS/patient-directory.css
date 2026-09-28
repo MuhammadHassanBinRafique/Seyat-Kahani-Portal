@@ -582,6 +582,20 @@ h6 { font-weight: 500; }
     filter: grayscale(0%);
   }
 
+  .patient-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-container);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
   .patient-cell .p-name {
     font-weight: 700;
     color: var(--forest-deep);
