@@ -389,6 +389,9 @@ h6 { font-weight: 500; }
     }
     .badge-confirmed { background: rgba(92,141,137,0.1); color: var(--status-upcoming); border-color: rgba(92,141,137,0.2); }
     .badge-pending { background: rgba(233,196,106,0.15); color: #a9821f; border-color: rgba(233,196,106,0.3); }
+    .badge-completed { background: rgba(127,182,133,0.15); color: #47734c; border-color: rgba(127,182,133,0.35); }
+    .badge-cancelled { background: rgba(186,26,26,0.1); color: var(--error); border-color: rgba(186,26,26,0.25); }
+    .table-message { padding: 32px 16px; text-align: center; color: var(--on-surface-variant); font-weight: 600; }
 
     .row-actions { display:flex; align-items:center; justify-content:flex-end; gap:4px; }
     .action-btn { padding:8px; border-radius: var(--radius-lg); color: var(--forest-deep); display:flex; }

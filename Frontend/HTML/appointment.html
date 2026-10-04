@@ -56,12 +56,6 @@
         <input type="text" placeholder="Search patients, dates or IDs...">
     </div>
     <div class="topbar-right">
-        <button class="icon-btn" title="Notifications">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-        </button>
-        <button class="icon-btn" title="Help">
-            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-        </button>
         <div class="divider-v"></div>
         <div class="profile">
             <div class="profile-text">
@@ -100,6 +94,8 @@
                     </tr>
                 </thead>
                 <tbody id="doctorApptTableBody">
+                    <!-- Legacy fixture rows are intentionally inert; API data is rendered by app.js. -->
+                    <!--
                     <tr>
                         <td>
                             <div class="patient-cell">
@@ -204,22 +200,13 @@
                             </div>
                         </td>
                     </tr>
+                    -->
                 </tbody>
             </table>
         </div>
         <div class="card-footer">
-            <p>Showing 1-4 of 24 appointments</p>
-            <div class="pagination">
-                <button class="page-btn" disabled>
-                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </button>
-                <button class="page-num current">1</button>
-                <button class="page-num">2</button>
-                <button class="page-num">3</button>
-                <button class="page-btn">
-                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </button>
-            </div>
+            <p id="doctorApptFooterText">Loading appointments...</p>
+            <div class="pagination" aria-label="Appointment pagination"></div>
         </div>
     </div>
 
@@ -230,7 +217,7 @@
             </div>
             <div>
                 <p class="stat-label">Total Daily Slots</p>
-                <p class="stat-value">12</p>
+                <p class="stat-value" id="doctorTotalSlots">0</p>
             </div>
         </div>
         <div class="stat-card">
@@ -239,7 +226,7 @@
             </div>
             <div>
                 <p class="stat-label">Completed Today</p>
-                <p class="stat-value">8</p>
+                <p class="stat-value" id="doctorCompletedToday">0</p>
             </div>
         </div>
         <div class="stat-card">
@@ -248,7 +235,7 @@
             </div>
             <div>
                 <p class="stat-label">Cancellations</p>
-                <p class="stat-value">1</p>
+                <p class="stat-value" id="doctorCancelled">0</p>
             </div>
         </div>
     </div>

@@ -18,12 +18,6 @@ const userSchema = new mongoose.Schema({
         required: true
     },
 
-    googleId: {
-        type: String,
-        unique: true,
-        sparse: true
-    },
-
     role: {
        type: String,
         enum: ["doctor" , "patient"],
