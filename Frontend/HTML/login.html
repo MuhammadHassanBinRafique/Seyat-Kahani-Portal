@@ -111,6 +111,15 @@
                 </button>
             </form>
 
+            <div class="auth-divider" style="display:flex; align-items:center; gap:12px; margin:16px 0; color:#727975; font-size:0.8rem;">
+                <span style="flex:1; height:1px; background:#c1c8c4;"></span>
+                <span>OR</span>
+                <span style="flex:1; height:1px; background:#c1c8c4;"></span>
+            </div>
+
+            <div id="googleButtonContainer" style="display:flex; justify-content:center;"></div>
+            <p id="googleAuthError" role="alert" style="color:#ba1a1a; font-size:0.875rem; min-height:1.1em; margin-top:0.5rem; text-align:center;"></p>
+
             <!-- Footer Links -->
             <div class="signup-footer">
                 <p>Don't have an account? <a href="/Frontend/HTML/sign-up.html">Join Now</a></p>
@@ -131,6 +140,7 @@
     </section>
 </main>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="/Frontend/JS/app.js"></script>
 </body>
 </html>
