@@ -668,6 +668,7 @@ body.doctor-dashboard main.content {
         body.doctor-dashboard .status-completed { background-color: rgba(127, 182, 133, 0.15); color: var(--status-success); }
         body.doctor-dashboard .status-progress { background-color: rgba(233, 196, 106, 0.2); color: var(--on-tertiary-fixed-variant); }
         body.doctor-dashboard .status-confirmed { background-color: rgba(92, 141, 137, 0.15); color: var(--status-upcoming); }
+        body.doctor-dashboard .status-cancelled { background-color: rgba(186, 26, 26, 0.1); color: var(--error); }
 
         body.doctor-dashboard .pulse-dot {
             width: 6px;

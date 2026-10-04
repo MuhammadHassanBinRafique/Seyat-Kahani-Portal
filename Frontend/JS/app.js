@@ -1,96 +1,5 @@
- const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
+const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
 // const API_BASE_URL = 'http://localhost:5000/api/auth';
-
-const redirectAfterAuth = function(user) {
-  window.location.href = user && user.role === 'doctor'
-    ? '/Frontend/HTML/doctor-dashboard.html'
-    : '/Frontend/HTML/patient-dashboard.html';
-};
-
-const googleSignUpButton = document.querySelector('#googleSignUpButton');
-
-if (googleSignUpButton) {
-  let googleInitialized = false;
-  let googleLoading = false;
-  const googleServerError = document.querySelector('#signupServerError');
-
-  const initializeGoogle = async function() {
-    if (googleInitialized || googleLoading) {
-      return;
-    }
-
-    googleLoading = true;
-    googleSignUpButton.disabled = true;
-    if (googleServerError) {
-      googleServerError.textContent = '';
-    }
-
-    try {
-      const configResponse = await fetch(`${API_BASE_URL}/google-config`);
-      const config = await configResponse.json();
-
-      if (!configResponse.ok || !config.clientId) {
-        throw new Error(config.message || 'Google sign-up is not configured.');
-      }
-
-      await new Promise(function(resolve, reject) {
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        script.onload = resolve;
-        script.onerror = function() {
-          reject(new Error('Unable to load Google sign-up.'));
-        };
-        document.head.appendChild(script);
-      });
-
-      window.google.accounts.id.initialize({
-        client_id: config.clientId,
-        callback: async function(response) {
-          googleSignUpButton.disabled = true;
-          googleSignUpButton.querySelector('span').textContent = 'Creating account...';
-
-          try {
-            const authResponse = await fetch(`${API_BASE_URL}/google`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ credential: response.credential })
-            });
-            const data = await authResponse.json();
-
-            if (!authResponse.ok) {
-              throw new Error(data.message || 'Google sign-up failed.');
-            }
-
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            redirectAfterAuth(data.user);
-          } catch (error) {
-            if (googleServerError) {
-              googleServerError.textContent = error.message;
-            }
-          } finally {
-            googleSignUpButton.disabled = false;
-            googleSignUpButton.querySelector('span').textContent = 'Sign up with Google';
-          }
-        }
-      });
-
-      googleInitialized = true;
-      window.google.accounts.id.prompt();
-    } catch (error) {
-      if (googleServerError) {
-        googleServerError.textContent = error.message;
-      }
-    } finally {
-      googleLoading = false;
-      googleSignUpButton.disabled = false;
-    }
-  };
-
-  googleSignUpButton.addEventListener('click', initializeGoogle);
-}
 
 
 function switchTab(role) {
@@ -774,21 +683,12 @@ function showToast() {
 
  // Simple micro-interaction for smooth scrolling or active states
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            console.log('Navigating to section...');
-        });
-    });
-
-    // Initialize progress bar animation
-    window.addEventListener('DOMContentLoaded', () => {
-        const progress = document.getElementById('goalProgress');
-        if (progress) {
-            progress.style.width = '0%';
-            setTimeout(() => {
-                progress.style.width = '85%';
-            }, 300);
-        }
+      anchor.addEventListener('click', function (event) {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
 
     //   health-vault functionality starts from here:
@@ -816,7 +716,7 @@ document.querySelectorAll('.doc-row').forEach(item => {
 // ===================== Appointments module =====================
 
   const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
- // const API_ROOT = 'http://localhost:5000/api';
+  //const API_ROOT = 'http://localhost:5000/api';
 
 function getToken() {
   return localStorage.getItem('token');
@@ -858,6 +758,8 @@ const closeBookingModalSecondary = document.querySelector('#closeBookingModalSec
 
 function showBookingModal() {
   if (!bookingModalOverlay) return;
+  const dateInput = document.querySelector('#apptDate');
+  if (dateInput) dateInput.min = new Date().toISOString().slice(0, 10);
   bookingModalOverlay.style.display = 'flex';
   bookingModalOverlay.setAttribute('aria-hidden', 'false');
   bookingModalOverlay.classList.add('visible');
@@ -940,6 +842,15 @@ const dashboardGreeting = document.querySelector('#dashboardGreeting');
 const upcomingVisitsBadge = document.querySelector('#upcomingVisitsBadge');
 const upcomingVisitsValue = document.querySelector('#upcomingVisitsValue');
 const recentAppointmentsContainer = document.querySelector('#recentAppointmentsContainer');
+const patientDashboardSearch = document.querySelector('.search-wrap input[placeholder="Search records, doctors, or help..."]');
+const viewCalendarLink = document.querySelector('#viewCalendarLink');
+const patientDashboard = document.querySelector('#upcomingApptContainer');
+const prescriptionValue = document.querySelector('#prescriptionValue');
+const prescriptionBadge = document.querySelector('#prescriptionBadge');
+const messagesValue = document.querySelector('#messagesValue');
+const goalProgressValue = document.querySelector('#goalProgressValue');
+const goalProgressLabel = document.querySelector('#goalProgressLabel');
+const wellnessTipText = document.querySelector('#wellnessTipText');
 const APPT_PAGE_SIZE = 2;
 let upcomingAppointments = [];
 let currentUpcomingPage = 1;
@@ -1080,19 +991,26 @@ function getVisibleUpcomingAppointments(appointments = []) {
 
 function getUpcomingPageItems() {
   const start = (currentUpcomingPage - 1) * APPT_PAGE_SIZE;
-  return upcomingAppointments.slice(start, start + APPT_PAGE_SIZE);
+  return getFilteredPatientAppointments(upcomingAppointments).slice(start, start + APPT_PAGE_SIZE);
+}
+
+function getFilteredPatientAppointments(appointments) {
+  const query = (patientDashboardSearch?.value || '').trim().toLowerCase();
+  if (!query) return appointments;
+  return appointments.filter((appt) => `${appt.doctor?.name || ''} ${appt.doctor?.email || ''} ${appt.reason || ''} ${appt.date || ''} ${appt.time || ''}`.toLowerCase().includes(query));
 }
 
 function renderUpcomingAppointmentsPage() {
   if (!upcomingApptContainer) return;
 
-  const totalPages = Math.max(1, Math.ceil(upcomingAppointments.length / APPT_PAGE_SIZE));
+  const filteredAppointments = getFilteredPatientAppointments(upcomingAppointments);
+  const totalPages = Math.max(1, Math.ceil(filteredAppointments.length / APPT_PAGE_SIZE));
   currentUpcomingPage = Math.min(currentUpcomingPage, totalPages);
 
   const pageItems = getUpcomingPageItems();
 
-  if (upcomingAppointments.length === 0) {
-    upcomingApptContainer.innerHTML = '<p class="appt-empty-state">No upcoming appointments yet.</p>';
+  if (filteredAppointments.length === 0) {
+    upcomingApptContainer.innerHTML = `<p class="appt-empty-state">${upcomingAppointments.length ? 'No appointments match your search.' : 'No upcoming appointments yet.'}</p>`;
     return;
   }
 
@@ -1155,7 +1073,7 @@ function renderUpcomingAppointmentsPage() {
         currentUpcomingPage = Math.max(1, currentUpcomingPage - 1);
       }
       if (nextPage === 'next') {
-        currentUpcomingPage = Math.min(Math.ceil(upcomingAppointments.length / APPT_PAGE_SIZE), currentUpcomingPage + 1);
+        currentUpcomingPage = Math.min(totalPages, currentUpcomingPage + 1);
       }
       renderUpcomingAppointmentsPage();
     });
@@ -1165,13 +1083,14 @@ function renderUpcomingAppointmentsPage() {
 function renderRecentAppointmentsPage() {
   if (!recentAppointmentsContainer) return;
 
-  const totalPages = Math.max(1, Math.ceil(recentAppointments.length / APPT_PAGE_SIZE));
+  const filteredAppointments = getFilteredPatientAppointments(recentAppointments);
+  const totalPages = Math.max(1, Math.ceil(filteredAppointments.length / APPT_PAGE_SIZE));
   currentRecentPage = Math.min(currentRecentPage, totalPages);
   const start = (currentRecentPage - 1) * APPT_PAGE_SIZE;
-  const pageItems = recentAppointments.slice(start, start + APPT_PAGE_SIZE);
+  const pageItems = filteredAppointments.slice(start, start + APPT_PAGE_SIZE);
 
-  if (recentAppointments.length === 0) {
-    recentAppointmentsContainer.innerHTML = '<p class="appt-empty-state">No completed appointments yet.</p>';
+  if (filteredAppointments.length === 0) {
+    recentAppointmentsContainer.innerHTML = `<p class="appt-empty-state">${recentAppointments.length ? 'No records match your search.' : 'No completed appointments yet.'}</p>`;
     return;
   }
 
@@ -1253,79 +1172,188 @@ async function loadMyAppointments() {
   }
 }
 
+async function loadPatientDashboardSummary() {
+  if (!patientDashboard) return;
+
+  if (goalProgressValue) goalProgressValue.textContent = 'Not set';
+  if (goalProgressLabel) goalProgressLabel.textContent = 'No health goal recorded';
+  if (messagesValue) messagesValue.textContent = 'Unavailable';
+
+  try {
+    const response = await fetch(`${API_ROOT}/medical-records/my`, { headers: authHeaders() });
+    const records = await response.json();
+    if (!response.ok) throw new Error(records.message || 'Could not load health summary');
+
+    const prescriptions = Array.isArray(records) ? records.filter((record) => record.prescription?.trim()) : [];
+    if (prescriptionValue) {
+      prescriptionValue.textContent = `${prescriptions.length} Prescription${prescriptions.length === 1 ? '' : 's'}`;
+    }
+    if (prescriptionBadge) prescriptionBadge.textContent = prescriptions.length ? 'From your records' : 'None recorded';
+  } catch (error) {
+    console.error('Load patient dashboard summary error:', error);
+    if (prescriptionValue) prescriptionValue.textContent = 'Unavailable';
+    if (prescriptionBadge) prescriptionBadge.textContent = 'Could not load';
+  }
+}
+
 if (upcomingApptContainer) {
   loadMyAppointments();
+  loadPatientDashboardSummary();
 }
+
+patientDashboardSearch?.addEventListener('input', () => {
+  currentUpcomingPage = 1;
+  currentRecentPage = 1;
+  renderUpcomingAppointmentsPage();
+  renderRecentAppointmentsPage();
+});
+
+document.querySelector('#fabBtn')?.addEventListener('click', showBookingModal);
 
 loadCurrentUserProfile();
 
 // ---------- Doctor-side: appointment.html table ----------
 const doctorApptTableBody = document.querySelector('#doctorApptTableBody');
+const doctorApptSearch = document.querySelector('.search-wrap input');
+const doctorApptTabs = document.querySelectorAll('.tabs button');
+const doctorApptFooterText = document.querySelector('#doctorApptFooterText');
+const doctorApptPagination = document.querySelector('.pagination');
+const doctorApptStats = {
+  total: document.querySelector('#doctorTotalSlots'),
+  completed: document.querySelector('#doctorCompletedToday'),
+  cancelled: document.querySelector('#doctorCancelled')
+};
+const DOCTOR_APPT_PAGE_SIZE = 4;
+let doctorAppointments = [];
+let doctorAppointmentTab = 'upcoming';
+let doctorAppointmentPage = 1;
+
+const formatAppointmentDate = (date) => {
+  if (!date) return 'Date not set';
+  const [year, month, day] = date.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  });
+};
+
+const formatAppointmentTime = (time) => {
+  if (!time) return 'Time not set';
+  const [hours, minutes] = time.split(':').map(Number);
+  const suffix = hours >= 12 ? 'PM' : 'AM';
+  return `${String(hours % 12 || 12).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${suffix}`;
+};
+
+const getDoctorAppointmentView = () => {
+  const query = (doctorApptSearch?.value || '').trim().toLowerCase();
+  return doctorAppointments
+    .filter((appt) => {
+      const isUpcoming = ['pending', 'confirmed'].includes(appt.status);
+      const matchesTab = doctorAppointmentTab === 'upcoming'
+        ? isUpcoming
+        : doctorAppointmentTab === 'past'
+          ? appt.status === 'completed'
+          : appt.status === 'cancelled';
+      const searchable = `${appt.patient?.name || ''} ${appt.patient?._id || ''} ${appt.reason || ''} ${appt.date || ''}`.toLowerCase();
+      return matchesTab && (!query || searchable.includes(query));
+    })
+    .sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+};
+
+const statusBadgeClass = (status) => `badge-${status || 'pending'}`;
+
+function renderDoctorAppointmentTable() {
+  if (!doctorApptTableBody) return;
+  const appointments = getDoctorAppointmentView();
+  const totalPages = Math.max(1, Math.ceil(appointments.length / DOCTOR_APPT_PAGE_SIZE));
+  doctorAppointmentPage = Math.min(doctorAppointmentPage, totalPages);
+  const start = (doctorAppointmentPage - 1) * DOCTOR_APPT_PAGE_SIZE;
+  const pageItems = appointments.slice(start, start + DOCTOR_APPT_PAGE_SIZE);
+
+  doctorApptTableBody.innerHTML = pageItems.length === 0
+    ? '<tr><td colspan="5" class="table-message">No appointments match this view.</td></tr>'
+    : pageItems.map((appt) => {
+      const patientName = appt.patient?.name || 'Unknown patient';
+      const initials = escapeHtml(getInitials(patientName));
+      const nextAction = appt.status === 'pending'
+        ? '<button class="action-btn status-action" data-status="confirmed" title="Confirm appointment">Confirm</button>'
+        : appt.status === 'confirmed'
+          ? '<button class="action-btn status-action" data-status="completed" title="Mark appointment completed">Complete</button>'
+          : '';
+      const canCancel = ['pending', 'confirmed'].includes(appt.status);
+      return `<tr>
+        <td><div class="patient-cell"><div class="avatar">${initials}</div><div><p class="patient-name">${escapeHtml(patientName)}</p><p class="patient-id">ID: #${escapeHtml(String(appt.patient?._id || appt._id).slice(-6).toUpperCase())}</p></div></div></td>
+        <td><div class="dt-row">${formatAppointmentDate(appt.date)}</div><div class="dt-row">${formatAppointmentTime(appt.time)}</div></td>
+        <td><div class="type-cell"><span class="dot"></span>${escapeHtml(appt.reason || 'Consultation')}</div></td>
+        <td><span class="badge ${statusBadgeClass(appt.status)}">${escapeHtml((appt.status || 'pending').toUpperCase())}</span></td>
+        <td class="right"><div class="row-actions">
+          ${nextAction}
+          ${canCancel ? '<button class="action-btn status-action" data-status="cancelled" title="Cancel appointment">Cancel</button>' : ''}
+          ${['pending', 'confirmed', 'completed'].includes(appt.status) && appt.patient?._id ? `<button class="action-btn add-record-btn" title="Add medical record" data-patient-id="${escapeHtml(appt.patient._id)}" data-appointment-id="${escapeHtml(appt._id)}" data-patient-name="${escapeHtml(patientName)}">Record</button>` : ''}
+        </div></td>
+      </tr>`;
+    }).join('');
+
+  if (doctorApptFooterText) {
+    const first = appointments.length ? start + 1 : 0;
+    const last = Math.min(start + DOCTOR_APPT_PAGE_SIZE, appointments.length);
+    doctorApptFooterText.textContent = `Showing ${first}-${last} of ${appointments.length} appointments`;
+  }
+  if (doctorApptPagination) {
+    doctorApptPagination.innerHTML = `<button class="page-btn" data-page="prev" ${doctorAppointmentPage === 1 ? 'disabled' : ''} aria-label="Previous page">&#8249;</button>
+      ${Array.from({ length: totalPages }, (_, index) => `<button class="page-num ${index + 1 === doctorAppointmentPage ? 'current' : ''}" data-page="${index + 1}">${index + 1}</button>`).join('')}
+      <button class="page-btn" data-page="next" ${doctorAppointmentPage === totalPages ? 'disabled' : ''} aria-label="Next page">&#8250;</button>`;
+  }
+  doctorApptTableBody.querySelectorAll('.status-action').forEach((button) => {
+    button.addEventListener('click', () => updateDoctorAppointmentStatus(button.closest('tr').dataset.id, button.dataset.status));
+  });
+  pageItems.forEach((appt, index) => {
+    const row = doctorApptTableBody.rows[index];
+    if (row) row.dataset.id = appt._id;
+  });
+  doctorApptTableBody.querySelectorAll('.add-record-btn').forEach((button) => button.addEventListener('click', () => openDoctorRecordForm(button.dataset)));
+  doctorApptPagination?.querySelectorAll('[data-page]').forEach((button) => button.addEventListener('click', () => {
+    const target = button.dataset.page;
+    doctorAppointmentPage = target === 'prev' ? doctorAppointmentPage - 1 : target === 'next' ? doctorAppointmentPage + 1 : Number(target);
+    renderDoctorAppointmentTable();
+  }));
+}
+
+async function updateDoctorAppointmentStatus(id, status) {
+  try {
+    const res = await fetch(`${API_ROOT}/appointments/${id}/status`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status }) });
+    const data = await res.json();
+    if (!res.ok) { alert(data.message || 'Could not update status'); return; }
+    await loadDoctorAppointments();
+  } catch (error) { console.error('Update status error:', error); }
+}
 
 async function loadDoctorAppointments() {
   if (!doctorApptTableBody) return;
-
   try {
     const res = await fetch(`${API_ROOT}/appointments/my`, { headers: authHeaders() });
-    const appointments = await res.json();
-
-    if (!res.ok || appointments.length === 0) {
-      doctorApptTableBody.innerHTML = `<tr><td colspan="5">No appointments found.</td></tr>`;
-      return;
-    }
-
-    doctorApptTableBody.innerHTML = appointments.map((appt) => `
-      <tr>
-        <td>${escapeHtml(appt.patient?.name || 'Unknown')}</td>
-        <td>${appt.date} &nbsp; ${appt.time}</td>
-        <td>${escapeHtml(appt.reason)}</td>
-        <td><span class="badge badge-${appt.status}">${appt.status.toUpperCase()}</span></td>
-        <td class="right">
-          <div class="row-actions">
-            ${appt.status === 'pending' ? `<button class="action-btn confirm-btn" data-id="${appt._id}">Confirm</button>` : ''}
-            ${appt.status === 'confirmed' ? `<button class="action-btn complete-btn" data-id="${appt._id}">Complete</button>` : ''}
-            ${['pending', 'confirmed'].includes(appt.status) ? `<button class="action-btn cancel-btn" data-id="${appt._id}">Cancel</button>` : ''}
-            ${['pending', 'confirmed', 'completed'].includes(appt.status) && appt.patient?._id ? `<button class="action-btn add-record-btn" title="Add medical record" data-patient-id="${appt.patient._id}" data-appointment-id="${appt._id}" data-patient-name="${escapeHtml(appt.patient.name || 'Patient')}">Record</button>` : ''}
-          </div>
-        </td>
-      </tr>
-    `).join('');
-
-    const updateStatus = async (id, status) => {
-      try {
-        const res = await fetch(`${API_ROOT}/appointments/${id}/status`, {
-          method: 'PATCH',
-          headers: authHeaders(),
-          body: JSON.stringify({ status })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.message || 'Could not update status');
-          return;
-        }
-        loadDoctorAppointments();
-      } catch (error) {
-        console.error('Update status error:', error);
-      }
-    };
-
-    document.querySelectorAll('.confirm-btn').forEach((btn) =>
-      btn.addEventListener('click', () => updateStatus(btn.getAttribute('data-id'), 'confirmed')));
-    document.querySelectorAll('.complete-btn').forEach((btn) =>
-      btn.addEventListener('click', () => updateStatus(btn.getAttribute('data-id'), 'completed')));
-    document.querySelectorAll('.cancel-btn').forEach((btn) =>
-      btn.addEventListener('click', () => updateStatus(btn.getAttribute('data-id'), 'cancelled')));
-    document.querySelectorAll('.add-record-btn').forEach((btn) =>
-      btn.addEventListener('click', () => openDoctorRecordForm(btn.dataset)));
-
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Could not load appointments');
+    doctorAppointments = Array.isArray(data) ? data : [];
+    const today = new Date().toISOString().slice(0, 10);
+    doctorApptStats.total && (doctorApptStats.total.textContent = doctorAppointments.filter((appt) => appt.date === today).length);
+    doctorApptStats.completed && (doctorApptStats.completed.textContent = doctorAppointments.filter((appt) => appt.date === today && appt.status === 'completed').length);
+    doctorApptStats.cancelled && (doctorApptStats.cancelled.textContent = doctorAppointments.filter((appt) => appt.status === 'cancelled').length);
+    renderDoctorAppointmentTable();
   } catch (error) {
     console.error('Load doctor appointments error:', error);
+    doctorApptTableBody.innerHTML = `<tr><td colspan="5" class="table-message">${escapeHtml(error.message || 'Unable to load appointments.')}</td></tr>`;
   }
 }
 
-if (doctorApptTableBody) {
-  loadDoctorAppointments();
-}
+doctorApptTabs.forEach((tab) => tab.addEventListener('click', () => {
+  doctorApptTabs.forEach((item) => item.classList.remove('active'));
+  tab.classList.add('active');
+  doctorAppointmentTab = tab.textContent.trim().toLowerCase();
+  doctorAppointmentPage = 1;
+  renderDoctorAppointmentTable();
+}));
+doctorApptSearch?.addEventListener('input', () => { doctorAppointmentPage = 1; renderDoctorAppointmentTable(); });
+if (doctorApptTableBody) loadDoctorAppointments();
 
 // ===================== Patient directory (patient-directory.html, doctor only) =====================
 const patientTableBody = document.querySelector('#patientTableBody');
@@ -1419,6 +1447,195 @@ if (patientTableBody) {
   });
 
   loadPatients();
+}
+
+// ===================== Doctor dashboard overview (doctor-dashboard.html) =====================
+const scheduleTableBody = document.querySelector('#scheduleTableBody');
+
+if (scheduleTableBody) {
+  const todayStr = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  const statusBadgeClass = (status) => ({
+    pending: 'status-progress',
+    confirmed: 'status-confirmed',
+    completed: 'status-completed',
+    cancelled: 'status-cancelled'
+  }[status] || 'status-confirmed');
+
+  const capitalizeStatus = (status) => status ? status.charAt(0).toUpperCase() + status.slice(1) : '';
+
+  function renderGreetingAndDate(user) {
+    const greetingEl = document.querySelector('#doctorGreeting');
+    const dateEl = document.querySelector('#currentDate');
+    if (greetingEl && user) {
+      const firstName = (user.name || '').split(' ')[0];
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+      greetingEl.textContent = `${greeting}${firstName ? ', ' + firstName : ''}`;
+    }
+    if (dateEl) {
+      dateEl.textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+    }
+  }
+
+  function renderSchedule(appointments) {
+    const today = todayStr();
+    const todays = appointments
+      .filter((a) => a.date === today)
+      .sort((a, b) => a.time.localeCompare(b.time));
+
+    const todayCountText = document.querySelector('#todayCountText');
+    if (todayCountText) {
+      todayCountText.textContent = todays.length === 0
+        ? 'No appointments scheduled for today.'
+        : `You have ${todays.length} appointment${todays.length === 1 ? '' : 's'} scheduled for today.`;
+    }
+
+    if (todays.length === 0) {
+      scheduleTableBody.innerHTML = '<tr><td colspan="5" style="padding:20px;">No appointments scheduled for today.</td></tr>';
+      return;
+    }
+
+    scheduleTableBody.innerHTML = todays.map((appt) => {
+      const name = appt.patient?.name || 'Unknown';
+      return `
+        <tr>
+          <td class="time-cell">${escapeHtml(appt.time)}</td>
+          <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">${escapeHtml(getInitials(name))}</div><span class="name">${escapeHtml(name)}</span></div></td>
+          <td class="type-cell">${escapeHtml(appt.reason || '—')}</td>
+          <td><span class="status-badge ${statusBadgeClass(appt.status)}">${escapeHtml(capitalizeStatus(appt.status))}</span></td>
+          <td><a class="more-btn" href="/Frontend/HTML/appointment.html" style="text-decoration:none; display:inline-flex;" aria-label="Manage in Appointments">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></span>
+          </a></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderStatsFromAppointments(appointments) {
+    const today = todayStr();
+    const todays = appointments.filter((a) => a.date === today);
+
+    const statTodayVisits = document.querySelector('#statTodayVisits');
+    const statPending = document.querySelector('#statPending');
+    const statCompletedToday = document.querySelector('#statCompletedToday');
+
+    if (statTodayVisits) statTodayVisits.textContent = todays.length;
+    if (statPending) statPending.textContent = appointments.filter((a) => a.status === 'pending').length;
+    if (statCompletedToday) statCompletedToday.textContent = todays.filter((a) => a.status === 'completed').length;
+  }
+
+  function renderInsightsChart(appointments) {
+    const chartArea = document.querySelector('#insightsChartArea');
+    if (!chartArea) return;
+
+    // Last 7 days including today, in chronological order.
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const count = appointments.filter((a) => a.date === key && a.status !== 'cancelled').length;
+      days.push({ label: d.toLocaleDateString('en-US', { weekday: 'short' }), count });
+    }
+
+    const maxCount = Math.max(1, ...days.map((d) => d.count));
+
+    chartArea.innerHTML = `
+      <div class="grid-lines"><div></div><div></div><div></div><div></div></div>
+      ${days.map((d) => `
+        <div class="bar-col">
+          ${d.count > 0 ? `<div class="bar-tooltip">${d.count} appointment${d.count === 1 ? '' : 's'}</div>` : ''}
+          <div class="bar" style="height: ${Math.max(4, (d.count / maxCount) * 100)}%;"></div>
+          <span class="bar-label">${escapeHtml(d.label)}</span>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  async function loadDoctorSchedule() {
+    try {
+      const res = await fetch(`${API_ROOT}/appointments/my`, { headers: authHeaders() });
+      const appointments = await res.json();
+
+      if (!res.ok) {
+        scheduleTableBody.innerHTML = `<tr><td colspan="5" style="padding:20px;">${escapeHtml(appointments.message || 'Could not load schedule')}</td></tr>`;
+        return;
+      }
+
+      renderSchedule(appointments);
+      renderStatsFromAppointments(appointments);
+      renderInsightsChart(appointments);
+    } catch (error) {
+      console.error('Load doctor schedule error:', error);
+      scheduleTableBody.innerHTML = '<tr><td colspan="5" style="padding:20px;">Unable to reach the server. Please try again.</td></tr>';
+    }
+  }
+
+  function renderRecentPatients(patients) {
+    const list = document.querySelector('#recentPatientsList');
+    const statTotalPatients = document.querySelector('#statTotalPatients');
+    if (statTotalPatients) statTotalPatients.textContent = patients.length;
+    if (!list) return;
+
+    if (patients.length === 0) {
+      list.innerHTML = '<p style="padding:12px 4px;">No patients yet.</p>';
+      return;
+    }
+
+    // "Recent" = most recently seen first; patients with no completed visit yet go last.
+    const sorted = [...patients].sort((a, b) => (b.lastVisit || '').localeCompare(a.lastVisit || ''));
+    const top3 = sorted.slice(0, 3);
+
+    list.innerHTML = top3.map((p) => `
+      <div class="patient-row">
+        <div class="patient-info">
+          <div class="avatar-patient" style="display:flex; align-items:center; justify-content:center; color: var(--forest-deep); font-weight:700;">${escapeHtml(getInitials(p.name))}</div>
+          <div>
+            <p>${escapeHtml(p.name)}</p>
+            <p>${p.lastVisit ? 'Last visit: ' + new Date(p.lastVisit).toLocaleDateString() : 'No visits yet'}</p>
+          </div>
+        </div>
+        <a class="folder-btn" href="/Frontend/HTML/patient-directory.html" style="text-decoration:none; display:inline-flex;" aria-label="Open in Patient Directory">
+          <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>
+        </a>
+      </div>
+    `).join('');
+  }
+
+  async function loadRecentPatients() {
+    try {
+      const res = await fetch(`${API_ROOT}/patients`, { headers: authHeaders() });
+      const patients = await res.json();
+
+      if (!res.ok) {
+        const list = document.querySelector('#recentPatientsList');
+        if (list) list.innerHTML = `<p style="padding:12px 4px;">${escapeHtml(patients.message || 'Could not load patients')}</p>`;
+        return;
+      }
+
+      renderRecentPatients(patients);
+    } catch (error) {
+      console.error('Load recent patients error:', error);
+      const list = document.querySelector('#recentPatientsList');
+      if (list) list.innerHTML = '<p style="padding:12px 4px;">Unable to reach the server. Please try again.</p>';
+    }
+  }
+
+  const directoryBtn = document.querySelector('#allPatientDirectoryBtn');
+  if (directoryBtn) {
+    directoryBtn.addEventListener('click', () => {
+      window.location.href = '/Frontend/HTML/patient-directory.html';
+    });
+  }
+
+  const dashboardUserRaw = localStorage.getItem('user');
+  renderGreetingAndDate(dashboardUserRaw ? JSON.parse(dashboardUserRaw) : null);
+  loadDoctorSchedule();
+  loadRecentPatients();
 }
 
 const doctorRecordModal = document.querySelector('#doctorRecordModal');
@@ -1807,9 +2024,14 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
 const medicalRecordList = document.querySelector('#medicalRecordList');
 const recordSearchInput = document.querySelector('.search-box input[placeholder="Search records, doctors..."]');
 const recordModal = document.querySelector('#medicalRecordModal');
+const recordFilterButton = document.querySelector('#recordFilterButton');
+const recordSortButton = document.querySelector('#recordSortButton');
+const loadPreviousRecordsButton = document.querySelector('#loadPreviousRecords');
 const recordPageSize = 5;
 let medicalRecords = [];
 let visibleRecordCount = recordPageSize;
+let recordFilterMode = 'all';
+let recordSortDescending = true;
 
 function formatRecordDate(value) {
   if (!value) return 'Date unavailable';
@@ -1831,21 +2053,49 @@ function renderMedicalRecordSummary(records) {
   if (newBadge) newBadge.textContent = records.length ? `${records.length} LIVE` : 'EMPTY';
 }
 
+function getFilteredMedicalRecords() {
+  const query = (recordSearchInput?.value || '').trim().toLowerCase();
+  return medicalRecords
+    .filter((record) => recordFilterMode === 'all' || Boolean(record.prescription?.trim()))
+    .filter((record) => [
+      record.diagnosis,
+      record.notes,
+      record.prescription,
+      record.doctor?.name,
+      record.doctor?.email
+    ].some((value) => String(value || '').toLowerCase().includes(query)))
+    .sort((first, second) => {
+      const firstDate = new Date(first.createdAt || 0).getTime();
+      const secondDate = new Date(second.createdAt || 0).getTime();
+      return recordSortDescending ? secondDate - firstDate : firstDate - secondDate;
+    });
+}
+
+function updateMedicalRecordControls(filteredCount) {
+  if (loadPreviousRecordsButton) {
+    const hasMore = visibleRecordCount < filteredCount;
+    loadPreviousRecordsButton.disabled = !hasMore;
+    loadPreviousRecordsButton.textContent = hasMore ? 'Load Previous Records' : 'All Records Loaded';
+  }
+  if (recordFilterButton) {
+    recordFilterButton.classList.toggle('active', recordFilterMode === 'prescriptions');
+    recordFilterButton.title = recordFilterMode === 'all' ? 'Show records with prescriptions' : 'Show all records';
+  }
+  if (recordSortButton) {
+    recordSortButton.classList.toggle('active', !recordSortDescending);
+    recordSortButton.title = recordSortDescending ? 'Sort oldest first' : 'Sort newest first';
+  }
+}
+
 function renderMedicalRecords() {
   if (!medicalRecordList) return;
 
-  const query = (recordSearchInput?.value || '').trim().toLowerCase();
-  const filteredRecords = medicalRecords.filter((record) => [
-    record.diagnosis,
-    record.notes,
-    record.prescription,
-    record.doctor?.name,
-    record.doctor?.email
-  ].some((value) => String(value || '').toLowerCase().includes(query)));
+  const filteredRecords = getFilteredMedicalRecords();
   const recordsToRender = filteredRecords.slice(0, visibleRecordCount);
+  updateMedicalRecordControls(filteredRecords.length);
 
   if (!filteredRecords.length) {
-    medicalRecordList.innerHTML = '<p class="record-state">No medical records found.</p>';
+    medicalRecordList.innerHTML = `<p class="record-state">${recordFilterMode === 'prescriptions' ? 'No records with prescriptions found.' : 'No medical records found.'}</p>`;
     return;
   }
 
@@ -1930,8 +2180,18 @@ if (medicalRecordList) {
     visibleRecordCount = recordPageSize;
     renderMedicalRecords();
   });
-  document.querySelector('#loadPreviousRecords')?.addEventListener('click', () => {
+  loadPreviousRecordsButton?.addEventListener('click', () => {
     visibleRecordCount += recordPageSize;
+    renderMedicalRecords();
+  });
+  recordFilterButton?.addEventListener('click', () => {
+    recordFilterMode = recordFilterMode === 'all' ? 'prescriptions' : 'all';
+    visibleRecordCount = recordPageSize;
+    renderMedicalRecords();
+  });
+  recordSortButton?.addEventListener('click', () => {
+    recordSortDescending = !recordSortDescending;
+    visibleRecordCount = recordPageSize;
     renderMedicalRecords();
   });
   document.querySelector('#closeRecordModal')?.addEventListener('click', closeMedicalRecord);

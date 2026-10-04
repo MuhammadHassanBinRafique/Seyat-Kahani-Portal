@@ -346,8 +346,9 @@ h6 { font-weight: 500; }
     }
     .card-head h4 { font-family: var(--font-secondary); font-size:24px; color: var(--primary); font-weight:600; }
     .card-head-actions { display:flex; gap:8px; }
-    .icon-btn-sq { padding:8px; border-radius: var(--radius-lg); color: var(--on-surface-variant); transition: background-color .15s ease; }
+    .icon-btn-sq { padding:8px; border-radius: var(--radius-lg); color: var(--on-surface-variant); transition: background-color .15s ease, color .15s ease; }
     .icon-btn-sq:hover { background: var(--surface-container); }
+    .icon-btn-sq.active { background: var(--secondary-container); color: var(--forest-deep); }
 
     .doc-list > div { border-bottom: 1px solid var(--sage-light); }
     .doc-list > div:last-child { border-bottom:none; }
@@ -378,6 +379,7 @@ h6 { font-weight: 500; }
     .load-more { background: var(--surface-container-low); padding: 12px 24px; }
     .load-more button { width:100%; text-align:center; color: var(--primary); font-weight:700; transition: color .15s ease; }
     .load-more button:hover { color: var(--forest-deep); }
+    .load-more button:disabled { color: var(--outline); cursor: default; }
     .record-state { padding: 28px 24px; color: var(--on-surface-variant); }
     .record-error { color: var(--error); }
     .record-modal-overlay { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; background: rgba(24, 28, 27, 0.52); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; z-index: 1100; }

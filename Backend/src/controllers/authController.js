@@ -1,19 +1,6 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
-import crypto from "crypto";
-import { OAuth2Client } from "google-auth-library";
-
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-const createAuthResponse = (user) => ({
-  token: JWT.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET_KEY,
-    { expiresIn: "10d" }
-  ),
-  user: { id: user._id, name: user.name, role: user.role }
-});
 
 // Basic email format check (input validation)
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -106,59 +93,4 @@ export const login = async (req, res) =>{
          console.error("Login error:", error);
          res.status(500).json({message: "Server Error"});
       }
-};
-
-export const googleConfig = (req, res) => {
-  if (!process.env.GOOGLE_CLIENT_ID) {
-    return res.status(503).json({ message: "Google sign-up is not configured" });
-  }
-
-  res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
-};
-
-export const googleSignup = async (req, res) => {
-  try {
-    const { credential } = req.body;
-
-    if (typeof credential !== "string" || !credential) {
-      return res.status(400).json({ message: "Google credential is required" });
-    }
-
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
-    const payload = ticket.getPayload();
-
-    if (!payload?.sub || !payload.email || !payload.email_verified) {
-      return res.status(401).json({ message: "Google account could not be verified" });
-    }
-
-    let user = await User.findOne({ googleId: payload.sub });
-
-    if (!user) {
-      const existingUser = await User.findOne({ email: payload.email.toLowerCase() });
-
-      if (existingUser) {
-        return res.status(409).json({
-          message: "An account with this email already exists. Sign in with your password."
-        });
-      }
-
-      user = await User.create({
-        name: payload.name || payload.email.split("@")[0],
-        email: payload.email,
-        password: await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 10),
-        googleId: payload.sub
-      });
-    }
-
-    res.status(200).json({
-      message: "Google sign-in successful",
-      ...createAuthResponse(user)
-    });
-  } catch (error) {
-    console.error("Google signup error:", error);
-    res.status(401).json({ message: "Unable to authenticate with Google" });
-  }
 };
