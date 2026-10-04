@@ -86,7 +86,15 @@ export const login = async (req, res) =>{
           res.status(200).json({
             message: "Login Sucessfully!",
             token,
-           user: {id: user._id, name: user.name, role: user.role}
+           user: {
+             id: user._id,
+             name: user.name,
+             email: user.email,
+             role: user.role,
+             authProvider: user.authProvider,
+             emailVerified: user.isEmailVerified,
+             hasPassword: !!user.password
+           }
           });
       }
       catch(error){

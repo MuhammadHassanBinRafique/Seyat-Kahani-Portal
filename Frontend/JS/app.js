@@ -1,6 +1,59 @@
 const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
 // const API_BASE_URL = 'http://localhost:5000/api/auth';
 
+// Google Client ID is a public identifier (not a secret) — safe to ship in frontend code.
+// Replace this with your own, created at https://console.cloud.google.com/apis/credentials
+// under "OAuth client ID" -> "Web application", with this site's URL added under
+// "Authorized JavaScript origins".
+const GOOGLE_CLIENT_ID = '282699693500-8qqd5uq7lsj7darvl26dolebkqso1s4v.apps.googleusercontent.com';
+
+// Shared by login.html and sign-up.html — the backend's /api/auth/google endpoint
+// handles both "log an existing Google user in" and "create a new one" itself, so
+// both pages can point at this exact same handler.
+async function handleGoogleCredential(response) {
+    const errorEl = document.querySelector('#googleAuthError');
+    if (errorEl) errorEl.textContent = '';
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: response.credential })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            if (errorEl) errorEl.textContent = data.message || 'Google sign-in failed.';
+            return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        const targetUrl = data.user && data.user.role === 'doctor'
+            ? '/Frontend/HTML/doctor-dashboard.html'
+            : '/Frontend/HTML/patient-dashboard.html';
+        window.location.href = targetUrl;
+    } catch (error) {
+        console.error('Google sign-in error:', error);
+        if (errorEl) errorEl.textContent = 'Unable to reach the server. Please try again.';
+    }
+}
+
+// The GSI script tag is async/defer, so wait for window 'load' before assuming
+// `google.accounts.id` exists.
+if (document.querySelector('#googleButtonContainer')) {
+    window.addEventListener('load', () => {
+        const container = document.querySelector('#googleButtonContainer');
+        if (!container || typeof google === 'undefined' || !google.accounts?.id) return;
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredential
+        });
+        google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', width: 320, text: 'continue_with' });
+    });
+}
+
 
 function switchTab(role) {
     const patientTab = document.querySelector('#patientTab');
@@ -716,7 +769,7 @@ document.querySelectorAll('.doc-row').forEach(item => {
 // ===================== Appointments module =====================
 
   const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
-  //const API_ROOT = 'http://localhost:5000/api';
+  // const API_ROOT = 'http://localhost:5000/api';
 
 function getToken() {
   return localStorage.getItem('token');
@@ -1760,6 +1813,11 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
     console.error('Failed to read profile data:', error);
   }
 
+  // Defaults to true so old sessions (before this feature existed, with no
+  // authProvider/hasPassword stored yet) keep behaving exactly as before until
+  // the fresh GET /users/me call below corrects it.
+  let currentHasPassword = profileUser.hasPassword !== false;
+
   const profileName = getDisplayName(profileUser);
   const profileRole = profileUser.role === 'doctor' ? 'Doctor' : 'Premium Member';
   const profileEmail = profileUser.email || '';
@@ -1817,6 +1875,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
           <p>Type DELETE and enter your password to permanently delete your account.</p>
           <input id="profileCardDeleteInput" type="text" autocomplete="off" aria-label="Type DELETE to confirm">
           <input id="profileCardDeletePassword" type="password" autocomplete="current-password" placeholder="Your password" aria-label="Your password">
+          <div id="profileCardDeleteGoogleBtn" style="display:none; margin-bottom:8px;"></div>
           <button type="button" class="profile-card-button danger" id="profileCardConfirmDelete" disabled>Confirm Delete</button>
           <p class="profile-card-message" id="profileCardDeleteMessage" aria-live="polite"></p>
         </div>
@@ -1975,6 +2034,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
   const deletePanel = profileCardOverlay.querySelector('#profileCardDeletePanel');
   const deleteInput = profileCardOverlay.querySelector('#profileCardDeleteInput');
   const deletePasswordInput = profileCardOverlay.querySelector('#profileCardDeletePassword');
+  const deleteGoogleContainer = profileCardOverlay.querySelector('#profileCardDeleteGoogleBtn');
   const confirmDelete = profileCardOverlay.querySelector('#profileCardConfirmDelete');
   const deleteMessageEl = profileCardOverlay.querySelector('#profileCardDeleteMessage');
 
@@ -1983,11 +2043,66 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
     deleteInput.focus();
   });
 
+  // A pure Google account has no password to re-enter, so "proof of intent" has to
+  // come from signing in with Google again, right now — not from a password field
+  // that doesn't exist. This renders a real Google button in its place, once the
+  // user has typed DELETE, and only renders it once (GSI doesn't like being asked
+  // to render into the same container repeatedly).
+  function renderDeleteGoogleButton() {
+    if (deleteGoogleContainer.dataset.rendered) return;
+    if (typeof google === 'undefined' || !google.accounts?.id) {
+      deleteGoogleContainer.innerHTML = '<p style="color:var(--error,#ba1a1a);font-size:12px;margin:0 0 8px;">Google sign-in is still loading — please wait a moment.</p>';
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: async (response) => {
+        try {
+          const res = await fetch(`${API_ROOT}/users/me`, {
+            method: 'DELETE',
+            headers: authHeaders(),
+            body: JSON.stringify({ idToken: response.credential })
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            showProfileMessage(deleteMessageEl, data.message || 'Could not delete account');
+            return;
+          }
+
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '../HTML/login.html';
+        } catch (error) {
+          console.error('Delete account (Google) error:', error);
+          showProfileMessage(deleteMessageEl, 'Unable to reach the server. Please try again.');
+        }
+      }
+    });
+    google.accounts.id.renderButton(deleteGoogleContainer, { theme: 'outline', size: 'medium', text: 'continue_with' });
+    deleteGoogleContainer.dataset.rendered = '1';
+  }
+
   function updateDeleteButtonState() {
-    confirmDelete.disabled = deleteInput.value.trim() !== 'DELETE' || deletePasswordInput.value.length === 0;
+    const deleteTyped = deleteInput.value.trim() === 'DELETE';
+
+    if (currentHasPassword) {
+      deletePasswordInput.style.display = '';
+      deleteGoogleContainer.style.display = 'none';
+      confirmDelete.style.display = '';
+      confirmDelete.disabled = !deleteTyped || deletePasswordInput.value.length === 0;
+    } else {
+      // No password exists on this account — the generic password-based confirm
+      // button doesn't apply here at all; the Google button below IS the confirm step.
+      deletePasswordInput.style.display = 'none';
+      confirmDelete.style.display = 'none';
+      deleteGoogleContainer.style.display = deleteTyped ? '' : 'none';
+      if (deleteTyped) renderDeleteGoogleButton();
+    }
   }
   deleteInput.addEventListener('input', updateDeleteButtonState);
   deletePasswordInput.addEventListener('input', updateDeleteButtonState);
+  updateDeleteButtonState();
 
   confirmDelete.addEventListener('click', async () => {
     const password = deletePasswordInput.value;
@@ -2017,6 +2132,61 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
 
   profileCardOverlay.querySelector('.logout-link').addEventListener('click', logoutUser);
   syncHeaderProfile(profileUser);
+
+  // --- Branch the card's UI by how this account actually authenticates ---
+  // localStorage may be stale (an older session from before this feature existed,
+  // or hasPassword changing within this same session), so refresh from the server
+  // once and apply the real picture rather than trusting what's cached.
+  const passwordFormHeading = profileCardOverlay.querySelector('#profileCardPasswordForm h3');
+  const passwordSubmitBtn = profileCardOverlay.querySelector('#profileCardPasswordForm button[type="submit"]');
+  const emailInputEl = profileCardOverlay.querySelector('.profile-card-email-row input[type="email"]');
+  const emailBadgeEl = profileCardOverlay.querySelector('.profile-card-badge');
+  const verifyBtn = profileCardOverlay.querySelector('#profileCardVerify');
+
+  function applyAuthProviderUI(user) {
+    currentHasPassword = user.hasPassword !== false;
+
+    if (currentPasswordField) {
+      const label = currentPasswordField.closest('label');
+      if (label) label.style.display = currentHasPassword ? '' : 'none';
+      currentPasswordField.required = currentHasPassword;
+    }
+    if (passwordFormHeading) {
+      passwordFormHeading.textContent = currentHasPassword ? 'Change Password' : 'Set a Password';
+    }
+    if (passwordSubmitBtn) {
+      passwordSubmitBtn.textContent = currentHasPassword ? 'Update Password' : 'Set Password';
+    }
+
+    if (emailInputEl && user.email) emailInputEl.value = user.email;
+    if (emailBadgeEl) {
+      emailBadgeEl.textContent = user.emailVerified ? 'Verified' : 'Not Verified';
+      emailBadgeEl.classList.toggle('is-verified', !!user.emailVerified);
+    }
+    // Google already verifies the email before this app ever sees it — there's
+    // nothing for a "send verification email" button to do for that account.
+    if (verifyBtn) verifyBtn.style.display = user.emailVerified ? 'none' : '';
+
+    updateDeleteButtonState();
+  }
+
+  const currentPasswordField = profileCardOverlay.querySelector('#profileCardCurrentPassword');
+
+  (async () => {
+    try {
+      const res = await fetch(`${API_ROOT}/users/me`, { headers: authHeaders() });
+      const data = await res.json();
+      if (!res.ok) return; // keep whatever localStorage had; not worth surfacing an error for a background refresh
+
+      profileUser = { ...profileUser, ...data.user };
+      localStorage.setItem('user', JSON.stringify(profileUser));
+      applyAuthProviderUI(profileUser);
+    } catch (error) {
+      console.error('Refresh profile error:', error);
+      // Network hiccup on a background refresh — the card still works with
+      // whatever was already in localStorage, just possibly slightly stale.
+    }
+  })();
 }
 
 // ===================== Medical records =====================
