@@ -13,7 +13,7 @@
             <!-- Header: primary navigation and appointment CTA -->
         <header class="site-header">
             <div class="container header-inner">
-                <a class="brand" href="#home" aria-label="Sehat Kahani home">
+                <a class="brand" href="/Frontend/HTML/index.html" aria-label="Sehat Kahani home">
                     <span class="brand-mark" aria-hidden="true"></span>
                     <span>Sehat Kahani</span>
                 </a>
@@ -25,6 +25,7 @@
                     </summary>
                     <div class="menu-panel" aria-label="Mobile navigation">
                         <a href="/Frontend/HTML/index.html">Home</a>
+                        <a href="/Frontend/HTML/about.html">About</a>
                         <a href="#services">Services</a>
                         <a href="#doctors">Doctors</a>
                         <a href="#portal">Patient Portal</a>
@@ -34,15 +35,19 @@
                 </details>
 
                 <nav class="nav" aria-label="Primary">
-                    <a href="/Frontend/HTML/index.html">Home</a>
-                    <a href="#services">Services</a>
-                    <a href="#doctors">Doctors</a>
-                    <a href="#about">About</a>
-                    <a href="#contact">Contact</a>
+                    <div class="nav-group">
+                        <a href="/Frontend/HTML/index.html">Home</a>
+                        <a class="is-active" href="/Frontend/HTML/about.html" aria-current="page">About</a>
+                    </div>
+                    <div class="nav-group">
+                        <a href="#services">Services</a>
+                        <a href="#doctors">Doctors</a>
+                        <a href="#portal">Patient Portal</a>
+                        <a href="#contact">Contact</a>
+                    </div>
                 </nav>
 
                 <div class="header-links">
-                    <a href="#portal">Patient Portal</a>
                     <a class="book-btn" href="/Frontend/HTML/login.html">Book Appointment</a>
                 </div>
             </div>
@@ -58,32 +63,32 @@
 
                     <div class="card-grid">
                         <article class="feature-card">
-                            <div class="feature-icon">âŒ‚</div>
+                            <div class="feature-icon"></div>
                             <h3>Appointment Booking</h3>
                             <p>Schedule visits with specialists in seconds and synchronize directly with your calendar.</p>
                         </article>
                         <article class="feature-card">
-                            <div class="feature-icon">â–£</div>
+                            <div class="feature-icon"></div>
                             <h3>Digital Prescriptions</h3>
                             <p>Access prescriptions anytime with direct integration to local pharmacies.</p>
                         </article>
                         <article class="feature-card">
-                            <div class="feature-icon">â–¤</div>
+                            <div class="feature-icon"></div>
                             <h3>Medical Records</h3>
                             <p>View a unified timeline of history, tests, results, and vaccination logs.</p>
                         </article>
                         <article class="feature-card">
-                            <div class="feature-icon">â—«</div>
+                            <div class="feature-icon"></div>
                             <h3>Secure Messaging</h3>
                             <p>Communicate safely with your care team between appointments.</p>
                         </article>
                         <article class="feature-card">
-                            <div class="feature-icon">â†º</div>
+                            <div class="feature-icon"></div>
                             <h3>Health Tracking</h3>
                             <p>Monitor visits and chronic conditions with automated reporting to your doctor.</p>
                         </article>
                         <article class="feature-card">
-                            <div class="feature-icon">â—”</div>
+                            <div class="feature-icon"></div>
                             <h3>Notifications</h3>
                             <p>Never miss an appointment or a medication dose with smart reminders.</p>
                         </article>
@@ -197,10 +202,9 @@
                         <article class="feature-card" style="padding: 0; overflow: hidden;">
                             <img src="/assests/photos/sehat_kahani_patient_sign_up.png" alt="Sehat Kahani patient sign up preview" style="width:100%; height: 100%; object-fit: cover; min-height: 16rem;">
                         </article>
-                        <article class="feature-card">
-                            <div class="feature-icon">âŒ</div>
-                            <h3>Responsive by design</h3>
-                            <p>Buttons, cards, and forms are structured to reflow cleanly on mobile, tablet, and desktop screens.</p>
+                        <article class="feature-card" style="padding: 0; overflow: hidden;">
+                            <img src="/assests/photos/patient-portal.png" alt="Sehat Kahani patient dashboard preview" style="width:100%; height: 100%; object-fit: cover; min-height: 16rem;">
+                            
                         </article>
                     </div>
                 </div>
