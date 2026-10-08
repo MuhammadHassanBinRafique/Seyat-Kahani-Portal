@@ -98,11 +98,6 @@ h6 { font-weight: 500; }
             transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
         }
 
-        .button:hover,
-        button:hover {
-            transform: translateY(-1px);
-        }
-
         .page {
             width: 100%;
             overflow: hidden;
@@ -242,6 +237,9 @@ h6 { font-weight: 500; }
         .menu-panel a {
             font-weight: 700;
             color: var(--text);
+        }
+        .menu-panel a:nth-child(7) {
+            color: var(--brand-ink);
         }
         .menu-panel .book-btn {
             width: 100%;
@@ -1480,7 +1478,6 @@ h6 { font-weight: 500; }
             position: absolute;
             right: 16px;
             top: 20%;
-            transform: translateY(-50%);
             color: var(--outline);
             width: 20px;
             height: 20px;

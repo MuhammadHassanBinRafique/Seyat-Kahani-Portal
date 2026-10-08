@@ -52,18 +52,14 @@
     <button class="mobile-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
-    <div class="search-wrap">
-      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <input type="text" placeholder="Search for patients, records, or appointments...">
-    </div>
     <div class="topbar-right">
       <div class="divider-v"></div>
       <div class="user-chip">
         <div>
-          <p class="name">Dr. Sarah Ahmed</p>
-          <p class="role">Senior Cardiologist</p>
+          <p class="name" id="doctorName">Loading...</p>
+          <p class="role" id="doctorRole">Doctor</p>
         </div>
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-Ntql80y-YYXAQ_fILqeBQ6U2p6OGPKIMf4-aMvXq1r1FWsMYDMVcHvFu_Cgg6S7QKRI8wAU-RloL1NGsKBMry9clEuWXtuZuvEMNUKn5fBE5swoQWcyc0K3_0uu9wbNEgiyYr-8qBpHTKkNgraP_dk80Ntw5JT95fwDm57wDJyVLJFKKqcFgcOGnR5R3ejtLGjUW8KprgzoqGRuyGaOH8Kwejy04-Y8qJ2JH1GiKLcCxXkjh9B-dsg" alt="Doctor avatar">
+        <div class="patient-initials" id="doctorAvatar" aria-hidden="true">DR</div>
       </div>
     </div>
   </header>
@@ -125,9 +121,6 @@
             <button class="tab-btn" data-filter="upcoming">Upcoming</button>
             <button class="tab-btn" data-filter="completed">Completed</button>
           </div>
-          <button class="filter-btn">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span>
-          </button>
         </div>
 
         <div style="overflow-x:auto;">
@@ -149,17 +142,9 @@
 
         <div class="table-footer">
           <span id="patientCountText">Loading...</span>
-          <div class="pagination">
-            <button class="page-btn">
-              <span class="icon" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-            </button>
-            <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">3</button>
-            <button class="page-btn">
-              <span class="icon" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-            </button>
+          <div class="pagination" id="patientPagination">
           </div>
+          <div id="appointmentUndoBar" class="appointment-undo" role="status" aria-live="polite" hidden></div>
         </div>
       </div>
 
@@ -168,65 +153,23 @@
         <div class="card">
           <div class="side-card-header">
             <h4>Urgent Reviews</h4>
-            <span class="badge-new">3 New</span>
+            <span class="badge-new" id="urgentReviewCount">0 New</span>
           </div>
-          <div class="review-item urgent">
-            <div class="rdot"></div>
-            <div>
-              <p class="r-title">Lab Results: Hamza Sheikh</p>
-              <p class="r-desc">Abnormal hemoglobin levels detected. Review required immediately.</p>
-              <button class="r-action">View Report</button>
-            </div>
-          </div>
-          <div class="review-item normal">
-            <div class="rdot"></div>
-            <div>
-              <p class="r-title">Appointment: Sarah Khalid</p>
-              <p class="r-desc">Patient requested an emergency slot for cardiac screening.</p>
-              <button class="r-action">Approve Slot</button>
-            </div>
+          <div id="urgentReviewList">
+            <p class="table-message">Loading reviews...</p>
           </div>
         </div>
 
         <div class="card">
-          <h4 style="font-family:var(--font-secondary); font-size:18px; color:var(--forest-deep); margin:0 0 24px 0;">Patient Distribution</h4>
+          <h4 style="font-family:var(--font-secondary); font-size:18px; color:var(--forest-deep); margin:0 0 24px 0;">Patient Status Distribution</h4>
           <div class="donut-wrap">
-            <div class="donut">
+            <div class="donut" id="patientDistributionChart">
               <div class="donut-inner">
-                <span class="total">1.2k</span>
+                <span class="total" id="patientDistributionTotal">0</span>
                 <span class="label">Total</span>
               </div>
             </div>
-            <div class="legend">
-              <div class="legend-row">
-                <div class="left">
-                  <div class="legend-dot" style="background:var(--primary-container);"></div>
-                  <span class="legend-label">Cardiology</span>
-                </div>
-                <span class="pct">45%</span>
-              </div>
-              <div class="legend-row">
-                <div class="left">
-                  <div class="legend-dot" style="background:var(--status-success);"></div>
-                  <span class="legend-label">General Care</span>
-                </div>
-                <span class="pct">30%</span>
-              </div>
-              <div class="legend-row">
-                <div class="left">
-                  <div class="legend-dot" style="background:var(--status-pending);"></div>
-                  <span class="legend-label">Pediatrics</span>
-                </div>
-                <span class="pct">15%</span>
-              </div>
-              <div class="legend-row">
-                <div class="left">
-                  <div class="legend-dot" style="background:var(--sage-light);"></div>
-                  <span class="legend-label">Others</span>
-                </div>
-                <span class="pct">10%</span>
-              </div>
-            </div>
+            <div class="legend" id="patientDistributionLegend"></div>
           </div>
         </div>
       </div>

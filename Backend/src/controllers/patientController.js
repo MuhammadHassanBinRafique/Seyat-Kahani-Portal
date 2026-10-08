@@ -8,7 +8,8 @@ export const getMyPatients = async (req, res) => {
     try {
         const appointments = await Appointment.find({
             doctor: req.user.id,   // from the verified JWT, so a doctor only ever sees their own patients
-            status: { $in: ["pending", "confirmed", "completed"] }
+            status: { $in: ["pending", "confirmed", "completed"] },
+            deletedAt: null
         }).populate("patient", "name email");
 
         const byPatient = new Map();
@@ -24,6 +25,8 @@ export const getMyPatients = async (req, res) => {
                     name: appt.patient.name,
                     email: appt.patient.email,
                     totalAppointments: 0,
+                    latestAppointmentId: appt._id.toString(),
+                    latestAppointmentDate: appt.date,
                     lastVisit: null,      // date of the most recent COMPLETED appointment
                     hasUpcoming: false    // true if any pending/confirmed appointment exists
                 });
@@ -31,6 +34,10 @@ export const getMyPatients = async (req, res) => {
 
             const entry = byPatient.get(key);
             entry.totalAppointments += 1;
+            if (appt.date >= entry.latestAppointmentDate) {
+                entry.latestAppointmentId = appt._id.toString();
+                entry.latestAppointmentDate = appt.date;
+            }
 
             if (appt.status === "completed") {
                 // dates are stored as "YYYY-MM-DD", so plain string comparison sorts correctly

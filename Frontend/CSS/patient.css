@@ -233,7 +233,7 @@ display: flex;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
         align-items: center;
         height: 64px;
         padding: 0 24px;
@@ -333,6 +333,7 @@ display: flex;
         gap: 12px;
         padding-left: 16px;
         border-left: 1px solid var(--sage-light);
+        cursor: pointer;
     }
 
     .profile-text { text-align: right; }
@@ -455,13 +456,18 @@ display: flex;
     .bento-grid {
         margin-top: 24px;
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 24px;
     }
 
-    @media (min-width: 768px) { .bento-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 768px) {
+        .bento-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
 
     .glass-card {
+        min-width: 0;
         background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);

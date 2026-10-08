@@ -2,9 +2,73 @@ import mongoose from "mongoose";
 import Appointment from "../models/appointment.model.js";
 import User from "../models/user.model.js";
 
-// --- Small reusable validators (security: input validation) ---
+const DELETED_APPOINTMENT_RETENTION_MS = 5 * 60 * 1000;
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+export const purgeExpiredDeletedAppointments = async () => {
+  await Appointment.deleteMany({
+    deletedAt: { $ne: null, $lte: new Date(Date.now() - DELETED_APPOINTMENT_RETENTION_MS) }
+  });
+};
+
+const cleanupTimer = setInterval(() => {
+  purgeExpiredDeletedAppointments().catch((error) => {
+    console.error("Purge deleted appointments error:", error);
+  });
+}, 60 * 1000);
+cleanupTimer.unref();
+
+export const doctorDeleteAppointment = async (req, res) => {
+  try {
+    await purgeExpiredDeletedAppointments();
+    if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "Invalid appointment id" });
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      doctor: req.user.id,
+      deletedAt: null
+    });
+    if (!appointment) return res.status(404).json({ message: "Appointment not found" });
+
+    appointment.deletedAt = new Date();
+    appointment.deletedBy = req.user.id;
+    await appointment.save();
+    res.status(200).json({
+      message: "Appointment moved to recently deleted",
+      appointmentId: appointment._id,
+      expiresAt: new Date(appointment.deletedAt.getTime() + DELETED_APPOINTMENT_RETENTION_MS)
+    });
+  } catch (error) {
+    console.error("Delete appointment error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const undoDoctorDeleteAppointment = async (req, res) => {
+  try {
+    if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "Invalid appointment id" });
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      doctor: req.user.id,
+      deletedBy: req.user.id
+    });
+    if (!appointment) return res.status(404).json({ message: "Deleted appointment not found" });
+
+    if (!appointment.deletedAt || Date.now() - appointment.deletedAt.getTime() > DELETED_APPOINTMENT_RETENTION_MS) {
+      await Appointment.deleteOne({ _id: appointment._id });
+      return res.status(410).json({ message: "Undo period has expired" });
+    }
+
+    appointment.deletedAt = null;
+    appointment.deletedBy = null;
+    await appointment.save();
+    res.status(200).json({ message: "Appointment restored" });
+  } catch (error) {
+    console.error("Undo appointment deletion error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// --- Small reusable validators (security: input validation) ---
 const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 const isValidTime = (time) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
 
@@ -80,11 +144,12 @@ export const bookAppointment = async (req, res) => {
 // ================= GET MY APPOINTMENTS (patient or doctor) =================
 export const getMyAppointments = async (req, res) => {
   try {
+    await purgeExpiredDeletedAppointments();
     const { id, role } = req.user;
 
     // Query differs depending on who's asking — a patient sees their own bookings,
     // a doctor sees appointments booked with them.
-    const filter = role === "doctor" ? { doctor: id } : { patient: id };
+    const filter = role === "doctor" ? { doctor: id, deletedAt: null } : { patient: id, deletedAt: null };
 
     const appointments = await Appointment.find(filter)
       .populate("patient", "name email")
@@ -118,7 +183,7 @@ export const updateAppointmentStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status value" });
     }
 
-    const appointment = await Appointment.findById(id);
+    const appointment = await Appointment.findOne({ _id: id, deletedAt: null });
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
@@ -153,7 +218,7 @@ export const cancelAppointment = async (req, res) => {
       return res.status(400).json({ message: "Invalid appointment id" });
     }
 
-    const appointment = await Appointment.findById(id);
+    const appointment = await Appointment.findOne({ _id: id, deletedAt: null });
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
@@ -187,7 +252,7 @@ export const getAppointmentById = async (req, res) => {
       return res.status(400).json({ message: "Invalid appointment id" });
     }
 
-    const appointment = await Appointment.findById(id)
+    const appointment = await Appointment.findOne({ _id: id, deletedAt: null })
       .populate("patient", "name email")
       .populate("doctor", "name email");
 

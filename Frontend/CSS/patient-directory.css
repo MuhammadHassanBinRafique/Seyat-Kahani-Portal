@@ -206,7 +206,7 @@ h6 { font-weight: 500; }
     background: rgba(247, 250, 248, 0.9);
     border-bottom: 1px solid var(--sage-light);
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 0 24px;
     z-index: 40;
@@ -645,6 +645,59 @@ h6 { font-weight: 500; }
     background: var(--primary-fixed);
   }
 
+  .action-cell {
+    position: relative;
+    min-width: 72px;
+  }
+
+  .row-menu {
+    position: absolute;
+    z-index: 3;
+    right: 16px;
+    top: 48px;
+    min-width: 170px;
+    padding: 6px;
+    border: 1px solid var(--sage-light);
+    border-radius: 8px;
+    background: var(--white);
+    box-shadow: 0 8px 24px rgba(23, 48, 41, 0.16);
+  }
+
+  .row-menu button {
+    width: 100%;
+    border: 0;
+    border-radius: 5px;
+    padding: 9px 10px;
+    background: transparent;
+    color: var(--error);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .row-menu button:hover {
+    background: var(--error-container);
+  }
+
+  .appointment-undo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--sage-light);
+    background: var(--surface-container-low);
+    color: var(--forest-deep);
+    font-size: 13px;
+  }
+
+  .appointment-undo button {
+    border: 0;
+    background: transparent;
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
   .table-footer {
     padding: 16px;
     border-top: 1px solid var(--sage-light);
@@ -877,6 +930,7 @@ h6 { font-weight: 500; }
       left: 0;
       right: 0;
       padding: 0 16px;
+      justify-content: space-between;
     }
 
     main {
@@ -897,6 +951,15 @@ h6 { font-weight: 500; }
   }
 
   @media (max-width: 560px) {
+    .row-menu {
+      right: 8px;
+      top: 44px;
+    }
+
+    .appointment-undo {
+      flex-wrap: wrap;
+      text-align: center;
+    }
     .topbar-right {
       gap: 8px;
     }
