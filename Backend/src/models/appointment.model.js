@@ -29,6 +29,15 @@ const appointmentSchema = new mongoose.Schema({
     type: String,
     enum: ["pending", "confirmed", "cancelled", "completed"],
     default: "pending"
+  },
+  deletedAt: {
+    type: Date,
+    default: null
+  },
+  deletedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
   }
 }, { timestamps: true });
 

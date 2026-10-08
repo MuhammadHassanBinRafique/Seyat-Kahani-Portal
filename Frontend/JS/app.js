@@ -1,5 +1,5 @@
-const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
-// const API_BASE_URL = 'http://localhost:5000/api/auth';
+//const API_BASE_URL = 'https://seyat-kahani-portal-production.up.railway.app/api/auth';
+const API_BASE_URL = 'http://localhost:5000/api/auth';
 
 // Google Client ID is a public identifier (not a secret) — safe to ship in frontend code.
 // Replace this with your own, created at https://console.cloud.google.com/apis/credentials
@@ -768,8 +768,8 @@ document.querySelectorAll('.doc-row').forEach(item => {
 
 // ===================== Appointments module =====================
 
-  const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
-  // const API_ROOT = 'http://localhost:5000/api';
+  //const API_ROOT = 'https://seyat-kahani-portal-production.up.railway.app/api';
+  const API_ROOT = 'http://localhost:5000/api';
 
 function getToken() {
   return localStorage.getItem('token');
@@ -1413,7 +1413,18 @@ const patientTableBody = document.querySelector('#patientTableBody');
 
 if (patientTableBody) {
   let allPatients = [];
+  let doctorAppointments = [];
   let patientFilter = 'all';
+  let patientPage = 1;
+  const patientPageSize = 5;
+  const urgentReviewList = document.querySelector('#urgentReviewList');
+  const urgentReviewCount = document.querySelector('#urgentReviewCount');
+  const distributionChart = document.querySelector('#patientDistributionChart');
+  const distributionTotal = document.querySelector('#patientDistributionTotal');
+  const distributionLegend = document.querySelector('#patientDistributionLegend');
+  const patientPagination = document.querySelector('#patientPagination');
+  const appointmentUndoBar = document.querySelector('#appointmentUndoBar');
+  let undoTimer;
 
   // Dates arrive as "YYYY-MM-DD". Build the Date from parts so timezones can't shift the day.
   const formatVisitDate = (dateStr) => {
@@ -1427,10 +1438,14 @@ if (patientTableBody) {
   };
 
   const renderPatients = () => {
-    const visible = allPatients.filter((p) =>
+    const filtered = allPatients.filter((p) =>
       patientFilter === 'upcoming' ? p.hasUpcoming :
       patientFilter === 'completed' ? p.lastVisit :
       true);
+    const totalPages = Math.max(1, Math.ceil(filtered.length / patientPageSize));
+    patientPage = Math.min(patientPage, totalPages);
+    const start = (patientPage - 1) * patientPageSize;
+    const visible = filtered.slice(start, start + patientPageSize);
 
     const kpiTotal = document.querySelector('#kpiTotalPatients');
     const kpiUpcoming = document.querySelector('#kpiUpcoming');
@@ -1440,7 +1455,11 @@ if (patientTableBody) {
     if (kpiTotal) kpiTotal.textContent = allPatients.length;
     if (kpiUpcoming) kpiUpcoming.textContent = allPatients.filter((p) => p.hasUpcoming).length;
     if (kpiSeen) kpiSeen.textContent = allPatients.filter((p) => p.lastVisit).length;
-    if (countText) countText.textContent = `Showing ${visible.length} of ${allPatients.length} patient${allPatients.length === 1 ? '' : 's'}`;
+    if (countText) {
+      const first = filtered.length ? start + 1 : 0;
+      const last = Math.min(start + patientPageSize, filtered.length);
+      countText.textContent = `Showing ${first}-${last} of ${filtered.length} patient${filtered.length === 1 ? '' : 's'}`;
+    }
 
     if (visible.length === 0) {
       setPatientMessage(allPatients.length === 0
@@ -1463,26 +1482,184 @@ if (patientTableBody) {
         <td class="id-mono">${escapeHtml(p.email)}</td>
         <td class="visit-date">${formatVisitDate(p.lastVisit)}</td>
         <td><span class="status-pill ${p.hasUpcoming ? 'followup' : 'stable'}">${p.hasUpcoming ? 'Upcoming' : 'Completed'}</span></td>
-        <td>
-          <button class="row-action">
+        <td class="action-cell">
+          <button class="row-action" aria-label="Appointment actions" aria-expanded="false">
             <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></span>
           </button>
+          <div class="row-menu" hidden>
+            <button type="button" class="delete-appointment" data-id="${escapeHtml(p.latestAppointmentId)}">Delete appointment</button>
+          </div>
         </td>
       </tr>
     `).join('');
+
+    patientTableBody.querySelectorAll('.row-action').forEach((button) => {
+      button.addEventListener('click', () => {
+        const menu = button.nextElementSibling;
+        const isOpen = !menu.hidden;
+        patientTableBody.querySelectorAll('.row-menu').forEach((item) => { item.hidden = true; });
+        patientTableBody.querySelectorAll('.row-action').forEach((item) => item.setAttribute('aria-expanded', 'false'));
+        menu.hidden = isOpen;
+        button.setAttribute('aria-expanded', String(!isOpen));
+      });
+    });
+    patientTableBody.querySelectorAll('.delete-appointment').forEach((button) => {
+      button.addEventListener('click', () => deleteAppointment(button.dataset.id));
+    });
+
+    if (patientPagination) {
+      patientPagination.innerHTML = `<button class="page-btn" data-page="prev" ${patientPage === 1 ? 'disabled' : ''} aria-label="Previous page">&#8249;</button>
+        ${Array.from({ length: totalPages }, (_, index) => `<button class="page-btn ${index + 1 === patientPage ? 'active' : ''}" data-page="${index + 1}">${index + 1}</button>`).join('')}
+        <button class="page-btn" data-page="next" ${patientPage === totalPages ? 'disabled' : ''} aria-label="Next page">&#8250;</button>`;
+      patientPagination.querySelectorAll('[data-page]').forEach((button) => button.addEventListener('click', () => {
+        const target = button.dataset.page;
+        patientPage = target === 'prev' ? patientPage - 1 : target === 'next' ? patientPage + 1 : Number(target);
+        renderPatients();
+      }));
+    }
+  };
+
+  const showUndo = (appointmentId, expiresAt) => {
+    if (!appointmentUndoBar) return;
+    window.clearTimeout(undoTimer);
+    const remainingMs = Math.max(0, new Date(expiresAt).getTime() - Date.now());
+    if (!remainingMs) return;
+    appointmentUndoBar.hidden = false;
+    appointmentUndoBar.innerHTML = `Appointment deleted. <button type="button" id="undoAppointment">Undo</button>`;
+    appointmentUndoBar.querySelector('#undoAppointment').addEventListener('click', async () => {
+      try {
+        const response = await fetch(`${API_ROOT}/appointments/${encodeURIComponent(appointmentId)}/undo-delete`, {
+          method: 'POST',
+          headers: authHeaders()
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Could not undo deletion');
+        appointmentUndoBar.hidden = true;
+        await loadPatients();
+      } catch (error) {
+        console.error('Undo appointment deletion error:', error);
+        appointmentUndoBar.textContent = error.message || 'Could not undo deletion.';
+      }
+    });
+    undoTimer = window.setTimeout(() => {
+      appointmentUndoBar.hidden = true;
+      appointmentUndoBar.textContent = '';
+    }, remainingMs);
+  };
+
+  async function deleteAppointment(appointmentId) {
+    if (!appointmentId || !window.confirm('Delete this appointment? You can undo this for 5 minutes.')) return;
+    try {
+      const response = await fetch(`${API_ROOT}/appointments/${encodeURIComponent(appointmentId)}/doctor-delete`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Could not delete appointment');
+      showUndo(data.appointmentId, data.expiresAt);
+      await loadPatients();
+    } catch (error) {
+      console.error('Delete appointment error:', error);
+      window.alert(error.message || 'Could not delete appointment.');
+    }
+  }
+
+  const formatReviewDate = (date, time) => {
+    const dateValue = new Date(`${date}T${time || '00:00'}`);
+    return Number.isNaN(dateValue.getTime()) ? date : dateValue.toLocaleString('en-US', {
+      month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+    });
+  };
+
+  const renderReviews = () => {
+    const pending = doctorAppointments.filter((appointment) => appointment.status === 'pending');
+    if (urgentReviewCount) urgentReviewCount.textContent = `${pending.length} New`;
+    if (!urgentReviewList) return;
+    if (!pending.length) {
+      urgentReviewList.innerHTML = '<p class="table-message">No pending reviews.</p>';
+      return;
+    }
+
+    urgentReviewList.innerHTML = pending.slice(0, 5).map((appointment) => {
+      const patientName = appointment.patient?.name || 'Unknown patient';
+      const isUrgent = /urgent|emergency/i.test(appointment.reason || '');
+      return `<div class="review-item ${isUrgent ? 'urgent' : 'normal'}">
+        <div class="rdot"></div>
+        <div>
+          <p class="r-title">Appointment: ${escapeHtml(patientName)}</p>
+          <p class="r-desc">${escapeHtml(appointment.reason || 'Consultation')} · ${escapeHtml(formatReviewDate(appointment.date, appointment.time))}</p>
+          <button class="r-action approve-review" data-id="${escapeHtml(appointment._id)}">Approve Slot</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    urgentReviewList.querySelectorAll('.approve-review').forEach((button) => {
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        await updateDoctorAppointmentStatus(button.dataset.id, 'confirmed');
+        await loadPatients();
+      });
+    });
+  };
+
+  const renderDistribution = () => {
+    const total = allPatients.length;
+    const groups = [
+      { label: 'Upcoming', count: allPatients.filter((patient) => patient.hasUpcoming).length, color: 'var(--primary-container)' },
+      { label: 'Seen', count: allPatients.filter((patient) => !patient.hasUpcoming && patient.lastVisit).length, color: 'var(--status-success)' },
+      { label: 'No completed visit', count: allPatients.filter((patient) => !patient.hasUpcoming && !patient.lastVisit).length, color: 'var(--status-pending)' }
+    ];
+    if (distributionTotal) distributionTotal.textContent = total;
+    if (distributionChart) {
+      let offset = 0;
+      const stops = groups.map((group) => {
+        const percentage = total ? (group.count / total) * 100 : 0;
+        const stop = `${group.color} ${offset}% ${offset + percentage}%`;
+        offset += percentage;
+        return stop;
+      });
+      distributionChart.style.background = total ? `conic-gradient(${stops.join(', ')})` : 'var(--surface-container-high)';
+    }
+    if (distributionLegend) {
+      distributionLegend.innerHTML = groups.map((group) => {
+        const percentage = total ? Math.round((group.count / total) * 100) : 0;
+        return `<div class="legend-row">
+          <div class="left"><div class="legend-dot" style="background:${group.color};"></div><span class="legend-label">${escapeHtml(group.label)}</span></div>
+          <span class="pct">${percentage}%</span>
+        </div>`;
+      }).join('');
+    }
   };
 
   async function loadPatients() {
     try {
-      const res = await fetch(`${API_ROOT}/patients`, { headers: authHeaders() });
-      const data = await res.json();
+      const [patientsRes, appointmentsRes, profileRes] = await Promise.all([
+        fetch(`${API_ROOT}/patients`, { headers: authHeaders() }),
+        fetch(`${API_ROOT}/appointments/my`, { headers: authHeaders() }),
+        fetch(`${API_ROOT}/users/me`, { headers: authHeaders() })
+      ]);
+      const data = await patientsRes.json();
 
-      if (!res.ok) {
+      if (!patientsRes.ok) {
         setPatientMessage(data.message || 'Could not load patients');
         return;
       }
 
-      allPatients = data;
+      const appointments = await appointmentsRes.json();
+      doctorAppointments = appointmentsRes.ok && Array.isArray(appointments) ? appointments : [];
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        const doctor = profileData.user;
+        const name = document.querySelector('#doctorName');
+        const role = document.querySelector('#doctorRole');
+        const avatar = document.querySelector('#doctorAvatar');
+        if (name) name.textContent = doctor.name;
+        if (role) role.textContent = doctor.role === 'doctor' ? 'Doctor' : doctor.role;
+        if (avatar) avatar.textContent = getInitials(doctor.name);
+      }
+      allPatients = Array.isArray(data) ? data : [];
+      renderReviews();
+      renderDistribution();
       renderPatients();
     } catch (error) {
       console.error('Load patients error:', error);
@@ -1495,6 +1672,7 @@ if (patientTableBody) {
   document.querySelectorAll('.tab-btn[data-filter]').forEach((btn) => {
     btn.addEventListener('click', () => {
       patientFilter = btn.getAttribute('data-filter');
+      patientPage = 1;
       renderPatients();
     });
   });

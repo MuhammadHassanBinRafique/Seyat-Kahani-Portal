@@ -41,7 +41,8 @@ export const createRecord = async (req, res) => {
         const hasRelationship = await Appointment.findOne({
             doctor: req.user.id,
             patient: patientId,
-            status: { $in: ["pending", "confirmed", "completed"] }
+            status: { $in: ["pending", "confirmed", "completed"] },
+            deletedAt: null
         });
         if (!hasRelationship) {
             return res.status(403).json({ message: "You can only create records for patients you have an appointment with" });

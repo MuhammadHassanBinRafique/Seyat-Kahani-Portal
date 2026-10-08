@@ -293,7 +293,7 @@ h6 { font-weight: 500; }
   form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 30px;
   }
 
   .field {
@@ -341,7 +341,6 @@ h6 { font-weight: 500; }
     position: absolute;
     right: 12px;
     top: 28%;
-    transform: translateY(-50%);
     background: none;
     border: none;
     color: var(--on-surface-variant);
