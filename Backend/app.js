@@ -18,7 +18,7 @@ app.use(helmet());
 // Restrict CORS to only your actual live frontend + local dev, instead of allowing every origin.
 // Add any other real frontend URLs (e.g. a staging URL) to this array as needed.
 const allowedOrigins = [
-  "https://seyat-kahani-portal-mfta-dauiv688a.vercel.app",
+  "https://seyat-kahani-portal.vercel.app",
   "http://localhost:5500",
   "http://127.0.0.1:5500",
   "http://localhost:51337",
