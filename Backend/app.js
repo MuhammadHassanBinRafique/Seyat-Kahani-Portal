@@ -1,4 +1,6 @@
 import express from "express";
+import mongoose from "mongoose";
+import connectDB from "./src/config/db.js";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -11,6 +13,8 @@ import medicalRecordRoute from "./src/routes/medicalRecordRoute.js";
 import patientRoute from "./src/routes/patientRoute.js";
 
 const app = express();
+
+app.set("trust proxy", 1);
 
 // Sets standard security-related HTTP headers (X-Content-Type-Options, X-Frame-Options, etc.)
 app.use(helmet());
@@ -51,6 +55,17 @@ const authLimiter = rateLimit({
 app.get("/", (req, res) =>{
      res.send("API is working Smoothly!!!");
 });
+
+// Serverless: index.js never runs on Vercel, so connect on the first request
+app.use(async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState === 0) await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 app.use("/api/auth", authLimiter, authRoute);
 app.use("/api/admin", adminRoute);
