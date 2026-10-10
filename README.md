@@ -1,209 +1,263 @@
-﻿# Seyat Khani Portal
 
-## Live Demo
-- Frontend: https://seyat-kahani-portal.vercel.app
-- Backend API: https://seyat-kahani-portal-production.up.railway.app
 
-## Project Overview
-Seyat Khani Portal is a healthcare platform that combines a modern multi-page frontend with a secure Node.js/Express backend. The project supports patient and doctor authentication, role-based dashboard access, protected admin operations, and appointment management backed by MongoDB.
+# live preview:
+                https://seyat-kahani-portal.vercel.app
 
-## Latest Updates
-The project has moved beyond the initial mock-up stage and is now connected to production-hosted services:
+# Seyat Khani Portal
 
-- The frontend is deployed on Vercel and uses the live Railway backend for authentication and API calls.
-- The backend is hosted on Railway with CORS configured for the live frontend and local development ports.
-- The signup, login, and role-based redirect flows are fully connected between the frontend and backend.
-- Patient and doctor dashboards are wired to protected API routes.
-- Appointment booking, listing, status changes, and cancellation APIs are implemented and active.
-- Doctor list and user-management endpoints are already available in the backend.
-- Security measures include JWT protection, role checks, rate limiting, input validation, and MongoDB safeguards.
+Seyat Kahani Portal is a healthcare web application for connecting patients
+and doctors. It provides authentication, role-based dashboards, appointment
+management, patient lookup, and medical-record workflows.
 
-## Current Development Status
+## Features
 
-### Completed
-- Responsive healthcare frontend with pages for home, about, login, sign-up, patient dashboard, doctor dashboard, appointments, health vault, medical records, and patient directory.
-- Shared JavaScript for login and signup flows, form validation, password visibility toggling, token handling, role-based redirects, and dashboard interactions.
-- Reusable healthcare styling system with branded colors, typography, and responsive UI components.
-- Express.js backend using ES modules with environment-based configuration and middleware.
-- MongoDB connection through Mongoose and environment variables.
-- User schema with name, unique lowercase email, hashed password, role, and timestamps.
-- Patient signup with duplicate-email checks and bcrypt hashing.
-- Login flow with bcrypt verification and JWT issuance.
-- Protected middleware for JWT verification and role-based authorization.
-- Doctor/admin endpoints for listing users and deleting accounts.
-- Appointment booking and management APIs for patient and doctor workflows.
-- Doctor directory endpoint for viewing available physicians.
-- User self-service endpoints for updating profile information and changing passwords.
-- Seed script for creating initial doctor accounts.
-- Development workflow using Nodemon.
-- Live deployment setup for frontend and backend services.
+### Authentication and accounts
 
-### In Progress / Planned
-- Full CRUD for medical records, vault files, notifications, and profile/settings modules.
-- Improved analytics, dashboard summaries, and personalized patient/doctor data views.
-- Refresh-token/session management and password reset workflows.
-- Email verification and notification services.
-- Automated testing and API documentation.
-- Production-grade security hardening and deployment tuning.
+- Patient account registration and login.
+- Google sign-in through server-side ID-token verification.
+- JWT-based authentication for protected operations.
+- Role-aware access for patients and doctors.
+- Profile retrieval and name updates.
+- Password changes for password-based accounts.
+- Account deletion, including re-authentication support for Google-only users.
+- Rate limiting on authentication requests.
 
-## Vision
-Build a scalable digital healthcare portal that streamlines patient access, doctor interactions, appointment scheduling, and secure health data management.
+### Patient features
 
-## Functional Requirements
-- Navigation between portal pages.
-- Responsive, accessible forms with client-side validation.
-- Patient registration and login.
-- Doctor login and secure JWT-based authentication.
-- Role-aware redirects and dashboard access.
-- Protected doctor/admin user management operations.
-- MongoDB-backed persistence for users and appointments.
-- API integration for authentication, doctor lookup, and appointment workflows.
+- Patient dashboard and profile information.
+- Browse available doctors.
+- Book appointments with a doctor.
+- View appointment details and personal appointment history.
+- Cancel pending appointments.
+- View personal medical records.
 
-## Non-functional Requirements
-- Responsive UI.
-- Maintainable and modular architecture.
-- Secure password storage through bcrypt hashing.
-- Environment-based configuration for database and JWT secrets.
-- CORS and rate limiting for production safety.
+### Doctor features
 
-## Project Structure
-```text
-assests/photos/       Frontend image and branding assets
-Backend/              Node.js/Express API
-  app.js               Express app and middleware configuration
-  index.js             Server startup and database connection
-  package.json         Backend scripts and dependencies
-  src/
-    config/            MongoDB connection setup
-    controllers/       Auth, user, and appointment handlers
-    middlewares/       JWT and role-based authorization
-    models/            Mongoose schemas
-    routes/            Auth, admin, doctor, user, and appointment routes
-    script/            Database seed scripts
-Frontend/
-  CSS/                 Page-specific stylesheets
-  HTML/                Frontend pages
-  JS/                  Shared frontend logic and API integration
-README.md             Project documentation
-```
+- Doctor dashboard and profile information.
+- View assigned patients.
+- View and manage appointments.
+- Confirm, cancel, or complete appointments.
+- Hide an appointment and undo that action when supported by the workflow.
+- Create medical records for patients.
+- Access protected user-management operations.
 
-## Frontend Pages
-- `index.html` - Landing page
-- `about.html` - About page
-- `login.html` - Patient/doctor login
-- `sign-up.html` - Patient registration
-- `patient-dashboard.html` - Patient dashboard
-- `doctor-dashboard.html` - Doctor dashboard
-- `appointment.html` - Appointment page
-- `health-vault.html` - Health vault page
-- `medical-records.html` - Medical records page
-- `patient-directory.html` - Patient directory page
+### Platform and security
 
-## Backend API
-Production API base:
-- https://seyat-kahani-portal-production.up.railway.app/api
+- Responsive, multi-page frontend.
+- Express API with MongoDB persistence through Mongoose.
+- Password hashing with bcrypt.
+- JWT and role-based authorization middleware.
+- Helmet security headers.
+- CORS restrictions.
+- Request validation and MongoDB identifier validation.
+- Centralized error responses for protected operations.
 
-Local development base:
-- http://localhost:3000/api
+## Project status
 
-### Authentication and User Management
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `POST` | `/auth/signup` | Create a patient account |
-| `POST` | `/auth/login` | Verify credentials and return a JWT |
-| `GET` | `/admin/Users` | List users for an authorized doctor |
-| `DELETE` | `/admin/Users/:id` | Delete a user for an authorized doctor |
-| `GET` | `/doctors` | View all doctors |
-| `PATCH` | `/users/me` | Update logged-in user's profile |
-| `PATCH` | `/users/me/password` | Update logged-in user's password |
-| `DELETE` | `/users/me` | Delete logged-in user's account |
+The core authentication, user, doctor, appointment, patient, and medical-record
+workflows are implemented. The frontend is connected to the backend through
+shared JavaScript helpers and protected requests.
 
-### Appointment API
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `POST` | `/appointments` | Book an appointment |
-| `GET` | `/appointments/my` | Get logged-in user's appointments |
-| `GET` | `/appointments/:id` | Get a single appointment |
-| `PATCH` | `/appointments/:id/status` | Update appointment status |
-| `DELETE` | `/appointments/:id` | Cancel a pending appointment |
+The following areas remain suitable for future work:
 
-Protected routes require an `Authorization: Bearer <token>` header.
+- Automated unit, integration, and end-to-end tests.
+- API documentation and a generated schema.
+- Refresh-token or server-side session management.
+- Password reset and email-verification workflows.
+- Notifications and email delivery.
+- Medical-record attachments and health-vault file handling.
+- Expanded analytics, settings, and administrative workflows.
+- Additional production monitoring and security hardening.
 
-## Backend Tech Stack
+## Technology stack
+
+### Frontend
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Fetch API
+- Google Fonts
+
+### Backend
+
 - Node.js
-- Express.js
-- Mongoose / MongoDB
-- JWT (`jsonwebtoken`)
-- bcrypt (`bcryptjs`)
-- CORS
+- Express
+- MongoDB and Mongoose
+- JSON Web Tokens
+- bcryptjs
+- Google Authentication Library
 - Helmet
+- CORS
 - Express Rate Limit
 - dotenv
-- Nodemon
+- Nodemon for development
 
-## Environment Configuration
-Create a `Backend/.env` file with values similar to the following:
+## Repository structure
 
-```env
-PORT=5000
-MONGODB_URI=000000000000000000
-JWT_SECRET_KEY=000000000000000
+```text
+assests/photos/              Images and branding assets
+Backend/
+  app.js                     Express application and middleware
+  index.js                   Local server startup
+  package.json               Backend scripts and dependencies
+  src/
+    config/                  Database connection
+    controllers/             Authentication and domain controllers
+    middlewares/             JWT and role authorization
+    models/                  User, appointment, and medical-record schemas
+    routes/                  Authentication and domain routes
+    script/                  Local database utilities
+    utils/                   Authentication helpers
+Frontend/
+  CSS/                       Page-specific stylesheets
+  HTML/                      Frontend pages
+  JS/                        Shared UI and API integration logic
+README.md                   Project documentation
 ```
 
-## Installation and Development
-```bash
-cd Backend
-npm install
-npm run dev
-```
+The `assests` directory name is retained to match the existing repository
+layout.
 
-The backend can run locally on the configured port, and the frontend is configured to call the deployed production backend by default.
+## Frontend pages
 
-To seed the initial doctor accounts:
-
-```bash
-cd Backend
-node src/script/createAdmin.js
-```
-
-## Design System
-
-### Colors
-The project uses a green, healthcare-focused palette with warm accent tones for buttons and highlights.
-
-### Fonts
-Typography is standardized across pages using Google Fonts, with Open Sans for general text and Roboto for headings and emphasis.
-
-## Current Status by Phase
-| Phase | Status |
+| Page | Purpose |
 |---|---|
-| Planning | ✅ Completed |
-| UI/UX Design | ✅ Completed |
-| Frontend Layout | ✅ Completed |
-| Responsive Polish | ✅ Mostly complete |
-| Backend (Node/Express) | ✅ Core implementation complete |
-| Database (MongoDB/Mongoose) | ✅ User and appointment data implemented |
-| Authentication | ✅ Signup, login, and JWT auth complete |
-| API Integration | ✅ Core flows implemented |
-| Testing | ⏳ Pending |
-| Deployment | ✅ Live frontend + backend deployed |
+| `index.html` | Landing page |
+| `about.html` | About the portal |
+| `login.html` | Patient, doctor, and Google sign-in |
+| `sign-up.html` | Patient registration |
+| `patient-dashboard.html` | Patient overview and actions |
+| `doctor-dashboard.html` | Doctor overview and actions |
+| `appointment.html` | Appointment browsing and management |
+| `health-vault.html` | Health-vault interface |
+| `medical-records.html` | Medical-record display |
+| `patient-directory.html` | Doctor-facing patient directory |
 
-## User Flow
-Landing → Login/Register → Dashboard → Feature Pages → Appointments → Logout
+## Backend capabilities
 
-## Coding Standards
-- Modular folders
-- Semantic HTML
-- Reusable CSS and JavaScript
-- RESTful API design
-- Environment-based configuration
-- Role-based access enforcement
+The backend organizes its API into the following route groups:
 
-## Future Improvements
-- Complete admin panel workflows and expanded RBAC rules
-- Medical records and vault file upload handling
-- Notification and email systems
-- More advanced dashboard analytics
-- User profile/settings pages
-- Automated integration tests and API documentation
-- Additional security hardening and monitoring
+- Authentication and Google sign-in.
+- Doctor discovery.
+- Current-user profile and account management.
+- Patient directory access for doctors.
+- Appointment creation, retrieval, status changes, cancellation, and
+  doctor-side hide/undo actions.
+- Medical-record creation and retrieval.
+- Doctor-authorized user management.
+
+Protected operations require a valid bearer JWT in the request authorization
+header. Do not copy real tokens into source files, documentation, screenshots,
+or issue reports.
+
+## Local development
+
+### Prerequisites
+
+- A current Node.js LTS release.
+- npm.
+- A MongoDB database available to the local backend.
+- OAuth configuration if Google sign-in is enabled.
+
+### Backend setup
+
+1. Open a terminal in the `Backend` directory.
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a local environment file from your private configuration source.
+   Do not commit this file. It must contain the database, JWT, server-port,
+   and optional Google OAuth settings required by the backend.
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+For a non-watching local start, use:
+
+```bash
+npm start
+```
+
+The application uses the configured port and falls back to its code-defined
+development default when no port is supplied. The frontend's API base settings
+must point to the backend instance you are running; keep that value in local
+configuration rather than documenting a deployed host here.
+
+### Frontend setup
+
+The frontend is a static set of HTML, CSS, and JavaScript files. Open the
+frontend through a local static-file server rather than relying on browser
+`file://` behavior. Configure the frontend API base for the local backend
+without committing the value if it differs between environments.
+
+For example, any simple static server that is already available in your
+development environment can serve the repository's frontend files. No
+frontend package installation is required by the current project structure.
+
+### Seed data
+
+The backend includes a script for creating an initial doctor account. Run it
+only against a local or explicitly selected development database, and provide
+the account values interactively or through your private environment
+configuration:
+
+```
+
+Never use shared, real, or production credentials in seed data.
+
+## Request and authorization model
+
+- Public authentication actions create or verify a user session token.
+- The frontend stores the token for the active session and sends it only in
+  protected requests.
+- The backend verifies the token before reading or changing protected data.
+- Role middleware limits doctor-only and patient-only operations.
+- Users can access their own account and patient data according to the
+  controller and route authorization rules.
+- Passwords are never stored in plaintext and are excluded from normal user
+  list responses.
+
+## Data model overview
+
+- **User:** name, unique lowercase email, hashed password when applicable,
+  role, and timestamps.
+- **Appointment:** patient, doctor, date, time, reason, status, and optional
+  doctor-side deletion metadata.
+- **Medical record:** patient, doctor, optional appointment, diagnosis, notes,
+  prescription, and timestamps.
+
+Appointments use a doctor/date/time index to help prevent duplicate bookings.
+User input is trimmed and bounded where the model defines maximum lengths.
+
+## Design system
+
+The interface uses a green, healthcare-oriented palette with warm accent
+colors for actions and highlights. Shared typography uses Open Sans for body
+text and Roboto for headings and emphasis. Styles are divided between shared
+and page-specific CSS files.
+
+## Development conventions
+
+- Keep frontend concerns in the `Frontend` directory.
+- Keep backend routes, controllers, models, and middleware separated.
+- Reuse the existing authentication and authorization middleware.
+- Use environment-based configuration for all deployment-specific values.
+- Never commit environment files, credentials, tokens, or database URLs.
+- Validate authorization and ownership in the backend; do not rely on frontend
+  visibility alone.
+- Run the backend's available development commands before submitting changes.
+
+## Roadmap
+
+- Add automated test coverage for authentication and role boundaries.
+- Document the API contract without publishing deployment credentials or hosts.
+- Add refresh-token/session lifecycle management.
+- Add password reset, email verification, and notifications.
+- Expand medical records and health-vault storage.
+- Improve accessibility, analytics, monitoring, and operational security.
