@@ -2,45 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/Frontend/HTML/index.html"
-    },
-    {
-      "source": "/login",
-      "destination": "/Frontend/HTML/login.html"
-    },
-    {
-      "source": "/about",
-      "destination": "/Frontend/HTML/about.html"
-    },
-    {
-      "source": "/appointment",
-      "destination": "/Frontend/HTML/appointment.html"
-    },
-    {
-      "source": "/doctor-dashboard",
-      "destination": "/Frontend/HTML/doctor-dashboard.html"
-    },
-    {
-      "source": "/health-vault",
-      "destination": "/Frontend/HTML/health-vault.html"
-    },
-    {
-      "source": "/medical-records",
-      "destination": "/Frontend/HTML/medical-records.html"
-    },
-    {
-      "source": "/patient-dashboard",
-      "destination": "/Frontend/HTML/patient-dashboard.html"
-    },
-    {
-      "source": "/patient-directory",
-      "destination": "/Frontend/HTML/patient-directory.html"
-    },
-    {
-      "source": "/sign-up",
-      "destination": "/Frontend/HTML/sign-up.html"
-    }
+    { "source": "/", "destination": "/Frontend/HTML/index" },
+    { "source": "/login", "destination": "/Frontend/HTML/login" },
+    { "source": "/about", "destination": "/Frontend/HTML/about" },
+    { "source": "/appointment", "destination": "/Frontend/HTML/appointment" },
+    { "source": "/doctor-dashboard", "destination": "/Frontend/HTML/doctor-dashboard" },
+    { "source": "/health-vault", "destination": "/Frontend/HTML/health-vault" },
+    { "source": "/medical-records", "destination": "/Frontend/HTML/medical-records" },
+    { "source": "/patient-dashboard", "destination": "/Frontend/HTML/patient-dashboard" },
+    { "source": "/patient-directory", "destination": "/Frontend/HTML/patient-directory" },
+    { "source": "/sign-up", "destination": "/Frontend/HTML/sign-up" }
   ]
 }
