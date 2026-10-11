@@ -34,8 +34,8 @@ async function handleGoogleCredential(response) {
         localStorage.setItem('user', JSON.stringify(data.user));
 
         const targetUrl = data.user && data.user.role === 'doctor'
-            ? '/Frontend/HTML/doctor-dashboard.html'
-            : '/Frontend/HTML/patient-dashboard.html';
+            ? '/doctor-dashboard'
+            : '/patient-dashboard';
         window.location.href = targetUrl;
     } catch (error) {
         console.error('Google sign-in error:', error);
@@ -206,8 +206,8 @@ function switchTab(role) {
                 localStorage.setItem('user', JSON.stringify(data.user));
 
                 const targetUrl = data.user && data.user.role === 'doctor'
-                    ? '/Frontend/HTML/doctor-dashboard.html'
-                    : '/Frontend/HTML/patient-dashboard.html';
+                    ? '/doctor-dashboard'
+                    : '/patient-dashboard';
 
                 window.location.href = targetUrl;
             } catch (error) {
@@ -604,7 +604,7 @@ function showToast() {
 
               showToast();
               setTimeout(function() {
-                  window.location.href = '../HTML/login.html';
+                  window.location.href = '/login';
               }, 2000);
           } catch (error) {
               if (signupServerError) {
@@ -730,7 +730,7 @@ function showToast() {
     if (event) event.preventDefault();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/Frontend/HTML/login.html';
+    window.location.href = '/login';
   }
 
     document.querySelectorAll('.logout-link').forEach(function (logoutLink) {
@@ -1738,7 +1738,7 @@ if (scheduleTableBody) {
           <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">${escapeHtml(getInitials(name))}</div><span class="name">${escapeHtml(name)}</span></div></td>
           <td class="type-cell">${escapeHtml(appt.reason || '—')}</td>
           <td><span class="status-badge ${statusBadgeClass(appt.status)}">${escapeHtml(capitalizeStatus(appt.status))}</span></td>
-          <td><a class="more-btn" href="/Frontend/HTML/appointment.html" style="text-decoration:none; display:inline-flex;" aria-label="Manage in Appointments">
+          <td><a class="more-btn" href="/appointment" style="text-decoration:none; display:inline-flex;" aria-label="Manage in Appointments">
             <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></span>
           </a></td>
         </tr>
@@ -1830,7 +1830,7 @@ if (scheduleTableBody) {
             <p>${p.lastVisit ? 'Last visit: ' + new Date(p.lastVisit).toLocaleDateString() : 'No visits yet'}</p>
           </div>
         </div>
-        <a class="folder-btn" href="/Frontend/HTML/patient-directory.html" style="text-decoration:none; display:inline-flex;" aria-label="Open in Patient Directory">
+        <a class="folder-btn" href="/patient-directory" style="text-decoration:none; display:inline-flex;" aria-label="Open in Patient Directory">
           <span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>
         </a>
       </div>
@@ -1859,7 +1859,7 @@ if (scheduleTableBody) {
   const directoryBtn = document.querySelector('#allPatientDirectoryBtn');
   if (directoryBtn) {
     directoryBtn.addEventListener('click', () => {
-      window.location.href = '/Frontend/HTML/patient-directory.html';
+      window.location.href = '/patient-directory';
     });
   }
 
@@ -2250,7 +2250,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
 
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = '../HTML/login.html';
+          window.location.href = '/login';
         } catch (error) {
           console.error('Delete account (Google) error:', error);
           showProfileMessage(deleteMessageEl, 'Unable to reach the server. Please try again.');
@@ -2301,7 +2301,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
       // Account is gone — clear local session and send them to login, same as logout.
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '../HTML/login.html';
+      window.location.href = '/login';
     } catch (error) {
       console.error('Delete account error:', error);
       showProfileMessage(deleteMessageEl, 'Unable to reach the server. Please try again.');
