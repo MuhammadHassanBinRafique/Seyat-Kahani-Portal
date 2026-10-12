@@ -1,8 +1,8 @@
-const API_BASE_URL = 'https://seyat-kahani-portal-mfta.vercel.app/api/auth';
-//const API_BASE_URL = 'http://localhost:5000/api/auth';
+//const API_BASE_URL = 'https://seyat-kahani-portal-mfta.vercel.app/api/auth';
+const API_BASE_URL = 'http://localhost:5000/api/auth';
 
-const API_ROOT = 'https://seyat-kahani-portal-mfta.vercel.app/api';
-//const API_ROOT = 'http://localhost:5000/api';
+//const API_ROOT = 'https://seyat-kahani-portal-mfta.vercel.app/api';
+const API_ROOT = 'http://localhost:5000/api';
 
 // Google Client ID is a public identifier (not a secret) — safe to ship in frontend code.
 // Replace this with your own, created at https://console.cloud.google.com/apis/credentials
