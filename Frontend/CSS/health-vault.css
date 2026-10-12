@@ -968,6 +968,76 @@
       padding: 18px;
     }
   }
+
+  /*
+   * Keep the mobile shell consistent with the Medical Records page.
+   * The vault has several grid sections and a wide activity table, so
+   * explicit width and overflow rules are required at small breakpoints.
+   */
+  @media (max-width: 900px) {
+    body {
+      overflow-x: hidden;
+    }
+
+    header.topbar {
+      justify-content: space-between;
+    }
+
+    .canvas {
+      width: 100%;
+      max-width: none;
+      margin-left: 0;
+      padding: 88px 16px 24px;
+    }
+
+    .welcome,
+    .bento,
+    .storage-grid,
+    .side-col,
+    .card,
+    .activity {
+      min-width: 0;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .welcome {
+      padding: 24px 16px;
+    }
+
+    .welcome-art svg {
+      max-width: 200px;
+    }
+
+    .welcome h1 {
+      font-size: 30px;
+    }
+
+    .welcome-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .storage-card,
+    .card {
+      padding: 18px;
+    }
+
+    .activity {
+      padding: 18px;
+      overflow-x: auto;
+    }
+
+    .activity table {
+      min-width: 620px;
+    }
+  }
+
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-secondary);
 }
