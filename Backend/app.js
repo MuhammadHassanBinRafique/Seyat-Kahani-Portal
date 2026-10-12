@@ -11,18 +11,24 @@ import doctorRoute from "./src/routes/doctorRoute.js";
 import userRoute from "./src/routes/userRoute.js";
 import medicalRecordRoute from "./src/routes/medicalRecordRoute.js";
 import patientRoute from "./src/routes/patientRoute.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import pageRoute from "./src/routes/pageRoute.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
 app.set("trust proxy", 1);
 
 // Sets standard security-related HTTP headers (X-Content-Type-Options, X-Frame-Options, etc.)
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 
 // Restrict CORS to only your actual live frontend + local dev, instead of allowing every origin.
 // Add any other real frontend URLs (e.g. a staging URL) to this array as needed.
 const allowedOrigins = [
   "https://seyat-kahani-portal.vercel.app",
+  "http://localhost:5000",
   "http://localhost:5500",
   "http://127.0.0.1:5500",
   "http://localhost:51337",
@@ -52,9 +58,10 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.get("/", (req, res) =>{
-     res.send("API is working Smoothly!!!");
-});
+// Middleware for clean frontend URls like /login, /Doctor=dashboard.
+app.use("/", pageRoute);
+app.use("/Frontend", express.static(path.join(__dirname, "../Frontend"), { index: false }));
+app.use("/assests", express.static(path.join(__dirname, "../assests")));
 
 // Serverless: index.js never runs on Vercel, so connect on the first request
 app.use(async (req, res, next) => {
