@@ -3,9 +3,9 @@ import JWT from "jsonwebtoken";
 import { verifyGoogleIdToken } from "../utils/googleAuth.js";
 
 const issueToken = (user) => JWT.sign(
-    { id: user._id, role: user.role },
+    { id: user._id, tokenVersion: user.tokenVersion },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: "10d" }
+    { expiresIn: "20m" }
 );
 
 // Key name here is "emailVerified" (not the model's "isEmailVerified") to match
@@ -44,11 +44,11 @@ export const googleLogin = async (req, res) => {
         const email = payload.email.toLowerCase();
 
         // 1) Someone who has signed in with this exact Google identity before.
-        let user = await User.findOne({ googleId: payload.sub });
+        let user = await User.findOne({ googleId: payload.sub, deletedAt: null });
 
         if (!user) {
             // 2) A local account already exists with this same email address.
-            const existingByEmail = await User.findOne({ email });
+            const existingByEmail = await User.findOne({ email, deletedAt: null });
 
             if (existingByEmail) {
                 // Only auto-link if Google itself has verified this email. Without this

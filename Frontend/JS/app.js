@@ -4,6 +4,31 @@ const API_BASE_URL = 'https://seyat-kahani-portal-mfta.vercel.app/api/auth';
 const API_ROOT = 'https://seyat-kahani-portal-mfta.vercel.app/api';
 //const API_ROOT = 'http://localhost:5000/api';
 
+// Session handling: the access token only lives for 20 minutes and can be revoked by the server
+// (logout, password change, account deleted). When the server rejects the token, drop the local
+// session and send the user to the login page instead of leaving every panel showing errors.
+(function () {
+    const SESSION_ERRORS = ['Invalid or expired token', 'Invalid or revoked token', 'No token, No Access!!!'];
+    const nativeFetch = window.fetch.bind(window);
+
+    window.fetch = async function (...args) {
+        const res = await nativeFetch(...args);
+        if (res.status === 401 && localStorage.getItem('token')) {
+            try {
+                const data = await res.clone().json();
+                if (SESSION_ERRORS.includes(data.message)) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                // not a JSON response: nothing to do
+            }
+        }
+        return res;
+    };
+})();
+
 // Google Client ID is a public identifier (not a secret) — safe to ship in frontend code.
 // Replace this with your own, created at https://console.cloud.google.com/apis/credentials
 // under "OAuth client ID" -> "Web application", with this site's URL added under
@@ -726,8 +751,14 @@ function showToast() {
 
 // patient-dashboard functionality starts from here:
 
-  function logoutUser(event) {
+  async function logoutUser(event) {
     if (event) event.preventDefault();
+    try {
+      // Revoke the token on the server too, not only forget it in this browser.
+      await fetch(`${API_ROOT}/auth/logout`, { method: 'POST', headers: authHeaders(), keepalive: true });
+    } catch (error) {
+      // offline or server down: still log out locally
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '/login';
@@ -1738,7 +1769,7 @@ if (scheduleTableBody) {
           <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">${escapeHtml(getInitials(name))}</div><span class="name">${escapeHtml(name)}</span></div></td>
           <td class="type-cell">${escapeHtml(appt.reason || '—')}</td>
           <td><span class="status-badge ${statusBadgeClass(appt.status)}">${escapeHtml(capitalizeStatus(appt.status))}</span></td>
-          <td><a class="more-btn" href="/appointment" style="text-decoration:none; display:inline-flex;" aria-label="Manage in Appointments">
+          <td><a class="more-btn" href="/appointments" style="text-decoration:none; display:inline-flex;" aria-label="Manage in Appointments">
             <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></span>
           </a></td>
         </tr>
@@ -2201,6 +2232,8 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
         return;
       }
 
+      // The server revoked the old token when the password changed and sent a new one for this session.
+      if (data.token) localStorage.setItem('token', data.token);
       showProfileMessage(messageElement, 'Password updated successfully');
       event.target.reset();
     } catch (error) {

@@ -2,25 +2,10 @@ import mongoose from "mongoose";
 import Appointment from "../models/appointment.model.js";
 import User from "../models/user.model.js";
 
-const DELETED_APPOINTMENT_RETENTION_MS = 5 * 60 * 1000;
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
-
-export const purgeExpiredDeletedAppointments = async () => {
-  await Appointment.deleteMany({
-    deletedAt: { $ne: null, $lte: new Date(Date.now() - DELETED_APPOINTMENT_RETENTION_MS) }
-  });
-};
-
-const cleanupTimer = setInterval(() => {
-  purgeExpiredDeletedAppointments().catch((error) => {
-    console.error("Purge deleted appointments error:", error);
-  });
-}, 60 * 1000);
-cleanupTimer.unref();
 
 export const doctorDeleteAppointment = async (req, res) => {
   try {
-    await purgeExpiredDeletedAppointments();
     if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "Invalid appointment id" });
     const appointment = await Appointment.findOne({
       _id: req.params.id,
@@ -31,11 +16,11 @@ export const doctorDeleteAppointment = async (req, res) => {
 
     appointment.deletedAt = new Date();
     appointment.deletedBy = req.user.id;
+    appointment.isActive = false;
     await appointment.save();
     res.status(200).json({
       message: "Appointment moved to recently deleted",
       appointmentId: appointment._id,
-      expiresAt: new Date(appointment.deletedAt.getTime() + DELETED_APPOINTMENT_RETENTION_MS)
     });
   } catch (error) {
     console.error("Delete appointment error:", error);
@@ -53,13 +38,9 @@ export const undoDoctorDeleteAppointment = async (req, res) => {
     });
     if (!appointment) return res.status(404).json({ message: "Deleted appointment not found" });
 
-    if (!appointment.deletedAt || Date.now() - appointment.deletedAt.getTime() > DELETED_APPOINTMENT_RETENTION_MS) {
-      await Appointment.deleteOne({ _id: appointment._id });
-      return res.status(410).json({ message: "Undo period has expired" });
-    }
-
     appointment.deletedAt = null;
     appointment.deletedBy = null;
+    appointment.isActive = appointment.status !== "cancelled";
     await appointment.save();
     res.status(200).json({ message: "Appointment restored" });
   } catch (error) {
@@ -132,7 +113,14 @@ export const bookAppointment = async (req, res) => {
       reason
     });
 
-    await appointment.save();
+    try {
+      await appointment.save();
+    } catch (error) {
+      if (error?.code === 11000) {
+        return res.status(409).json({ message: "This time slot is already booked" });
+      }
+      throw error;
+    }
     res.status(201).json({ message: "Appointment booked successfully", appointment });
 
   } catch (error) {
@@ -144,7 +132,6 @@ export const bookAppointment = async (req, res) => {
 // ================= GET MY APPOINTMENTS (patient or doctor) =================
 export const getMyAppointments = async (req, res) => {
   try {
-    await purgeExpiredDeletedAppointments();
     const { id, role } = req.user;
 
     // Query differs depending on who's asking — a patient sees their own bookings,
@@ -199,6 +186,7 @@ export const updateAppointmentStatus = async (req, res) => {
     }
 
     appointment.status = status;
+    appointment.isActive = status !== "cancelled";
     await appointment.save();
 
     res.status(200).json({ message: "Appointment status updated", appointment });
@@ -233,6 +221,7 @@ export const cancelAppointment = async (req, res) => {
     }
 
     appointment.status = "cancelled";
+    appointment.isActive = false;
     await appointment.save();
 
     res.status(200).json({ message: "Appointment cancelled successfully" });
@@ -258,6 +247,9 @@ export const getAppointmentById = async (req, res) => {
 
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found" });
+    }
+    if (!appointment.patient || !appointment.doctor) {
+      return res.status(404).json({ message: "Appointment references an unavailable user" });
     }
 
     // Ownership check: only the patient or doctor involved can view it — not just anyone logged in

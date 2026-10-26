@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import JWT from "jsonwebtoken";
+import { softDeleteUser } from "../utils/softDeleteUser.js";
 import { verifyGoogleIdToken } from "../utils/googleAuth.js";
 
 // Key name here is "emailVerified" (not the model's "isEmailVerified") to match
@@ -121,10 +123,20 @@ export const changePassword = async (req, res) => {
         // else: no password exists yet — first-time set, nothing to verify against.
 
         user.password = await bcrypt.hash(newPassword, 10);
+        user.tokenVersion = (user.tokenVersion || 0) + 1;
         await user.save();
+
+        // Bumping tokenVersion logs out every device, including this one, so hand back a
+        // fresh token for the session that just changed the password.
+        const token = JWT.sign(
+            { id: user._id, tokenVersion: user.tokenVersion },
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: "20m" }
+        );
 
         res.status(200).json({
             message: hadPasswordBefore ? "Password updated successfully" : "Password set successfully",
+            token,
             user: toSafeUser(user)
         });
 
@@ -175,12 +187,9 @@ export const deleteAccount = async (req, res) => {
             }
         }
 
-        await User.findByIdAndDelete(req.user.id);
-
-        // Note: this does not delete or reassign the user's existing appointments.
-        // Any appointment referencing this user will simply show a missing/empty
-        // patient or doctor field when populated. Decide later whether to cascade-delete
-        // those appointments or keep them as historical records — not handled here.
+        // Soft delete: history is kept, open appointments are cancelled, tokens are revoked
+        // and the email can be used to sign up again (see softDeleteUser).
+        await softDeleteUser(user._id);
 
         res.status(200).json({ message: "Account deleted successfully" });
 

@@ -48,6 +48,8 @@ management, patient lookup, and medical-record workflows.
 - Password hashing with bcrypt.
 - JWT and role-based authorization middleware.
 - Helmet security headers.
+- Short-lived (20 minute) tokens that the server can revoke; Redis-backed login rate limiting.
+- Medical record text encrypted at rest (AES-256-GCM) with an audit log of create, view and delete.
 - CORS restrictions.
 - Request validation and MongoDB identifier validation.
 - Centralized error responses for protected operations.
@@ -209,8 +211,6 @@ configuration:
 
 ```
 
-Never use shared, real, or production credentials in seed data.
-
 ## Request and authorization model
 
 - Public authentication actions create or verify a user session token.
@@ -261,3 +261,7 @@ and page-specific CSS files.
 - Add password reset, email verification, and notifications.
 - Expand medical records and health-vault storage.
 - Improve accessibility, analytics, monitoring, and operational security.
+
+
+
+Never use shared, real, or production credentials in seed data.

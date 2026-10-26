@@ -1,5 +1,5 @@
 import express from "express";
-import { protect } from "../middlewares/authMiddleware.js";
+import { protect, authorizeRoles } from "../middlewares/authMiddleware.js";
 import { getMe, updateName, changePassword, deleteAccount } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -9,6 +9,6 @@ const router = express.Router();
 router.get("/me", protect, getMe);
 router.patch("/me", protect, updateName);
 router.patch("/me/password", protect, changePassword);
-router.delete("/me", protect, deleteAccount);
+router.delete("/me", protect, authorizeRoles("patient"), deleteAccount);
 
 export default router;

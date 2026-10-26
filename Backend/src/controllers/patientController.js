@@ -10,7 +10,7 @@ export const getMyPatients = async (req, res) => {
             doctor: req.user.id,   // from the verified JWT, so a doctor only ever sees their own patients
             status: { $in: ["pending", "confirmed", "completed"] },
             deletedAt: null
-        }).populate("patient", "name email");
+        }).populate({ path: "patient", select: "name email", match: { deletedAt: null } });
 
         const byPatient = new Map();
 

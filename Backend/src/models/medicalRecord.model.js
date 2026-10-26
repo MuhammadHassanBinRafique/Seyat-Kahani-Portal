@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { encryptField, decryptField } from "../utils/fieldCrypto.js";
 
 const medicalRecordSchema = new mongoose.Schema({
     patient: {
@@ -16,24 +17,34 @@ const medicalRecordSchema = new mongoose.Schema({
         ref: "Appointment",
         default: null
     },
+    // diagnosis, notes and prescription are encrypted before they reach the database and
+    // decrypted when read. Length limits are checked on the plain text in the controller
+    // (a maxlength here would be measured against the longer ciphertext).
     diagnosis: {
         type: String,
         required: true,
         trim: true,
-        maxlength: 200
+        set: encryptField,
+        get: decryptField
     },
     notes: {
         type: String,
         trim: true,
-        maxlength: 2000,
-        default: ""
+        default: "",
+        set: encryptField,
+        get: decryptField
     },
     prescription: {
         type: String,
         trim: true,
-        maxlength: 1000,
-        default: ""
+        default: "",
+        set: encryptField,
+        get: decryptField
+    },
+    deletedAt: {
+        type: Date,
+        default: null
     }
-}, { timestamps: true });
+}, { timestamps: true, toJSON: { getters: true, virtuals: false }, toObject: { getters: true, virtuals: false } });
 
 export default mongoose.models.MedicalRecord || mongoose.model("MedicalRecord", medicalRecordSchema);

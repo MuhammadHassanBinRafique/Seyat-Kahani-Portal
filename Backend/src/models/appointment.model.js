@@ -30,6 +30,10 @@ const appointmentSchema = new mongoose.Schema({
     enum: ["pending", "confirmed", "cancelled", "completed"],
     default: "pending"
   },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   deletedAt: {
     type: Date,
     default: null
@@ -42,6 +46,13 @@ const appointmentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Prevents the exact same doctor from being double-booked at the exact same date+time.
-appointmentSchema.index({ doctor: 1, date: 1, time: 1 });
+appointmentSchema.index(
+  { doctor: 1, date: 1, time: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { isActive: true },
+    name: "doctor_date_time_active_unique"
+  }
+);
 
 export default mongoose.models.Appointment || mongoose.model("Appointment", appointmentSchema);

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import MedicalRecord from "../models/medicalRecord.model.js";
+import AuditLog from "../models/auditLog.model.js";
 import User from "../models/user.model.js";
 import Appointment from "../models/appointment.model.js";
 
@@ -28,9 +29,18 @@ export const createRecord = async (req, res) => {
         if (diagnosis.trim().length === 0) {
             return res.status(400).json({ message: "Diagnosis is required" });
         }
+        if (diagnosis.trim().length > 200) {
+            return res.status(400).json({ message: "Diagnosis must be 200 characters or fewer" });
+        }
+        if (notes !== undefined && notes.trim().length > 2000) {
+            return res.status(400).json({ message: "Notes must be 2000 characters or fewer" });
+        }
+        if (prescription !== undefined && prescription.trim().length > 1000) {
+            return res.status(400).json({ message: "Prescription must be 1000 characters or fewer" });
+        }
 
         // Confirm the patientId actually belongs to a real user with role "patient"
-        const patient = await User.findOne({ _id: patientId, role: "patient" });
+        const patient = await User.findOne({ _id: patientId, role: "patient", deletedAt: null });
         if (!patient) {
             return res.status(404).json({ message: "Patient not found" });
         }
@@ -79,6 +89,12 @@ export const createRecord = async (req, res) => {
         });
 
         await record.save();
+        await AuditLog.create({
+            actor: req.user.id,
+            action: "create",
+            recordType: "MedicalRecord",
+            recordId: record._id
+        });
         res.status(201).json({ message: "Medical record created successfully", record });
 
     } catch (error) {
@@ -95,11 +111,17 @@ export const getMyRecords = async (req, res) => {
         // A patient sees records written about them; a doctor sees records they wrote.
         const filter = role === "doctor" ? { doctor: id } : { patient: id };
 
-        const records = await MedicalRecord.find(filter)
+        const records = await MedicalRecord.find({ ...filter, deletedAt: null })
             .populate("patient", "name email")
             .populate("doctor", "name email")
             .sort({ createdAt: -1 });
 
+        await AuditLog.insertMany(records.map((record) => ({
+            actor: req.user.id,
+            action: "view",
+            recordType: "MedicalRecord",
+            recordId: record._id
+        })));
         res.status(200).json(records);
 
     } catch (error) {
@@ -117,12 +139,15 @@ export const getRecordById = async (req, res) => {
             return res.status(400).json({ message: "Invalid record id" });
         }
 
-        const record = await MedicalRecord.findById(id)
+        const record = await MedicalRecord.findOne({ _id: id, deletedAt: null })
             .populate("patient", "name email")
             .populate("doctor", "name email");
 
         if (!record) {
             return res.status(404).json({ message: "Medical record not found" });
+        }
+        if (!record.patient || !record.doctor) {
+            return res.status(404).json({ message: "Medical record references an unavailable user" });
         }
 
         // --- Ownership check: only the patient or doctor involved can view it ---
@@ -134,10 +159,46 @@ export const getRecordById = async (req, res) => {
             return res.status(403).json({ message: "Access denied: not your medical record" });
         }
 
+        await AuditLog.create({
+            actor: req.user.id,
+            action: "view",
+            recordType: "MedicalRecord",
+            recordId: record._id
+        });
         res.status(200).json(record);
 
     } catch (error) {
         console.error("Get medical record error:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+// ================= DELETE RECORD (doctor only, their own record) =================
+export const deleteRecord = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ message: "Invalid record id" });
+        }
+
+        const record = await MedicalRecord.findOne({ _id: id, doctor: req.user.id, deletedAt: null });
+        if (!record) {
+            return res.status(404).json({ message: "Medical record not found" });
+        }
+
+        await AuditLog.create({
+            actor: req.user.id,
+            action: "delete",
+            recordType: "MedicalRecord",
+            recordId: record._id
+        });
+        record.deletedAt = new Date();
+        await record.save();
+
+        res.status(200).json({ message: "Medical record deleted successfully" });
+    } catch (error) {
+        console.error("Delete medical record error:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };

@@ -26,6 +26,16 @@ const userSchema = new mongoose.Schema({
         default: "patient"
     },
 
+    tokenVersion: {
+        type: Number,
+        default: 0
+    },
+
+    deletedAt: {
+        type: Date,
+        default: null
+    },
+
     authProvider: {
         type: String,
         enum: ["local", "google"],

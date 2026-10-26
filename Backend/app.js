@@ -4,6 +4,8 @@ import connectDB from "./src/config/db.js";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { RedisStore } from "rate-limit-redis";
+import Redis from "ioredis";
 import authRoute from "./src/routes/authRoute.js";
 import adminRoute from "./src/routes/adminRoute.js";
 import appointmentRoute from "./src/routes/appointmentRoute.js";
@@ -48,12 +50,55 @@ app.use(cors({
 
 app.use(express.json());
 
-// Rate limiting on auth routes specifically — blocks brute-force login/signup attempts.
-// Allows 20 requests per 15 minutes per IP on /api/auth/*.
+// maxRetriesPerRequest keeps a Redis outage from hanging requests; the limiters below fail open
+// (passOnStoreError) so the site keeps working, just without rate limiting, while Redis is down.
+const redisClient = process.env.REDIS_URL
+  ? new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 1, connectTimeout: 3000 })
+  : null;
+
+if (redisClient) {
+  redisClient.on("error", (error) => console.error("Redis error:", error.message));
+}
+
+// express-rate-limit refuses to let two limiters share one store, so each limiter gets its own.
+const makeStore = (prefix) => {
+  if (!redisClient) return undefined;
+  const store = new RedisStore({ prefix, sendCommand: (...args) => redisClient.call(...args) });
+  // RedisStore preloads its Lua scripts in the constructor; if Redis is down that promise
+  // rejects with nobody listening, which would crash the process.
+  store.incrementScriptSha?.catch(() => {});
+  store.getScriptSha?.catch(() => {});
+  return store;
+};
+
+if (!redisClient) {
+  console.warn("REDIS_URL is not configured; using in-memory rate limiting for this instance.");
+}
+
+// Rate limiting on auth routes specifically — blocks brute-force attempts.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
+  store: makeStore("rl:auth:"),
+  passOnStoreError: true,
   message: { message: "Too many attempts, please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const loginEmailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 8,
+  store: makeStore("rl:login-email:"),
+  passOnStoreError: true,
+  skipSuccessfulRequests: true, // only failed attempts use up the budget
+  keyGenerator: (req) => {
+    const email = typeof req.body?.email === "string"
+      ? req.body.email.trim().toLowerCase()
+      : "";
+    return email ? `login-email:${email}` : `login-ip:${req.ip}`;
+  },
+  message: { message: "Too many login attempts for this account, please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -74,7 +119,9 @@ app.use(async (req, res, next) => {
 });
 
 
-app.use("/api/auth", authLimiter, authRoute);
+app.use("/api/auth", authLimiter);
+app.use("/api/auth/login", loginEmailLimiter);
+app.use("/api/auth", authRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/appointments", appointmentRoute);
 app.use("/api/doctors", doctorRoute);

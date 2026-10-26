@@ -6,10 +6,32 @@ import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 
+const requiredEnv = (name) => {
+    const value = process.env[name]?.trim();
+
+    if (!value) {
+        throw new Error(`Missing required environment variable: ${name}`);
+    }
+
+    return value;
+};
+
 const doctors = [
-    {name:"Dr. Arthur Vance", email:"[removed-email-1]", password:"[removed-password-1]"},
-    {name:"Dr. Elena Rodriguez", email:"[removed-email-2]", password:"[removed-password-2]"},
-    {name:"Dr. Simon Chen", email:"[removed-email-3]", password:"[removed-password-3]"}
+    {
+        name: requiredEnv("DOCTOR_1_NAME"),
+        email: requiredEnv("DOCTOR_1_EMAIL"),
+        password: requiredEnv("DOCTOR_1_PASSWORD")
+    },
+    {
+        name: requiredEnv("DOCTOR_2_NAME"),
+        email: requiredEnv("DOCTOR_2_EMAIL"),
+        password: requiredEnv("DOCTOR_2_PASSWORD")
+    },
+    {
+        name: requiredEnv("DOCTOR_3_NAME"),
+        email: requiredEnv("DOCTOR_3_EMAIL"),
+        password: requiredEnv("DOCTOR_3_PASSWORD")
+    }
 ];
 
 const createadmins = async() =>{

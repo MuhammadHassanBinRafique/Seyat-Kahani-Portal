@@ -2,13 +2,15 @@ import express from "express";
 import mongoose from "mongoose";
 import {protect, authorizeRoles} from "../middlewares/authMiddleware.js";
 import User from "../models/user.model.js";
+import { softDeleteUser } from "../utils/softDeleteUser.js";
 
 const router = express.Router();
 
 router.get("/Users", protect, authorizeRoles("doctor"), async(req, res) =>{
 
     try{
-          const users = await User.find().select("-password");
+          const users = await User.find({ role: "patient", deletedAt: null })
+            .select("_id name email");
           res.status(200).json(users);
     }
     catch(error){
@@ -28,9 +30,17 @@ router.delete("/Users/:id", protect, authorizeRoles("doctor"), async(req, res) =
              return res.status(400).json({ message: "Invalid user id" });
            }
 
-           // Bug fix: findOneAndDelete() needs a filter object, not a raw id string.
-           // findByIdAndDelete() is the correct helper for deleting by _id.
-           const deletedUser = await User.findByIdAndDelete(id);
+           const targetUser = await User.findById(id).select("_id role");
+
+           if (!targetUser) {
+             return res.status(404).json({ message: "User not found" });
+           }
+
+           if (targetUser.role !== "patient") {
+             return res.status(403).json({ message: "Only patient accounts can be deleted" });
+           }
+
+           const deletedUser = await softDeleteUser(id);
 
            if (!deletedUser) {
              return res.status(404).json({ message: "User not found" });
