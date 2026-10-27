@@ -16,12 +16,17 @@ import patientRoute from "./src/routes/patientRoute.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import pageRoute from "./src/routes/pageRoute.js";
+import AppError from "./src/utils/AppError.js";
+import { requestContext, notFound, errorHandler } from "./src/middlewares/errorHandler.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
 app.set("trust proxy", 1);
+
+// Request id for log/response correlation (see middlewares/errorHandler.js)
+app.use(requestContext);
 
 // Sets standard security-related HTTP headers (X-Content-Type-Options, X-Frame-Options, etc.)
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -34,7 +39,9 @@ const allowedOrigins = [
   "http://localhost:5500",
   "http://127.0.0.1:5500",
   "http://localhost:51337",
-  "http://localhost:52865"
+  "http://localhost:52865",
+  // Optional extra origins (comma-separated), e.g. staging/preview URLs, without a code change
+  ...(process.env.ALLOWED_ORIGINS || "").split(",").map((o) => o.trim()).filter(Boolean)
 ];
 
 app.use(cors({
@@ -43,7 +50,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new AppError("Origin not allowed", 403, "CORS_ORIGIN_NOT_ALLOWED"));
     }
   },
 }));
@@ -128,5 +135,9 @@ app.use("/api/doctors", doctorRoute);
 app.use("/api/users", userRoute);
 app.use("/api/medical-records", medicalRecordRoute);
 app.use("/api/patients", patientRoute);
+
+// Keep these two LAST: unknown /api routes -> JSON 404, then the global error handler.
+app.use("/api", notFound);
+app.use(errorHandler);
 
 export default app;
