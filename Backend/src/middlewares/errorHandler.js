@@ -28,6 +28,13 @@ const normalizeError = (err) => {
   if (err?.type === "entity.too.large") {
     return { status: 413, message: "Request body is too large", code: "PAYLOAD_TOO_LARGE" };
   }
+  if (err?.name === "MulterError") {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      const message = err.field === "document" ? "PDF is too large (max 4 MB)" : "Image is too large (max 2 MB)";
+      return { status: 413, message, code: "FILE_TOO_LARGE" };
+    }
+    return { status: 400, message: "Invalid file upload", code: "INVALID_UPLOAD" };
+  }
   if (err?.name === "ValidationError" || err?.name === "CastError") {
     return { status: 400, message: "Invalid input", code: "INVALID_INPUT" };
   }

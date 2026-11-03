@@ -1060,3 +1060,20 @@ h6 { font-weight: 500; }
     transform: translateX(0);
   }
 }
+
+/* Health Vault: uploaded documents list */
+.vault-docs{ margin-bottom:24px; }
+.vault-docs h3{ font-size:26px; margin-bottom:12px; }
+.vault-docs-message{ min-height:18px; margin:0 0 8px; font-size:13px; color:var(--primary); }
+.vault-docs-message.is-error{ color:#b3261e; }
+.vault-doc-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0; border-top:1px solid var(--sage-light); }
+.vault-doc-info{ min-width:0; }
+.vault-doc-name{ margin:0; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.vault-doc-meta{ margin:2px 0 0; font-size:12px; opacity:.7; }
+.vault-docs-empty{ margin:0; padding:12px 0; opacity:.7; }
+.vault-doc-actions{ display:flex; gap:8px; flex-shrink:0; }
+.vault-link-btn{ background:none; border:0; padding:0; color:var(--primary); font-weight:600; font-size:13px; cursor:pointer; text-decoration:underline; }
+.vault-hint{ margin:0 0 8px; font-size:12px; opacity:.7; }
+.vault-trash{ margin-top:20px; padding-top:8px; border-top:1px solid var(--sage-light); }
+.vault-trash h4{ margin:12px 0 4px; font-size:16px; }
+.vault-undo-btn{ background:none; border:0; padding:0 0 0 8px; color:var(--primary); font-weight:700; cursor:pointer; text-decoration:underline; }

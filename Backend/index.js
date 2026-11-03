@@ -1,7 +1,7 @@
-import dns from 'dns';
-dns.setServers(['8.8.8.8', '8.8.4.4']);
 import dotenv from "dotenv";
 dotenv.config();
+import { applyDnsServersFromEnv } from "./src/utils/dnsConfig.js";
+applyDnsServersFromEnv(); // opt-in only (DNS_SERVERS in .env), see dnsConfig.js
 import app from "./app.js";
 import connectDB from "./src/config/db.js";
 

@@ -1,7 +1,7 @@
-import dns from 'dns';
-dns.setServers(['8.8.8.8', '8.8.4.4']);
 import dotenv from "dotenv";
 dotenv.config();
+import { applyDnsServersFromEnv } from "../utils/dnsConfig.js";
+applyDnsServersFromEnv(); // opt-in only (DNS_SERVERS in .env)
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
@@ -46,7 +46,7 @@ const createadmins = async() =>{
                 continue;
             }
             const hashedPassword = await bcrypt.hash(data.password, 10)
-            const doctor = new User({...data, password: hashedPassword, role: "doctor"})
+            const doctor = new User({...data, password: hashedPassword, role: "doctor", isEmailVerified: true})
             await doctor.save();
             console.log(`Created admin: ${data.email}`);
          }

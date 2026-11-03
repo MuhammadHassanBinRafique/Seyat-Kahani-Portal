@@ -80,10 +80,10 @@
     <div class="topbar-actions">
         <div class="profile-block">
             <div class="profile-text">
-                <p>Zainab Khan</p>
+                <p>Loading...</p>
                 <p>Premium Member</p>
             </div>
-            <div class="avatar-circle">ZK</div>
+            <div class="avatar-circle"></div>
         </div>
     </div>
 </header>
@@ -97,8 +97,8 @@
           <h1>Personal Health Repository</h1>
           <p>Welcome to your encrypted Health Vault. Here, your medical history is guarded with clinical precision and restorative care, ensuring only you and your trusted providers have access.</p>
           <div class="welcome-actions">
-            <button class="btn btn-primary"><svg class="icon" style="width:16px;height:16px"><use href="#icon-upload"></use></svg>Upload Record</button>
-            <button class="btn btn-outline"><svg class="icon" style="width:16px;height:16px"><use href="#icon-share"></use></svg>Share Access</button>
+            <button class="btn btn-primary" id="vaultUploadBtn"><svg class="icon" style="width:16px;height:16px"><use href="#icon-upload"></use></svg>Upload Record</button>
+            
           </div>
         </div>
         <div class="welcome-art">
@@ -125,54 +125,54 @@
           </div>
           <div class="storage-grid">
 
-            <div class="card storage-card">
+            <div class="card storage-card" data-category="lab">
               <div class="storage-card-top">
                 <div class="storage-icon"><svg class="icon icon-fill" style="width:24px;height:24px"><use href="#icon-flask"></use></svg></div>
-                <span class="file-count">12 Files</span>
+                <span class="file-count">—</span>
               </div>
               <h4>Lab Results</h4>
               <p>Blood work, lipid panels, and metabolic profiles.</p>
               <div class="storage-card-foot">
-                <span>Last updated 3 days ago</span>
+                <span>—</span>
                 <svg class="icon"><use href="#icon-chevron"></use></svg>
               </div>
             </div>
 
-            <div class="card storage-card">
+            <div class="card storage-card" data-category="prescription">
               <div class="storage-card-top">
                 <div class="storage-icon"><svg class="icon icon-fill" style="width:24px;height:24px"><use href="#icon-pill"></use></svg></div>
-                <span class="file-count">8 Files</span>
+                <span class="file-count">—</span>
               </div>
               <h4>Prescriptions</h4>
               <p>Digital scripts and medication history logs.</p>
               <div class="storage-card-foot">
-                <span>Last updated 1 week ago</span>
+                <span>—</span>
                 <svg class="icon"><use href="#icon-chevron"></use></svg>
               </div>
             </div>
 
-            <div class="card storage-card">
+            <div class="card storage-card" data-category="imaging">
               <div class="storage-card-top">
                 <div class="storage-icon"><svg class="icon icon-fill" style="width:24px;height:24px"><use href="#icon-scan"></use></svg></div>
-                <span class="file-count">4 Files</span>
+                <span class="file-count">—</span>
               </div>
               <h4>Imaging</h4>
               <p>X-Rays, MRIs, and CT scans in high resolution.</p>
               <div class="storage-card-foot">
-                <span>Last updated 1 month ago</span>
+                <span>—</span>
                 <svg class="icon"><use href="#icon-chevron"></use></svg>
               </div>
             </div>
 
-            <div class="card storage-card">
+            <div class="card storage-card" data-category="vaccination">
               <div class="storage-card-top">
                 <div class="storage-icon"><svg class="icon icon-fill" style="width:24px;height:24px"><use href="#icon-syringe"></use></svg></div>
-                <span class="file-count">6 Files</span>
+                <span class="file-count">—</span>
               </div>
               <h4>Vaccination Records</h4>
               <p>Immunization history and booster certificates.</p>
               <div class="storage-card-foot">
-                <span>Fully synchronized</span>
+                <span>—</span>
                 <svg class="icon"><use href="#icon-chevron"></use></svg>
               </div>
             </div>
@@ -184,21 +184,21 @@
         <div class="side-col">
 
           <div class="card">
-            <h3 style="font-size:20px; margin-bottom:20px;">Vital Metrics</h3>
+            <div class="access-head">
+              <h3 style="font-size:20px; margin-bottom:20px;">Vital Metrics</h3>
+              <button type="button" class="vault-link-btn" id="healthProfileEditBtn">Edit</button>
+            </div>
             <div class="vitals-row">
               <div class="vitals-label"><svg class="icon"><use href="#icon-droplet"></use></svg>Blood Type</div>
-              <div class="vitals-value">O-Positive</div>
+              <div class="vitals-value" id="vitalBloodType">Not set</div>
             </div>
             <div class="vitals-block">
               <div class="vitals-block-head"><svg class="icon"><use href="#icon-warning"></use></svg>Allergies</div>
-              <div class="tags">
-                <span class="tag">Penicillin</span>
-                <span class="tag">Peanuts</span>
-              </div>
+              <div class="tags" id="vitalAllergies"><p class="note">Not set</p></div>
             </div>
             <div class="vitals-block">
               <div class="vitals-block-head" style="color:var(--status-upcoming)"><svg class="icon" style="color:var(--status-upcoming)"><use href="#icon-book"></use></svg>Chronic Conditions</div>
-              <p class="note">None recorded. Maintain active lifestyle.</p>
+              <div class="tags" id="vitalConditions"><p class="note">Not set</p></div>
             </div>
           </div>
 
@@ -214,32 +214,24 @@
           <div class="card">
             <div class="access-head">
               <h3>Trusted Access</h3>
-              <button><svg class="icon"><use href="#icon-userplus"></use></svg></button>
             </div>
-
-            <div class="access-row">
-              <div class="access-avatar">SM</div>
-              <div class="access-info">
-                <p>Dr. Sarah Mitchell</p>
-                <p>Primary Physician</p>
-              </div>
-              <span class="access-status">Active</span>
-            </div>
-
-            <div class="access-row">
-              <div class="access-avatar">RC</div>
-              <div class="access-info">
-                <p>Robert Chen</p>
-                <p>Family Caregiver</p>
-              </div>
-              <span class="access-status">Active</span>
-            </div>
-
-            <button class="btn-manage">Manage All Trusted Persons</button>
+            <div id="trustedAccessList"><p class="note">Loading...</p></div>
           </div>
 
         </div>
       </div>
+
+      <!-- My documents (real PDFs from the backend) -->
+      <section class="card vault-docs" id="vaultDocsSection">
+        <h3>My Documents</h3>
+        <p class="vault-docs-message" id="vaultDocsMessage" aria-live="polite"></p>
+        <div id="vaultDocsList"></div>
+        <div class="vault-trash" id="vaultTrash" hidden>
+          <h4>Recently deleted</h4>
+          <p class="vault-hint">Deleted documents can be restored for 30 days, then they are removed permanently. Nobody else can open them.</p>
+          <div id="vaultTrashList"></div>
+        </div>
+      </section>
 
       <!-- Activity table -->
       <section class="card activity">
@@ -248,45 +240,13 @@
           <thead>
             <tr>
               <th>Action</th>
-              <th>Entity</th>
+              <th>Document</th>
               <th>Date</th>
-              <th>Status</th>
+              <th>By</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="action-cell">
-                  <svg class="icon"><use href="#icon-download"></use></svg>
-                  File Downloaded
-                </div>
-              </td>
-              <td class="row-sub">MRI_Spine_2023.pdf</td>
-              <td class="row-sub">Oct 24, 2023 • 10:24 AM</td>
-              <td><span class="status-chip">ENCRYPTED</span></td>
-            </tr>
-            <tr>
-              <td>
-                <div class="action-cell">
-                  <svg class="icon"><use href="#icon-eye"></use></svg>
-                  Access Granted
-                </div>
-              </td>
-              <td class="row-sub">Dr. Sarah Mitchell</td>
-              <td class="row-sub">Oct 22, 2023 • 02:15 PM</td>
-              <td><span class="status-chip">SECURE</span></td>
-            </tr>
-            <tr>
-              <td>
-                <div class="action-cell">
-                  <svg class="icon"><use href="#icon-upload"></use></svg>
-                  New Document Upload
-                </div>
-              </td>
-              <td class="row-sub">Blood_Panel_Q3.pdf</td>
-              <td class="row-sub">Oct 19, 2023 • 09:00 AM</td>
-              <td><span class="status-chip">VERIFIED</span></td>
-            </tr>
+          <tbody id="vaultActivityBody">
+            <tr><td colspan="4" class="row-sub">Loading activity...</td></tr>
           </tbody>
         </table>
       </section>
@@ -332,6 +292,85 @@
       <div class="booking-actions">
         <button type="submit" class="btn-primary-solid">Confirm Booking</button>
         <button type="button" id="closeBookingModalSecondary" class="btn-outline">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="vaultUploadOverlay" class="booking-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="vaultUploadTitle" aria-hidden="true" style="display:none;">
+  <div class="booking-modal-card">
+    <div class="booking-modal-header">
+      <h3 id="vaultUploadTitle">Upload Record</h3>
+      <button type="button" id="vaultUploadClose" class="booking-close-btn" aria-label="Close upload form">×</button>
+    </div>
+
+    <form id="vaultUploadForm" class="booking-form">
+      <label class="booking-field">
+        <span>Category</span>
+        <select id="vaultCategory" class="booking-input" required>
+          <option value="">Select a category</option>
+          <option value="lab">Lab Results</option>
+          <option value="prescription">Prescriptions</option>
+          <option value="imaging">Imaging</option>
+          <option value="vaccination">Vaccination Records</option>
+        </select>
+      </label>
+
+      <label class="booking-field">
+        <span>Share with</span>
+        <select id="vaultDoctor" class="booking-input">
+          <option value="">Only me (private)</option>
+        </select>
+      </label>
+      <p class="vault-hint">Only the doctor you pick (from doctors you have an appointment with) can open or download this file.</p>
+
+      <label class="booking-field">
+        <span>PDF file (max 4 MB)</span>
+        <input type="file" id="vaultFile" class="booking-input" accept="application/pdf,.pdf" required>
+      </label>
+
+      <p id="vaultUploadError" class="booking-error" aria-live="polite"></p>
+
+      <div class="booking-actions">
+        <button type="submit" id="vaultUploadSubmit" class="btn-primary-solid">Upload</button>
+        <button type="button" id="vaultUploadCancel" class="btn-outline">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="vaultProfileOverlay" class="booking-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="vaultProfileTitle" aria-hidden="true" style="display:none;">
+  <div class="booking-modal-card">
+    <div class="booking-modal-header">
+      <h3 id="vaultProfileTitle">Edit Vital Metrics</h3>
+      <button type="button" id="vaultProfileClose" class="booking-close-btn" aria-label="Close form">×</button>
+    </div>
+
+    <form id="vaultProfileForm" class="booking-form">
+      <label class="booking-field">
+        <span>Blood type</span>
+        <select id="vaultBloodTypeInput" class="booking-input">
+          <option value="">Not set</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+        </select>
+      </label>
+
+      <label class="booking-field">
+        <span>Allergies (separate with commas)</span>
+        <input type="text" id="vaultAllergiesInput" class="booking-input" maxlength="300" placeholder="e.g. Penicillin, Peanuts">
+      </label>
+
+      <label class="booking-field">
+        <span>Chronic conditions (separate with commas)</span>
+        <input type="text" id="vaultConditionsInput" class="booking-input" maxlength="300" placeholder="e.g. Asthma">
+      </label>
+
+      <p id="vaultProfileError" class="booking-error" aria-live="polite"></p>
+
+      <div class="booking-actions">
+        <button type="submit" id="vaultProfileSubmit" class="btn-primary-solid">Save</button>
+        <button type="button" id="vaultProfileCancel" class="btn-outline">Cancel</button>
       </div>
     </form>
   </div>

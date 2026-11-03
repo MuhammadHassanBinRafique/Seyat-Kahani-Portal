@@ -167,6 +167,32 @@
             </div>
         </section>
 
+        <!-- Documents patients shared with this doctor -->
+        <section class="main-grid shared-documents-grid">
+            <div class="panel" id="sharedDocsPanel">
+                <div class="panel-header">
+                    <h4>Documents Shared With You</h4>
+                </div>
+                <p id="sharedDocsMessage" aria-live="polite" style="margin:0; padding:8px 16px; font-size:13px; color:#b3261e;"></p>
+                <div class="schedule-scroll">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Category</th>
+                                <th>File</th>
+                                <th>Shared On</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sharedDocsBody">
+                            <tr><td colspan="5" style="padding:20px;">Loading shared documents...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- Bottom Section: Clinical Insights -->
         <section class="insights-panel">
             <div class="insights-header">
@@ -184,37 +210,6 @@
                     <div></div><div></div><div></div><div></div>
                 </div>
                 <p style="position:relative; z-index:1; padding:12px;">Loading chart...</p>
-            </div>
-                <div class="bar-col">
-                    <div class="bar-tooltip">18 Cases</div>
-                    <div class="bar" style="height: 60%;"></div>
-                    <span class="bar-label">Mon</span>
-                </div>
-                <div class="bar-col">
-                    <div class="bar" style="height: 75%;"></div>
-                    <span class="bar-label">Tue</span>
-                </div>
-                <div class="bar-col">
-                    <div class="bar" style="height: 45%;"></div>
-                    <span class="bar-label">Wed</span>
-                </div>
-                <div class="bar-col">
-                    <div class="bar-tooltip">28 Cases</div>
-                    <div class="bar" style="height: 90%;"></div>
-                    <span class="bar-label">Thu</span>
-                </div>
-                <div class="bar-col">
-                    <div class="bar" style="height: 65%;"></div>
-                    <span class="bar-label">Fri</span>
-                </div>
-                <div class="bar-col">
-                    <div class="bar faded" style="height: 30%;"></div>
-                    <span class="bar-label">Sat</span>
-                </div>
-                <div class="bar-col">
-                    <div class="bar faded" style="height: 20%;"></div>
-                    <span class="bar-label">Sun</span>
-                </div>
             </div>
         </section>
 

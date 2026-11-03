@@ -89,9 +89,15 @@ function switchTab(role) {
     const roleIndicator = document.querySelector('#roleIndicator');
     const roleIcon = document.querySelector('#roleIcon');
     const roleText = document.querySelector('#roleText');
+    const googleAuthBlock = document.querySelector('#googleAuthBlock');
 
     if (!patientTab || !doctorTab || !roleIndicator || !roleIcon || !roleText) {
         return;
+    }
+
+    // Doctors sign in with email + password only; the backend enforces this too.
+    if (googleAuthBlock) {
+        googleAuthBlock.hidden = role !== 'patient';
     }
 
     if (role === 'patient') {
@@ -221,6 +227,13 @@ function switchTab(role) {
                 const data = await response.json();
 
                 if (!response.ok) {
+                    // Right password but the email is not verified yet: send them to the verify page.
+                    if (data.code === 'EMAIL_NOT_VERIFIED') {
+                        sessionStorage.setItem('pendingVerifyEmail', emailValue.toLowerCase());
+                        sessionStorage.setItem('verifyReason', 'login');
+                        window.location.href = '/verify-email';
+                        return;
+                    }
                     if (loginServerError) {
                         loginServerError.textContent = data.message || 'Invalid Credentials!';
                     }
@@ -627,10 +640,14 @@ function showToast() {
                   return;
               }
 
+              // The backend just emailed a verification link: continue on the "check your inbox" page.
+              sessionStorage.setItem('pendingVerifyEmail', emailInput.value.trim().toLowerCase());
+              sessionStorage.setItem('verifyReason', 'signup');
+              sessionStorage.setItem('verifyCooldownUntil', String(Date.now() + 60000));
               showToast();
               setTimeout(function() {
-                  window.location.href = '/login';
-              }, 2000);
+                  window.location.href = '/verify-email';
+              }, 1800);
           } catch (error) {
               if (signupServerError) {
                   signupServerError.textContent = 'Unable to reach the server. Please try again.';
@@ -645,6 +662,352 @@ function showToast() {
 
 
 // sign in functionality ends here: 
+
+
+// verify-email.html (check-your-inbox + the page the email link opens)
+if (document.querySelector('#verifyEmailPage')) {
+  const card = document.querySelector('#vpCard');
+  const title = document.querySelector('#vpTitle');
+  const message = document.querySelector('#vpMessage');
+  const emailLine = document.querySelector('#vpEmail');
+  const form = document.querySelector('#vpResendForm');
+  const emailField = document.querySelector('#vpEmailField');
+  const emailInput = document.querySelector('#vpEmailInput');
+  const alertBox = document.querySelector('#vpAlert');
+  const resendBtn = document.querySelector('#vpResendBtn');
+  const loginBtn = document.querySelector('#vpLoginBtn');
+
+  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const RESEND_LABEL = 'Resend verification email';
+  let pendingEmail = sessionStorage.getItem('pendingVerifyEmail') || '';
+  let cooldownTimer = null;
+
+  // The token in the address bar is one-time and secret: take it out of the browser history.
+  const token = new URLSearchParams(window.location.search).get('token');
+  if (token) window.history.replaceState(null, '', window.location.pathname);
+
+  const setState = (state, titleText, messageText) => {
+    card.dataset.state = state;
+    title.textContent = titleText;
+    message.textContent = messageText;
+    title.focus({ preventScroll: true });
+  };
+  const showAlert = (text, kind = 'error') => {
+    alertBox.textContent = text;
+    alertBox.dataset.kind = kind;
+    alertBox.hidden = !text;
+  };
+  const showEmail = (value) => {
+    emailLine.textContent = value;
+    emailLine.hidden = !value;
+  };
+
+  const startCooldown = (until) => {
+    clearInterval(cooldownTimer);
+    const tick = () => {
+      const left = Math.ceil((until - Date.now()) / 1000);
+      if (left > 0) {
+        resendBtn.disabled = true;
+        resendBtn.textContent = `Resend in ${left}s`;
+      } else {
+        clearInterval(cooldownTimer);
+        resendBtn.disabled = false;
+        resendBtn.textContent = RESEND_LABEL;
+      }
+    };
+    tick();
+    cooldownTimer = setInterval(tick, 1000);
+  };
+
+  // Resend form for a known email (just signed up / tried to log in).
+  const showPending = () => {
+    const reason = sessionStorage.getItem('verifyReason');
+    if (reason === 'login') {
+      setState('pending', 'Verify your email to continue', 'Your email address is not verified yet. Send yourself a new link, open it, then log in again.');
+    } else {
+      setState('pending', 'Check your inbox', "We've sent a verification link to the address below. Open it to activate your account (check your spam folder too).");
+    }
+    showEmail(pendingEmail);
+    emailField.hidden = true;
+    form.hidden = false;
+    loginBtn.hidden = true;
+    const until = Number(sessionStorage.getItem('verifyCooldownUntil')) || 0;
+    if (until > Date.now()) startCooldown(until);
+  };
+
+  // We do not know the email (opened in another browser, or a bad link): ask for it.
+  const showRequest = (titleText, messageText, state = 'request') => {
+    setState(state, titleText, messageText);
+    showEmail('');
+    emailField.hidden = false;
+    form.hidden = false;
+    loginBtn.hidden = true;
+  };
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showAlert('');
+    const email = (pendingEmail || emailInput.value).trim().toLowerCase();
+    if (!EMAIL_PATTERN.test(email)) {
+      showAlert('Please enter a valid email address.');
+      emailInput.focus();
+      return;
+    }
+
+    resendBtn.disabled = true;
+    resendBtn.textContent = 'Sending…';
+    try {
+      const res = await fetch(`${API_BASE_URL}/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showAlert(data.message || 'Could not send the email. Please try again.');
+        resendBtn.disabled = false;
+        resendBtn.textContent = RESEND_LABEL;
+        return;
+      }
+      pendingEmail = email;
+      sessionStorage.setItem('pendingVerifyEmail', email);
+      sessionStorage.setItem('verifyCooldownUntil', String(Date.now() + 60000));
+      showPending();
+      showAlert(data.message, 'success');
+      startCooldown(Date.now() + 60000);
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      showAlert('Unable to reach the server. Please try again.');
+      resendBtn.disabled = false;
+      resendBtn.textContent = RESEND_LABEL;
+    }
+  });
+
+  const verifyToken = async () => {
+    setState('loading', 'Verifying your email…', 'Please wait a moment.');
+    try {
+      const res = await fetch(`${API_BASE_URL}/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showRequest('This link is not valid', `${data.message || 'The link is invalid or has expired.'} Enter your email to get a new one.`, 'error');
+        emailInput.value = pendingEmail;
+        return;
+      }
+      sessionStorage.removeItem('pendingVerifyEmail');
+      sessionStorage.removeItem('verifyCooldownUntil');
+      sessionStorage.removeItem('verifyReason');
+      setState('success', 'Email verified', data.message || 'Your email has been verified. You can now log in.');
+      showEmail('');
+      form.hidden = true;
+      loginBtn.hidden = false;
+    } catch (error) {
+      console.error('Verify email error:', error);
+      showRequest('Something went wrong', 'We could not reach the server. Check your connection and open the link again.', 'error');
+      form.hidden = true;
+    }
+  };
+
+  if (token) {
+    verifyToken();
+  } else if (pendingEmail) {
+    showPending();
+  } else {
+    showRequest('Verify your email', "Enter your email address and we'll send you a new verification link.");
+  }
+}
+
+
+// forgot-password.html (also served at /reset-password: the page the reset email opens)
+if (document.querySelector('#forgotPasswordPage')) {
+  const card = document.querySelector('#fpCard');
+  const title = document.querySelector('#fpTitle');
+  const message = document.querySelector('#fpMessage');
+  const requestForm = document.querySelector('#fpRequestForm');
+  const emailInput = document.querySelector('#fpEmail');
+  const requestAlert = document.querySelector('#fpRequestAlert');
+  const requestBtn = document.querySelector('#fpRequestBtn');
+  const resetForm = document.querySelector('#fpResetForm');
+  const passwordInput = document.querySelector('#fpPassword');
+  const confirmInput = document.querySelector('#fpConfirm');
+  const confirmError = document.querySelector('#fpConfirmError');
+  const hint = document.querySelector('#fpHint');
+  const resetAlert = document.querySelector('#fpResetAlert');
+  const resetBtn = document.querySelector('#fpResetBtn');
+  const loginBtn = document.querySelector('#fpLoginBtn');
+  const newLinkBtn = document.querySelector('#fpNewLinkBtn');
+
+  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const REQUEST_LABEL = 'Send reset link';
+  let resetToken = new URLSearchParams(window.location.search).get('token');
+  let cooldownTimer = null;
+
+  // One-time secret: take it out of the address bar / history.
+  if (resetToken) window.history.replaceState(null, '', window.location.pathname);
+
+  const setState = (state, titleText, messageText) => {
+    card.dataset.state = state;
+    title.textContent = titleText;
+    message.textContent = messageText;
+    title.focus({ preventScroll: true });
+  };
+  const showAlert = (box, text, kind = 'error') => {
+    box.textContent = text;
+    box.dataset.kind = kind;
+    box.hidden = !text;
+  };
+
+  const showRequest = () => {
+    setState('request', 'Forgot your password?', "Enter the email you signed up with and we'll send you a link to reset it.");
+    requestForm.hidden = false;
+    resetForm.hidden = true;
+    loginBtn.hidden = true;
+    newLinkBtn.hidden = true;
+  };
+  const showReset = () => {
+    setState('reset', 'Set a new password', 'Choose a new password for your account.');
+    requestForm.hidden = true;
+    resetForm.hidden = false;
+    loginBtn.hidden = true;
+    newLinkBtn.hidden = true;
+    passwordInput.focus();
+  };
+
+  const startCooldown = (until) => {
+    clearInterval(cooldownTimer);
+    const tick = () => {
+      const left = Math.ceil((until - Date.now()) / 1000);
+      if (left > 0) {
+        requestBtn.disabled = true;
+        requestBtn.textContent = `Send again in ${left}s`;
+      } else {
+        clearInterval(cooldownTimer);
+        requestBtn.disabled = false;
+        requestBtn.textContent = REQUEST_LABEL;
+      }
+    };
+    tick();
+    cooldownTimer = setInterval(tick, 1000);
+  };
+
+  // ----- step 1: ask for the reset link -----
+  requestForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showAlert(requestAlert, '');
+    const email = emailInput.value.trim().toLowerCase();
+    if (!EMAIL_PATTERN.test(email)) {
+      showAlert(requestAlert, 'Please enter a valid email address.');
+      emailInput.focus();
+      return;
+    }
+
+    requestBtn.disabled = true;
+    requestBtn.textContent = 'Sending…';
+    try {
+      const res = await fetch(`${API_BASE_URL}/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showAlert(requestAlert, data.message || 'Could not send the email. Please try again.');
+        requestBtn.disabled = false;
+        requestBtn.textContent = REQUEST_LABEL;
+        return;
+      }
+      setState('sent', 'Check your email', 'The link is valid for 1 hour. Check your spam folder if you do not see it.');
+      showAlert(requestAlert, data.message, 'success');
+      startCooldown(Date.now() + 60000);
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      showAlert(requestAlert, 'Unable to reach the server. Please try again.');
+      requestBtn.disabled = false;
+      requestBtn.textContent = REQUEST_LABEL;
+    }
+  });
+
+  // ----- step 2: choose the new password -----
+  document.querySelectorAll('.fp-toggle').forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+      const input = document.getElementById(toggle.dataset.toggle);
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      toggle.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+    });
+  });
+
+  passwordInput.addEventListener('input', () => {
+    const met = passwordInput.value.length >= 8;
+    hint.classList.toggle('is-met', met);
+    hint.textContent = met ? 'Looks good.' : 'Use at least 8 characters.';
+  });
+  confirmInput.addEventListener('input', () => { confirmError.textContent = ''; });
+
+  resetForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showAlert(resetAlert, '');
+    confirmError.textContent = '';
+
+    if (passwordInput.value.length < 8) {
+      showAlert(resetAlert, 'Password must be at least 8 characters long.');
+      passwordInput.focus();
+      return;
+    }
+    if (passwordInput.value !== confirmInput.value) {
+      confirmError.textContent = 'Passwords do not match.';
+      confirmInput.focus();
+      return;
+    }
+
+    resetBtn.disabled = true;
+    resetBtn.textContent = 'Updating…';
+    try {
+      const res = await fetch(`${API_BASE_URL}/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetToken, password: passwordInput.value })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        resetToken = null;
+        passwordInput.value = '';
+        confirmInput.value = '';
+        setState('done', 'Password updated', data.message || 'Your password has been updated. You can now log in.');
+        resetForm.hidden = true;
+        loginBtn.hidden = false;
+        return;
+      }
+      if (data.code === 'INVALID_TOKEN') {
+        resetToken = null;
+        setState('invalid', 'This link is not valid', 'The reset link is invalid, has expired, or was already used. Request a new one.');
+        resetForm.hidden = true;
+        newLinkBtn.hidden = false;
+        return;
+      }
+      showAlert(resetAlert, data.message || 'Could not update the password. Please try again.');
+    } catch (error) {
+      console.error('Reset password error:', error);
+      showAlert(resetAlert, 'Unable to reach the server. Please try again.');
+    } finally {
+      resetBtn.disabled = false;
+      resetBtn.textContent = 'Update password';
+    }
+  });
+
+  newLinkBtn.addEventListener('click', showRequest);
+
+  if (resetToken) {
+    showReset();
+  } else {
+    showRequest();
+  }
+}
+
 
 
 // doctor dashboard functionality starts from here:
@@ -787,6 +1150,334 @@ function showToast() {
     button.addEventListener('mouseleave', function(){ button.style.transform = 'scale(1)'; });
   });
 
+
+    // Health Vault: everything on this page comes from the backend.
+    if (document.querySelector('#vaultUploadBtn')) {
+      const VAULT_API = `${API_ROOT}/health-documents`;
+      const VAULT_MAX_BYTES = 4 * 1024 * 1024; // same cap as the backend (multer)
+
+      const $ = (selector) => document.querySelector(selector);
+      const vaultOverlay = $('#vaultUploadOverlay');
+      const vaultForm = $('#vaultUploadForm');
+      const vaultCategory = $('#vaultCategory');
+      const vaultDoctor = $('#vaultDoctor');
+      const vaultFile = $('#vaultFile');
+      const vaultError = $('#vaultUploadError');
+      const vaultSubmit = $('#vaultUploadSubmit');
+      const vaultList = $('#vaultDocsList');
+      const vaultTrash = $('#vaultTrash');
+      const vaultTrashList = $('#vaultTrashList');
+      const vaultMessage = $('#vaultDocsMessage');
+
+      const doctorLabel = (name) => (/^dr\.?\s/i.test(name) ? name : `Dr. ${name}`);
+      const formatSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
+      const formatDate = (value) => new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      const formatDateTime = (value) => new Date(value).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+      // One place for every call: adds the token, redirects on an expired login, returns { ok, data }.
+      const vaultRequest = async (url, options = {}) => {
+        const res = await fetch(url, { ...options, headers: { 'Authorization': `Bearer ${getToken()}`, ...(options.headers || {}) } });
+        if (res.status === 401) { window.location.href = '/login'; throw new Error('Not logged in'); }
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, data };
+      };
+
+      // A message line; with undoId it also shows an "Undo" button (used right after a delete).
+      const showVaultMessage = (text, isError = false, undoId = null) => {
+        vaultMessage.textContent = text;
+        vaultMessage.classList.toggle('is-error', isError);
+        if (undoId) {
+          const undo = document.createElement('button');
+          undo.type = 'button';
+          undo.className = 'vault-undo-btn';
+          undo.dataset.undoId = undoId;
+          undo.textContent = 'Undo';
+          vaultMessage.appendChild(undo);
+        }
+      };
+
+      const openModal = (overlay) => { overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden', 'false'); overlay.classList.add('visible'); };
+      const closeModal = (overlay) => { overlay.style.display = 'none'; overlay.setAttribute('aria-hidden', 'true'); overlay.classList.remove('visible'); };
+
+      // ---------- Documents + category cards + trusted access ----------
+      const renderDocuments = (documents) => {
+        document.querySelectorAll('.storage-card[data-category]').forEach((card) => {
+          const own = documents.filter((doc) => doc.category === card.dataset.category);
+          card.querySelector('.file-count').textContent = `${own.length} ${own.length === 1 ? 'File' : 'Files'}`;
+          card.querySelector('.storage-card-foot span').textContent = own.length ? `Last updated ${formatDate(own[0].createdAt)}` : 'No files yet';
+        });
+
+        if (!documents.length) {
+          vaultList.innerHTML = '<p class="vault-docs-empty">No documents yet. Use “Upload Record” to add your first PDF.</p>';
+        } else {
+          vaultList.innerHTML = documents.map((doc) => `
+            <div class="vault-doc-row">
+              <div class="vault-doc-info">
+                <p class="vault-doc-name">${escapeHtml(doc.originalName)}</p>
+                <p class="vault-doc-meta">${escapeHtml(HEALTH_CATEGORY_LABELS[doc.category] || doc.category)} • ${formatSize(doc.size)} • ${formatDate(doc.createdAt)} • ${doc.sharedWith ? `Shared with ${escapeHtml(doctorLabel(doc.sharedWith.name))}` : 'Only you'}</p>
+              </div>
+              <div class="vault-doc-actions">
+                <button type="button" class="btn-outline" data-open-doc="${escapeHtml(String(doc.id))}">Open</button>
+                <button type="button" class="btn-outline" data-delete-doc="${escapeHtml(String(doc.id))}">Delete</button>
+              </div>
+            </div>`).join('');
+        }
+
+        // Trusted Access = doctors who can currently open at least one of the patient's documents.
+        const trusted = new Map();
+        documents.forEach((doc) => {
+          if (!doc.sharedWith) return;
+          const entry = trusted.get(String(doc.sharedWith.id)) || { name: doc.sharedWith.name, count: 0 };
+          entry.count += 1;
+          trusted.set(String(doc.sharedWith.id), entry);
+        });
+        $('#trustedAccessList').innerHTML = trusted.size
+          ? [...trusted.values()].map((entry) => `
+              <div class="access-row">
+                <div class="access-avatar">${escapeHtml(getInitials(entry.name))}</div>
+                <div class="access-info">
+                  <p>${escapeHtml(doctorLabel(entry.name))}</p>
+                  <p>${entry.count} ${entry.count === 1 ? 'document' : 'documents'} shared</p>
+                </div>
+                <span class="access-status">Active</span>
+              </div>`).join('')
+          : '<p class="vault-hint">You have not shared any document with a doctor yet.</p>';
+      };
+
+      const renderTrash = (documents) => {
+        vaultTrash.hidden = !documents.length;
+        vaultTrashList.innerHTML = documents.map((doc) => `
+          <div class="vault-doc-row">
+            <div class="vault-doc-info">
+              <p class="vault-doc-name">${escapeHtml(doc.originalName)}</p>
+              <p class="vault-doc-meta">${escapeHtml(HEALTH_CATEGORY_LABELS[doc.category] || doc.category)} • ${doc.daysLeft} ${doc.daysLeft === 1 ? 'day' : 'days'} left to restore</p>
+            </div>
+            <div class="vault-doc-actions">
+              <button type="button" class="btn-outline" data-open-doc="${escapeHtml(String(doc.id))}">Open</button>
+              <button type="button" class="btn-outline" data-restore-doc="${escapeHtml(String(doc.id))}">Restore</button>
+            </div>
+          </div>`).join('');
+      };
+
+      // ---------- Recent activity (real audit log of MY documents) ----------
+      const ACTIVITY = {
+        create: { icon: 'upload', text: () => 'You uploaded' },
+        view: { icon: 'eye', text: (item) => (item.byMe ? 'You opened' : `${doctorLabel(item.actorName)} opened`) },
+        delete: { icon: 'warning', text: () => 'You deleted' },
+        restore: { icon: 'download', text: () => 'You restored' }
+      };
+      const renderActivity = (items) => {
+        $('#vaultActivityBody').innerHTML = items.length
+          ? items.map((item) => {
+              const info = ACTIVITY[item.action] || ACTIVITY.view;
+              return `<tr>
+                <td><div class="action-cell"><svg class="icon"><use href="#icon-${info.icon}"></use></svg>${escapeHtml(info.text(item))}</div></td>
+                <td class="row-sub">${escapeHtml(item.entity)}</td>
+                <td class="row-sub">${escapeHtml(formatDateTime(item.createdAt))}</td>
+                <td class="row-sub">${item.byMe ? 'You' : escapeHtml(doctorLabel(item.actorName))}</td>
+              </tr>`;
+            }).join('')
+          : '<tr><td colspan="4" class="row-sub">No activity yet.</td></tr>';
+      };
+
+      const loadDocuments = async () => {
+        const { ok, data } = await vaultRequest(`${VAULT_API}/my`);
+        if (!ok) { showVaultMessage(data.message || 'Could not load documents', true); return; }
+        renderDocuments(data);
+      };
+      const loadTrash = async () => {
+        const { ok, data } = await vaultRequest(`${VAULT_API}/my/deleted`);
+        if (ok) renderTrash(data);
+      };
+      const loadActivity = async () => {
+        const { ok, data } = await vaultRequest(`${VAULT_API}/activity`);
+        if (ok) renderActivity(data);
+      };
+      const refreshVault = async () => {
+        await loadDocuments(); // runs the expired-trash cleanup first
+        await Promise.all([loadTrash(), loadActivity()]);
+      };
+
+      // ---------- Vital metrics (health profile) ----------
+      const profileOverlay = $('#vaultProfileOverlay');
+      const profileError = $('#vaultProfileError');
+      let healthProfile = { bloodType: '', allergies: '', chronicConditions: '' };
+
+      const tagsHtml = (text) => {
+        const items = text.split(',').map((item) => item.trim()).filter(Boolean);
+        return items.length ? items.map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join('') : '<p class="note">Not set</p>';
+      };
+      const renderHealthProfile = () => {
+        $('#vitalBloodType').textContent = healthProfile.bloodType || 'Not set';
+        $('#vitalAllergies').innerHTML = tagsHtml(healthProfile.allergies);
+        $('#vitalConditions').innerHTML = tagsHtml(healthProfile.chronicConditions);
+      };
+      const loadHealthProfile = async () => {
+        const { ok, data } = await vaultRequest(`${API_ROOT}/users/me/health-profile`);
+        if (ok) { healthProfile = data; renderHealthProfile(); }
+      };
+
+      $('#healthProfileEditBtn').addEventListener('click', () => {
+        $('#vaultBloodTypeInput').value = healthProfile.bloodType;
+        $('#vaultAllergiesInput').value = healthProfile.allergies;
+        $('#vaultConditionsInput').value = healthProfile.chronicConditions;
+        profileError.textContent = '';
+        openModal(profileOverlay);
+      });
+      $('#vaultProfileClose').addEventListener('click', () => closeModal(profileOverlay));
+      $('#vaultProfileCancel').addEventListener('click', () => closeModal(profileOverlay));
+      profileOverlay.addEventListener('click', (event) => { if (event.target === profileOverlay) closeModal(profileOverlay); });
+      $('#vaultProfileForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submit = $('#vaultProfileSubmit');
+        submit.disabled = true;
+        profileError.textContent = '';
+        try {
+          const { ok, data } = await vaultRequest(`${API_ROOT}/users/me/health-profile`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              bloodType: $('#vaultBloodTypeInput').value,
+              allergies: $('#vaultAllergiesInput').value,
+              chronicConditions: $('#vaultConditionsInput').value
+            })
+          });
+          if (!ok) { profileError.textContent = data.message || 'Could not save'; return; }
+          healthProfile = data.profile;
+          renderHealthProfile();
+          closeModal(profileOverlay);
+        } catch (error) {
+          if (error.message !== 'Not logged in') profileError.textContent = 'Unable to reach the server. Please try again.';
+        } finally {
+          submit.disabled = false;
+        }
+      });
+
+      // ---------- Upload ----------
+      $('#vaultUploadBtn').addEventListener('click', async () => {
+        vaultForm.reset();
+        vaultError.textContent = '';
+        vaultDoctor.length = 1; // keep only the "Only me" option, then add the shareable doctors
+        openModal(vaultOverlay);
+        try {
+          const { ok, data } = await vaultRequest(`${VAULT_API}/doctors`);
+          if (ok) data.forEach((doctor) => vaultDoctor.add(new Option(doctorLabel(doctor.name), doctor.id)));
+        } catch (error) { /* the form still works for "Only me" */ }
+      });
+      $('#vaultUploadClose').addEventListener('click', () => closeModal(vaultOverlay));
+      $('#vaultUploadCancel').addEventListener('click', () => closeModal(vaultOverlay));
+      vaultOverlay.addEventListener('click', (event) => { if (event.target === vaultOverlay) closeModal(vaultOverlay); });
+
+      vaultForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const file = vaultFile.files?.[0];
+        if (!vaultCategory.value) { vaultError.textContent = 'Please select a category'; return; }
+        if (!file) { vaultError.textContent = 'Please choose a PDF file'; return; }
+        if (file.type !== 'application/pdf') { vaultError.textContent = 'Only PDF files are allowed'; return; }
+        if (file.size > VAULT_MAX_BYTES) { vaultError.textContent = 'PDF must be 4 MB or smaller'; return; }
+
+        vaultError.textContent = '';
+        vaultSubmit.disabled = true;
+        vaultSubmit.textContent = 'Uploading…';
+        try {
+          // FormData: no Content-Type header here, the browser adds the multipart boundary itself.
+          const formData = new FormData();
+          formData.append('category', vaultCategory.value);
+          formData.append('doctorId', vaultDoctor.value); // "" = only me
+          formData.append('document', file); // must match upload.single("document")
+          const { ok, data } = await vaultRequest(VAULT_API, { method: 'POST', body: formData });
+          if (!ok) { vaultError.textContent = data.message || 'Could not upload document'; return; }
+          closeModal(vaultOverlay);
+          await refreshVault();
+          showVaultMessage('Document uploaded');
+        } catch (error) {
+          console.error('Upload document error:', error);
+          if (error.message !== 'Not logged in') vaultError.textContent = 'Unable to reach the server. Please try again.';
+        } finally {
+          vaultSubmit.disabled = false;
+          vaultSubmit.textContent = 'Upload';
+        }
+      });
+
+      // ---------- Open / delete / restore / undo ----------
+      const changeDocument = async (url, options, successMessage, undoId = null) => {
+        try {
+          const { ok, data } = await vaultRequest(url, options);
+          if (!ok) { showVaultMessage(data.message || 'Something went wrong', true); return; }
+          await refreshVault();
+          showVaultMessage(successMessage, false, undoId);
+        } catch (error) {
+          console.error('Vault action error:', error);
+          if (error.message !== 'Not logged in') showVaultMessage('Unable to reach the server. Please try again.', true);
+        }
+      };
+
+      $('#vaultDocsSection').addEventListener('click', async (event) => {
+        const target = event.target.closest('button');
+        if (!target) return;
+
+        if (target.dataset.openDoc) {
+          const result = await openHealthDocument(target.dataset.openDoc);
+          if (!result.ok) showVaultMessage(result.message, true);
+        } else if (target.dataset.deleteDoc) {
+          if (!window.confirm('Move this document to trash? You can restore it for 30 days.')) return;
+          changeDocument(`${VAULT_API}/${target.dataset.deleteDoc}`, { method: 'DELETE' }, 'Document moved to trash.', target.dataset.deleteDoc);
+        } else if (target.dataset.restoreDoc || target.dataset.undoId) {
+          changeDocument(`${VAULT_API}/${target.dataset.restoreDoc || target.dataset.undoId}/restore`, { method: 'POST' }, 'Document restored.');
+        }
+      });
+
+      refreshVault().catch((error) => {
+        console.error('Load vault error:', error);
+        if (error.message !== 'Not logged in') showVaultMessage('Unable to reach the server. Please try again.', true);
+      });
+      loadHealthProfile().catch(() => {});
+    }
+
+    // Doctor dashboard: documents patients chose to share with THIS doctor.
+    if (document.querySelector('#sharedDocsBody')) {
+      const sharedBody = document.querySelector('#sharedDocsBody');
+      const sharedMessage = document.querySelector('#sharedDocsMessage');
+
+      const renderShared = (documents) => {
+        sharedBody.innerHTML = documents.length
+          ? documents.map((doc) => `
+              <tr>
+                <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">${escapeHtml(getInitials(doc.patient?.name || ''))}</div><span class="name">${escapeHtml(doc.patient?.name || 'Unknown')}</span></div></td>
+                <td class="type-cell">${escapeHtml(HEALTH_CATEGORY_LABELS[doc.category] || doc.category)}</td>
+                <td class="type-cell">${escapeHtml(doc.originalName)}</td>
+                <td class="type-cell">${escapeHtml(new Date(doc.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }))}</td>
+                <td>
+                  <button type="button" class="shared-doc-btn" data-open="${escapeHtml(String(doc.id))}">Open</button>
+                  <button type="button" class="shared-doc-btn" data-download="${escapeHtml(String(doc.id))}" data-name="${escapeHtml(doc.originalName)}">Download</button>
+                </td>
+              </tr>`).join('')
+          : '<tr><td colspan="5" style="padding:20px;">No patient has shared a document with you yet.</td></tr>';
+      };
+
+      sharedBody.addEventListener('click', async (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+        sharedMessage.textContent = '';
+        const result = button.dataset.download
+          ? await openHealthDocument(button.dataset.download, { download: true, fileName: button.dataset.name })
+          : await openHealthDocument(button.dataset.open);
+        if (!result.ok) sharedMessage.textContent = result.message;
+      });
+
+      (async () => {
+        try {
+          const res = await fetch(`${API_ROOT}/health-documents/shared-with-me`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+          if (res.status === 401) { window.location.href = '/login'; return; }
+          const data = await res.json();
+          if (!res.ok) { sharedBody.innerHTML = `<tr><td colspan="5" style="padding:20px;">${escapeHtml(data.message || 'Could not load documents')}</td></tr>`; return; }
+          renderShared(data);
+        } catch (error) {
+          console.error('Load shared documents error:', error);
+          sharedBody.innerHTML = '<tr><td colspan="5" style="padding:20px;">Unable to reach the server. Please try again.</td></tr>';
+        }
+      })();
+    }
 
     //   health-vault functionality ends here:
 
@@ -956,6 +1647,49 @@ function getDisplayName(user) {
   return user.name.trim();
 }
 
+const HEALTH_CATEGORY_LABELS = { lab: 'Lab Results', prescription: 'Prescriptions', imaging: 'Imaging', vaccination: 'Vaccination Records' };
+
+// Opens or downloads a private Health Vault PDF. A plain link cannot carry the login token, so the
+// file is fetched with the Authorization header and shown from a temporary in-browser (blob:) URL.
+async function openHealthDocument(id, { download = false, fileName = 'document.pdf' } = {}) {
+  const viewer = download ? null : window.open('', '_blank');
+  try {
+    const res = await fetch(`${API_ROOT}/health-documents/${id}/file${download ? '?download=1' : ''}`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    if (!res.ok) {
+      if (viewer) viewer.close();
+      const data = await res.json().catch(() => ({}));
+      return { ok: false, message: data.message || 'Could not open document' };
+    }
+    const url = URL.createObjectURL(await res.blob());
+    if (download) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } else if (viewer) {
+      viewer.location.href = url;
+    } else {
+      URL.revokeObjectURL(url);
+      return { ok: false, message: 'Please allow pop-ups to view the document' };
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    return { ok: true };
+  } catch (error) {
+    console.error('Open document error:', error);
+    if (viewer) viewer.close();
+    return { ok: false, message: 'Unable to reach the server. Please try again.' };
+  }
+}
+
+// Only patients verify their email; doctor accounts are issued by the clinic and count as verified.
+function isEmailVerifiedForUi(user) {
+  return !!user && (!!user.emailVerified || user.role === 'doctor');
+}
+
 function escapeHtml(value = '') {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -963,6 +1697,21 @@ function escapeHtml(value = '') {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+// Shows the user's profile picture inside an avatar element, or falls back to initials.
+function setAvatar(element, user) {
+  if (!element) return;
+  if (user?.profilePicture) {
+    element.textContent = '';
+    const img = document.createElement('img');
+    img.src = user.profilePicture;
+    img.alt = 'Profile photo';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:30%;';
+    element.appendChild(img);
+  } else {
+    element.textContent = getInitials(getDisplayName(user || {}));
+  }
 }
 
 async function loadCurrentUserProfile() {
@@ -983,7 +1732,7 @@ async function loadCurrentUserProfile() {
       }
 
       if (userAvatarCircle) {
-        userAvatarCircle.textContent = getInitials(fullName);
+        setAvatar(userAvatarCircle, parsedUser);
       }
 
       if (dashboardGreeting) {
@@ -1686,7 +2435,7 @@ if (patientTableBody) {
         const avatar = document.querySelector('#doctorAvatar');
         if (name) name.textContent = doctor.name;
         if (role) role.textContent = doctor.role === 'doctor' ? 'Doctor' : doctor.role;
-        if (avatar) avatar.textContent = getInitials(doctor.name);
+        if (avatar) setAvatar(avatar, doctor);
       }
       allPatients = Array.isArray(data) ? data : [];
       renderReviews();
@@ -2045,6 +2794,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
         </div>
         <h2 id="profileCardName">${escapeHtml(profileName)}</h2>
         <p id="profileCardRole">${escapeHtml(profileRole)}</p>
+        <button type="button" id="profileCardRemovePhoto" hidden style="background:none;border:0;padding:4px 8px;margin-top:2px;color:#b3261e;font-size:12px;cursor:pointer;text-decoration:underline;">Remove photo</button>
       </div>
       <form id="profileCardForm" class="profile-card-section">
         <div class="profile-card-inline">
@@ -2063,7 +2813,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
       <div class="profile-card-section">
         <div class="profile-card-email-row">
           <label class="profile-card-field">Email<input type="email" value="${escapeHtml(profileEmail)}" disabled></label>
-          <span class="profile-card-badge${profileUser.emailVerified ? ' is-verified' : ''}">${profileUser.emailVerified ? 'Verified' : 'Not Verified'}</span>
+          <span class="profile-card-badge${isEmailVerifiedForUi(profileUser) ? ' is-verified' : ''}">${isEmailVerifiedForUi(profileUser) ? 'Verified' : 'Not Verified'}</span>
         </div>
         <button type="button" class="profile-card-button secondary" id="profileCardVerify" style="width:100%;margin-top:10px;">Send Verification Email</button>
         <p class="profile-card-message" id="profileCardVerifyMessage" aria-live="polite"></p>
@@ -2117,11 +2867,17 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
     document.querySelectorAll('.profile-block, .profile, .user-chip').forEach((profileElement) => {
       const nameElement = profileElement.querySelector('.profile-name, .name, p:first-of-type');
       const roleElement = profileElement.querySelector('.profile-role, .role, .profile-id, p:nth-of-type(2)');
-      const avatarElement = profileElement.querySelector('.avatar-circle, .avatar-patient, img');
+      const avatarElement = profileElement.querySelector('.avatar-circle, .avatar-patient, .patient-initials');
       if (nameElement) nameElement.textContent = fullName;
       if (roleElement) roleElement.textContent = role;
-      if (avatarElement && avatarElement.tagName !== 'IMG') avatarElement.textContent = getInitials(fullName);
+      if (avatarElement) setAvatar(avatarElement, user);
     });
+  }
+
+  // Show the saved profile picture (if any) in the header and in the card on page load.
+  if (profileUser.profilePicture) {
+    setAvatar(profileCardAvatar, profileUser);
+    syncHeaderProfile(profileUser);
   }
 
   profileTriggers.forEach((trigger) => {
@@ -2149,17 +2905,98 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
     if (event.key === 'Escape' && profileCardOverlay.classList.contains('is-open')) closeProfileCard();
   });
 
+  // "Remove photo" is only shown while a photo exists. Removal is permanent: the backend
+  // deletes the file from Vercel Blob and clears it from the user's record.
+  const removePhotoButton = profileCardOverlay.querySelector('#profileCardRemovePhoto');
+  const updateRemovePhotoButton = () => { removePhotoButton.hidden = !profileUser.profilePicture; };
+  updateRemovePhotoButton();
+
+  removePhotoButton.addEventListener('click', async () => {
+    if (!window.confirm('Remove your profile photo?')) return;
+    const messageEl = profileCardOverlay.querySelector('#profileCardNameMessage');
+    removePhotoButton.disabled = true;
+    try {
+      const res = await fetch(`${API_ROOT}/users/me/picture`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${getToken()}` }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showProfileMessage(messageEl, data.message || 'Could not remove photo');
+        return;
+      }
+      profileUser.profilePicture = null;
+      localStorage.setItem('user', JSON.stringify(profileUser));
+      setAvatar(profileCardAvatar, profileUser);
+      syncHeaderProfile(profileUser);
+      showProfileMessage(messageEl, 'Profile photo removed');
+    } catch (error) {
+      console.error('Remove photo error:', error);
+      showProfileMessage(messageEl, 'Unable to reach the server. Please try again.');
+    } finally {
+      removePhotoButton.disabled = false;
+      updateRemovePhotoButton();
+    }
+  });
+
   profileCardOverlay.querySelector('#profileCardEdit').addEventListener('click', () => {
     profileCardOverlay.querySelector('#profileCardPhotoInput').click();
   });
   profileCardOverlay.querySelector('#profileCardPhotoInput').addEventListener('change', (event) => {
     const file = event.target.files?.[0];
+    event.target.value = ''; // lets the same file be chosen again later
     if (!file) return;
-    const reader = new FileReader();
-    reader.addEventListener('load', () => {
-      profileCardAvatar.innerHTML = `<img src="${reader.result}" alt="Profile photo preview">`;
-    });
-    reader.readAsDataURL(file);
+
+    const photoMessageEl = profileCardOverlay.querySelector('#profileCardNameMessage');
+
+    // Same limits as the backend (multer): JPG/PNG/WEBP, max 2 MB.
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      showProfileMessage(photoMessageEl, 'Only JPG, PNG or WEBP images are allowed');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showProfileMessage(photoMessageEl, 'Image must be 2 MB or smaller');
+      return;
+    }
+
+    // Instant local preview while the upload runs.
+    const previewUrl = URL.createObjectURL(file);
+    setAvatar(profileCardAvatar, { profilePicture: previewUrl });
+
+    (async () => {
+      try {
+        // FormData: do NOT use authHeaders() here — it forces Content-Type: application/json,
+        // and the browser must set the multipart boundary itself.
+        const formData = new FormData();
+        formData.append('picture', file); // field name must match upload.single("picture")
+
+        const res = await fetch(`${API_ROOT}/users/me/picture`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${getToken()}` },
+          body: formData
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          setAvatar(profileCardAvatar, profileUser); // roll the preview back
+          showProfileMessage(photoMessageEl, data.message || 'Could not upload photo');
+          return;
+        }
+
+        profileUser.profilePicture = data.user.profilePicture;
+        localStorage.setItem('user', JSON.stringify(profileUser));
+        setAvatar(profileCardAvatar, profileUser);
+        syncHeaderProfile(profileUser);
+        updateRemovePhotoButton();
+        showProfileMessage(photoMessageEl, 'Profile photo updated');
+      } catch (error) {
+        console.error('Upload photo error:', error);
+        setAvatar(profileCardAvatar, profileUser);
+        showProfileMessage(photoMessageEl, 'Unable to reach the server. Please try again.');
+      } finally {
+        URL.revokeObjectURL(previewUrl);
+      }
+    })();
   });
 
   profileCardOverlay.querySelector('#profileCardForm').addEventListener('submit', async (event) => {
@@ -2199,8 +3036,28 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
     }
   });
 
-  profileCardOverlay.querySelector('#profileCardVerify').addEventListener('click', () => {
-    showProfileMessage(profileCardOverlay.querySelector('#profileCardVerifyMessage'), 'Verification email would be sent');
+  const verifyButton = profileCardOverlay.querySelector('#profileCardVerify');
+  const verifyMessageEl = profileCardOverlay.querySelector('#profileCardVerifyMessage');
+  if (isEmailVerifiedForUi(profileUser)) {
+    verifyButton.style.display = 'none'; // nothing to send for an already verified email
+  }
+  verifyButton.addEventListener('click', async () => {
+    verifyButton.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE_URL}/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: profileUser.email })
+      });
+      const data = await res.json();
+      showProfileMessage(verifyMessageEl, res.ok ? 'Verification email sent. Please check your inbox.' : (data.message || 'Could not send the email'));
+    } catch (error) {
+      console.error('Send verification error:', error);
+      showProfileMessage(verifyMessageEl, 'Unable to reach the server. Please try again.');
+    } finally {
+      // The server sends at most one email per minute, so keep the button off for that long.
+      setTimeout(() => { verifyButton.disabled = false; }, 60000);
+    }
   });
 
   profileCardOverlay.querySelector('#profileCardPasswordForm').addEventListener('submit', async (event) => {
@@ -2371,12 +3228,12 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
 
     if (emailInputEl && user.email) emailInputEl.value = user.email;
     if (emailBadgeEl) {
-      emailBadgeEl.textContent = user.emailVerified ? 'Verified' : 'Not Verified';
-      emailBadgeEl.classList.toggle('is-verified', !!user.emailVerified);
+      emailBadgeEl.textContent = isEmailVerifiedForUi(user) ? 'Verified' : 'Not Verified';
+      emailBadgeEl.classList.toggle('is-verified', isEmailVerifiedForUi(user));
     }
     // Google already verifies the email before this app ever sees it — there's
     // nothing for a "send verification email" button to do for that account.
-    if (verifyBtn) verifyBtn.style.display = user.emailVerified ? 'none' : '';
+    if (verifyBtn) verifyBtn.style.display = isEmailVerifiedForUi(user) ? 'none' : '';
 
     updateDeleteButtonState();
   }
@@ -2555,8 +3412,26 @@ async function loadMedicalRecords() {
   }
 }
 
+// "Health Vault Highlights" card: blood type and allergies come from the patient's saved health profile.
+async function loadVaultHighlights() {
+  const bloodTypeEl = document.querySelector('#vaultBloodType');
+  const allergiesEl = document.querySelector('#vaultAllergies');
+  if (!bloodTypeEl || !allergiesEl) return;
+  try {
+    const response = await fetch(`${API_ROOT}/users/me/health-profile`, { headers: authHeaders() });
+    if (!response.ok) return; // leaves the "—" placeholders (e.g. not a patient account)
+    const profile = await response.json();
+    bloodTypeEl.textContent = profile.bloodType || 'Not set';
+    allergiesEl.textContent = profile.allergies || 'Not set';
+    allergiesEl.title = profile.allergies || '';
+  } catch (error) {
+    console.error('Load vault highlights error:', error);
+  }
+}
+
 if (medicalRecordList) {
   loadMedicalRecords();
+  loadVaultHighlights();
   recordSearchInput?.addEventListener('input', () => {
     visibleRecordCount = recordPageSize;
     renderMedicalRecords();

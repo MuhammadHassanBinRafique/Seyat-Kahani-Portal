@@ -17,7 +17,8 @@ const toSafeUser = (user) => ({
     role: user.role,
     authProvider: user.authProvider,
     emailVerified: user.isEmailVerified,
-    hasPassword: !!user.password
+    hasPassword: !!user.password,
+    profilePicture: user.profilePicture || null
 });
 
 // ================= GOOGLE LOGIN / SIGNUP (one endpoint for both) =================
@@ -51,6 +52,10 @@ export const googleLogin = async (req, res) => {
             const existingByEmail = await User.findOne({ email, deletedAt: null });
 
             if (existingByEmail) {
+                // Doctor accounts sign in with email + password only.
+                if (existingByEmail.role !== "patient") {
+                    return res.status(403).json({ message: "Doctors must sign in with email and password." });
+                }
                 // Only auto-link if Google itself has verified this email. Without this
                 // check, someone could register an unverified Google account on a
                 // victim's email address and silently take over their existing account.
@@ -62,6 +67,10 @@ export const googleLogin = async (req, res) => {
                 await existingByEmail.save();
                 user = existingByEmail;
             } else {
+                // Google must have verified the email, so a Google signup is always a verified account.
+                if (!payload.email_verified) {
+                    return res.status(403).json({ message: "This Google account's email is not verified" });
+                }
                 // 3) Brand new person. Role always defaults to patient — same rule as
                 // normal signup; nobody can become a doctor/admin through self-service
                 // signup, social or otherwise.
@@ -70,9 +79,14 @@ export const googleLogin = async (req, res) => {
                     email,
                     authProvider: "google",
                     googleId: payload.sub,
-                    isEmailVerified: !!payload.email_verified
+                    isEmailVerified: true
                 });
             }
+        }
+
+        // Also covers a doctor reaching this point through a previously linked googleId.
+        if (user.role !== "patient") {
+            return res.status(403).json({ message: "Doctors must sign in with email and password." });
         }
 
         const token = issueToken(user);

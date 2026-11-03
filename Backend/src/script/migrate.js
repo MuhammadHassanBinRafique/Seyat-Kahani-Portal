@@ -1,9 +1,9 @@
 // One-time, safe-to-repeat migration. Run after deploying this version:
 //   npm run migrate        (from the Backend folder, with .env filled in)
-import dns from "dns";
-dns.setServers(["8.8.8.8", "8.8.4.4"]);
 import dotenv from "dotenv";
 dotenv.config();
+import { applyDnsServersFromEnv } from "../utils/dnsConfig.js";
+applyDnsServersFromEnv(); // opt-in only (DNS_SERVERS in .env)
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import Appointment from "../models/appointment.model.js";

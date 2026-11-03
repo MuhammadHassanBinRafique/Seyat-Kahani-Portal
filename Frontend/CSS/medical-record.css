@@ -417,6 +417,7 @@ h6 { font-weight: 500; }
     .vault-row:last-child { margin-bottom:0; }
     .vault-label { color: var(--on-surface-variant); font-weight:700; font-size:12px; }
     .vault-value { font-family: var(--font-secondary); font-size:24px; color: var(--primary); font-weight:600; }
+    .vault-value.is-text { font-family: inherit; font-size:14px; font-weight:600; text-align:right; overflow-wrap:anywhere; max-width:60%; }
     .vault-value.reject { font-family: inherit; font-size:14px; font-weight:700; color: var(--action-reject); }
 
     .vault-footer { margin-top:24px; padding-top:16px; border-top: 1px solid var(--sage-light); }

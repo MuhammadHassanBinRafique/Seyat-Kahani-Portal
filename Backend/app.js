@@ -12,6 +12,7 @@ import appointmentRoute from "./src/routes/appointmentRoute.js";
 import doctorRoute from "./src/routes/doctorRoute.js";
 import userRoute from "./src/routes/userRoute.js";
 import medicalRecordRoute from "./src/routes/medicalRecordRoute.js";
+import healthDocumentRoute from "./src/routes/healthDocumentRoute.js";
 import patientRoute from "./src/routes/patientRoute.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -29,7 +30,8 @@ app.set("trust proxy", 1);
 app.use(requestContext);
 
 // Sets standard security-related HTTP headers (X-Content-Type-Options, X-Frame-Options, etc.)
-app.use(helmet({ contentSecurityPolicy: false }));
+// same-origin-allow-popups lets the Google sign-in popup send the login back to this page.
+app.use(helmet({ contentSecurityPolicy: false, crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" } }));
 
 // Restrict CORS to only your actual live frontend + local dev, instead of allowing every origin.
 // Add any other real frontend URLs (e.g. a staging URL) to this array as needed.
@@ -134,6 +136,7 @@ app.use("/api/appointments", appointmentRoute);
 app.use("/api/doctors", doctorRoute);
 app.use("/api/users", userRoute);
 app.use("/api/medical-records", medicalRecordRoute);
+app.use("/api/health-documents", healthDocumentRoute);
 app.use("/api/patients", patientRoute);
 
 // Keep these two LAST: unknown /api routes -> JSON 404, then the global error handler.

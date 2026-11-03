@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- The link in the email carries a one-time token: never pass it on to other sites. -->
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Seyat Khani || Verify Email</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/Frontend/CSS/verify-email.css">
+<link rel="icon" type="image/png" href="/assests/photos/favicon.png">
+</head>
+<body class="vp-body" id="verifyEmailPage">
+<main class="vp-shell">
+
+    <section class="vp-visual" aria-hidden="true">
+        <img src="/assests/photos/login-bg-photo.png" alt="">
+        <div class="vp-glass">
+            <h2>One quick step to protect your account.</h2>
+            <p>Confirming your email keeps your appointments, records and health vault safe, and lets us reach you when it matters.</p>
+        </div>
+    </section>
+
+    <section class="vp-panel">
+        <div class="vp-card" id="vpCard" data-state="loading">
+
+            <a class="vp-brand" href="/">
+                <span class="vp-brand-mark" aria-hidden="true"></span>
+                <span class="vp-brand-name">Seyat Khani</span>
+            </a>
+
+            <div class="vp-icon" aria-hidden="true">
+                <span class="vp-spinner"></span>
+                <svg class="vp-icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+                <svg class="vp-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                <svg class="vp-icon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5"></path><path d="M12 16.5v.01"></path></svg>
+            </div>
+
+            <div aria-live="polite">
+                <h1 id="vpTitle" tabindex="-1">Just a moment…</h1>
+                <p class="vp-message" id="vpMessage">Checking your link.</p>
+                <p class="vp-email" id="vpEmail" hidden></p>
+            </div>
+
+            <form class="vp-form" id="vpResendForm" novalidate hidden>
+                <div class="vp-field" id="vpEmailField" hidden>
+                    <label for="vpEmailInput">Email address</label>
+                    <input id="vpEmailInput" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com">
+                </div>
+                <p class="vp-alert" id="vpAlert" role="alert" hidden></p>
+                <button class="vp-btn" id="vpResendBtn" type="submit">Resend verification email</button>
+            </form>
+
+            <a class="vp-btn" id="vpLoginBtn" href="/login" hidden>Continue to login</a>
+
+            <p class="vp-footer">
+                <a href="/login">Back to login</a>
+                <a href="/sign-up">Create a new account</a>
+            </p>
+        </div>
+    </section>
+</main>
+
+<script src="/Frontend/JS/app.js"></script>
+</body>
+</html>

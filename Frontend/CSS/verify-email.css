@@ -1,0 +1,296 @@
+/* Verify Email page - same palette, fonts and shapes as the login page. */
+:root {
+    --font-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --font-secondary: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --bg: #f5f0e8;
+    --surface: #fffdf8;
+    --text: #24312b;
+    --muted: #5f6c64;
+    --line: rgba(36, 49, 43, 0.12);
+    --brand: #2c4239;
+    --brand-soft: #dce8df;
+    --brand-ink: #f7f7f2;
+    --accent: #9fb6a5;
+    --sage-light: rgba(159, 182, 165, 0.38);
+    --success: #2f6b4a;
+    --success-soft: #e1f0e6;
+    --error: #ba1a1a;
+    --error-soft: #fbe6e6;
+    --shadow: 0 18px 40px rgba(31, 44, 38, 0.12);
+    --radius-lg: 24px;
+    --radius-xs: 8px;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+.vp-body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: var(--font-primary);
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.5;
+}
+
+/* ---------- Layout: one column on phones/tablets, photo + card on wide screens ---------- */
+.vp-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.vp-visual {
+    display: none;
+    position: relative;
+    overflow: hidden;
+    background: var(--brand);
+}
+.vp-visual img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+}
+.vp-glass {
+    position: absolute;
+    left: clamp(1.5rem, 4vw, 3rem);
+    right: clamp(1.5rem, 4vw, 3rem);
+    bottom: clamp(1.5rem, 5vw, 3.5rem);
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 253, 248, 0.82);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+}
+.vp-glass h2 {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-secondary);
+    font-size: clamp(1.4rem, 2.2vw, 2rem);
+    line-height: 1.2;
+    color: var(--brand);
+}
+.vp-glass p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+.vp-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 4vw, 3rem);
+    padding-left: max(clamp(1rem, 4vw, 3rem), env(safe-area-inset-left));
+    padding-right: max(clamp(1rem, 4vw, 3rem), env(safe-area-inset-right));
+    padding-bottom: max(clamp(1rem, 4vw, 3rem), env(safe-area-inset-bottom));
+}
+
+.vp-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    text-align: center;
+}
+
+/* ---------- Brand ---------- */
+.vp-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    text-decoration: none;
+}
+.vp-brand-mark {
+    width: 1.5rem;
+    height: 1.85rem;
+    border-radius: 60% 60% 55% 55% / 48% 48% 72% 72%;
+    background: var(--brand);
+}
+.vp-brand-name {
+    font-family: var(--font-secondary);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--brand);
+}
+
+/* ---------- Status icon ---------- */
+.vp-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+.vp-icon svg { display: none; width: 34px; height: 34px; }
+.vp-card[data-state="pending"] .vp-icon-mail,
+.vp-card[data-state="request"] .vp-icon-mail,
+.vp-card[data-state="success"] .vp-icon-check,
+.vp-card[data-state="error"] .vp-icon-alert { display: block; }
+.vp-card[data-state="success"] .vp-icon { background: var(--success-soft); color: var(--success); }
+.vp-card[data-state="error"] .vp-icon { background: var(--error-soft); color: var(--error); }
+
+.vp-spinner {
+    display: none;
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--sage-light);
+    border-top-color: var(--brand);
+    border-radius: 50%;
+    animation: vp-spin 0.8s linear infinite;
+}
+.vp-card[data-state="loading"] .vp-spinner { display: block; }
+@keyframes vp-spin { to { transform: rotate(360deg); } }
+
+/* ---------- Text ---------- */
+.vp-card h1 {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-secondary);
+    font-size: clamp(1.4rem, 5vw, 1.75rem);
+    line-height: 1.25;
+    color: var(--brand);
+    outline: none;
+}
+.vp-message {
+    margin: 0 0 1.25rem;
+    color: var(--muted);
+    font-size: 0.975rem;
+}
+.vp-email {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 0 1.25rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+/* ---------- Form ---------- */
+.vp-form { text-align: left; }
+.vp-field { margin-bottom: 1rem; }
+.vp-field label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+.vp-field input {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    font-size: 16px; /* 16px stops iPhones from zooming into the field */
+    color: var(--text);
+    background: #fff;
+    border: 1px solid var(--sage-light);
+    border-radius: var(--radius-xs);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.vp-field input:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(44, 66, 57, 0.18);
+}
+
+.vp-alert {
+    margin: 0 0 1rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius-xs);
+    font-size: 0.875rem;
+    text-align: left;
+}
+.vp-alert[data-kind="error"] { background: var(--error-soft); color: var(--error); }
+.vp-alert[data-kind="success"] { background: var(--success-soft); color: var(--success); }
+
+/* ---------- Buttons ---------- */
+.vp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.85rem 1rem;
+    border: 0;
+    border-radius: var(--radius-xs);
+    background: var(--brand);
+    color: var(--brand-ink);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.18);
+    transition: transform 0.1s, opacity 0.2s;
+}
+.vp-btn:hover:not(:disabled) { opacity: 0.92; }
+.vp-btn:active:not(:disabled) { transform: translateY(1px); }
+.vp-btn:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+.vp-btn:focus-visible,
+.vp-footer a:focus-visible {
+    outline: 3px solid rgba(44, 66, 57, 0.35);
+    outline-offset: 2px;
+}
+
+.vp-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 1.25rem;
+    margin: 1.5rem 0 0;
+    font-size: 0.875rem;
+}
+.vp-footer a {
+    display: inline-block;
+    padding: 0.4rem 0.25rem; /* bigger tap target */
+    color: var(--brand);
+    font-weight: 600;
+    text-decoration: none;
+}
+.vp-footer a:hover { text-decoration: underline; }
+
+/* ---------- Responsive ---------- */
+@media (min-width: 900px) {
+    .vp-shell { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+    .vp-visual { display: block; }
+}
+
+@media (max-width: 480px) {
+    .vp-panel { padding: 0.75rem; align-items: flex-start; }
+    .vp-card { border-radius: 20px; margin-top: 0.5rem; }
+    .vp-icon { width: 64px; height: 64px; }
+}
+
+@media (max-width: 340px) {
+    .vp-card { padding: 1.25rem 1rem; }
+    .vp-brand-name { font-size: 1.15rem; }
+}
+
+/* Phones turned sideways: little height, so start at the top and let the page scroll */
+@media (max-height: 560px) and (orientation: landscape) {
+    .vp-panel { align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vp-spinner { animation-duration: 2.4s; }
+    .vp-btn, .vp-field input { transition: none; }
+}

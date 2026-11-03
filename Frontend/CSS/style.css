@@ -108,6 +108,14 @@ h6 { font-weight: 500; }
             margin: 0 auto;
         }
 
+        .site-header .container.header-inner {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding-right: 1.25rem;
+            padding-left: 1.25rem;
+        }
+
         .site-header {
             position: sticky;
             top: 0;
@@ -278,18 +286,23 @@ h6 { font-weight: 500; }
         }
 
         .hero {
-            padding: 1.6rem 0 0;
+            padding: 1.25rem 0 0;
+            overflow: hidden;
+        }
+
+        .hero .container {
+            width: min(100% - 3rem, 1080px);
         }
 
         .hero-grid {
             display: grid;
-            gap: 1rem;
+            gap: 0.8rem;
         }
 
         .hero-copy {
             order: 2;
             display: grid;
-            gap: 1rem;
+            gap: 0.75rem;
             align-content: center;
         }
 
@@ -297,11 +310,11 @@ h6 { font-weight: 500; }
             display: inline-flex;
             align-items: center;
             width: fit-content;
-            padding: 0.45rem 0.9rem;
+            padding: 0.35rem 0.75rem;
             border-radius: 999px;
             background: rgba(159, 182, 165, 0.22);
             color: var(--brand);
-            font-size: 0.72rem;
+            font-size: 0.64rem;
             letter-spacing: 0.16em;
             text-transform: uppercase;
             font-weight: 700;
@@ -310,7 +323,7 @@ h6 { font-weight: 500; }
         .hero-copy h1 {
             margin: 0;
             font-family: var(--font-secondary);
-            font-size: clamp(2rem, 7vw, 4.45rem);
+            font-size: clamp(1.75rem, 6vw, 3.6rem);
             line-height: 0.98;
             letter-spacing: -0.04em;
         }
@@ -318,8 +331,9 @@ h6 { font-weight: 500; }
         .hero-copy p {
             margin: 0;
             color: var(--muted);
-            line-height: 1.7;
-            max-width: 42rem;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            max-width: 36rem;
         }
 
         .hero-actions {
@@ -328,10 +342,17 @@ h6 { font-weight: 500; }
             gap: 0.8rem;
         }
 
+        .hero-actions .primary-btn,
+        .hero-actions .secondary-btn {
+            min-height: 2.5rem;
+            padding: 0.65rem 0.95rem;
+            font-size: 0.85rem;
+        }
+
         .hero-visual {
             order: 1;
             position: relative;
-            min-height: 20rem;
+            min-height: 14rem;
             border-radius: var(--radius-xl);
             padding: 1rem;
             background:
@@ -367,7 +388,7 @@ h6 { font-weight: 500; }
         .illustration {
             position: relative;
             height: 100%;
-            min-height: 18rem;
+            min-height: 12.5rem;
             display: grid;
             place-items: center;
             border-radius: calc(var(--radius-xl) - 0.5rem);
@@ -565,18 +586,52 @@ h6 { font-weight: 500; }
             display: flex;
             align-items: center;
             gap: 0.6rem;
-            font-size: 0.9rem;
+            min-width: 0;
+            font-size: clamp(0.72rem, 1.8vw, 0.9rem);
+            font-family: var(--font-primary), Arial, sans-serif;
+            font-weight: 600;
+        }
+
+        .trust-item > span:last-child {
+            min-width: 0;
+            overflow-wrap: anywhere;
         }
 
         .trust-icon {
-            width: 1.9rem;
-            height: 1.9rem;
+            width: 2.4rem;
+            height: 2.4rem;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.35);
             display: grid;
             place-items: center;
-            font-size: 0.85rem;
             flex: 0 0 auto;
+        }
+
+        .trust-icon svg {
+            width: 1.3rem;
+            height: 1.3rem;
+            color: #ffffff;
+        }
+
+        @media (max-width: 639px) {
+            .trust-grid {
+                gap: 0.75rem 0.6rem;
+                padding: 0.8rem 0;
+            }
+
+            .trust-item {
+                gap: 0.45rem;
+            }
+
+            .trust-icon {
+                width: 2.2rem;
+                height: 2.2rem;
+            }
+
+            .trust-icon svg {
+                width: 1.15rem;
+                height: 1.15rem;
+            }
         }
 
         .section {
@@ -947,7 +1002,7 @@ h6 { font-weight: 500; }
         /* Mobile first spacing refinements */
         @media (min-width: 640px) {
             .hero-visual {
-                min-height: 24rem;
+                min-height: 17rem;
             }
 
             .trust-grid {
@@ -1030,14 +1085,14 @@ h6 { font-weight: 500; }
                 margin-left: 1rem;
             }
 
-            .hero {
-                padding-top: 2.2rem;
+            .hero.section {
+                padding: 1.5rem 0 0;
             }
 
             .hero-grid {
-                grid-template-columns: 1.1fr 1fr;
+                grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
                 align-items: center;
-                gap: 2rem;
+                gap: 1.5rem;
             }
 
             .hero-copy {
@@ -1073,16 +1128,103 @@ h6 { font-weight: 500; }
 
         @media (min-width: 1100px) {
             .hero-copy h1 {
-                font-size: clamp(3rem, 5vw, 5rem);
+                font-size: clamp(2.5rem, 4vw, 3.8rem);
             }
 
             .hero-visual {
-                min-height: 31rem;
-                padding: 1.35rem;
+                min-height: clamp(16rem, 40vh, 22rem);
+                padding: 0.8rem;
             }
 
             .illustration {
-                min-height: 28rem;
+                min-height: clamp(14rem, 36vh, 19rem);
+            }
+        }
+
+        @media (max-width: 639px) {
+            .hero-grid {
+                gap: 1rem;
+            }
+
+            .hero-copy {
+                gap: 0.8rem;
+            }
+
+            .hero-actions {
+                gap: 0.55rem;
+            }
+
+            .hero-actions .primary-btn,
+            .hero-actions .secondary-btn {
+                flex: 1 1 9rem;
+            }
+
+            .hero-visual {
+                min-height: 13rem;
+                padding: 0.65rem;
+            }
+
+            .illustration {
+                min-height: 11.5rem;
+            }
+        }
+
+        @media (min-width: 900px) and (orientation: landscape) and (max-height: 900px) {
+            .hero.section {
+                padding-top: 1rem;
+            }
+
+            .hero-grid {
+                gap: clamp(1.25rem, 3vw, 2rem);
+            }
+
+            .hero-visual {
+                min-height: clamp(18rem, 55vh, 26rem);
+            }
+
+            .illustration {
+                min-height: clamp(16rem, 50vh, 23rem);
+            }
+
+            .trust-bar {
+                margin-top: 0.75rem;
+            }
+        }
+
+        @media (min-width: 900px) and (orientation: landscape) {
+            #home {
+                height: calc(100svh - 4.6rem);
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            #home .hero {
+                flex: 1 1 auto;
+                display: flex;
+                min-height: 0;
+                padding-bottom: 0;
+            }
+
+            #home .hero-grid {
+                width: 100%;
+                min-height: 0;
+                flex: 1 1 auto;
+            }
+
+            #home .hero-visual {
+                min-height: 0;
+                height: 100%;
+                padding: 0;
+            }
+
+            #home .illustration {
+                min-height: 0;
+            }
+
+            #home .trust-bar {
+                flex: 0 0 auto;
             }
         }
 
@@ -1252,6 +1394,14 @@ h6 { font-weight: 500; }
 
         .avatar-stack .avatar-circle:first-child {
             margin-left: 0;
+        }
+
+        .avatar-stack .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            border-radius: inherit;
         }
 
         .trust-label {

@@ -1,12 +1,13 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
+import { sendVerificationEmail } from "./emailAuthController.js";
 
 // Basic email format check (input validation)
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 // Same answer whether or not the email was already registered, so signup can't be used
 // to find out who has an account.
-const SIGNUP_RESPONSE = "Registration received. You can now log in. If you already have an account, log in with your existing password.";
+const SIGNUP_RESPONSE = "Registration received. Please check your email to verify your account. If you already have an account, log in with your existing password.";
 const DUMMY_PASSWORD_HASH = "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 
 export const signup = async (req, res) =>{
@@ -36,8 +37,9 @@ export const signup = async (req, res) =>{
 
            const existingUser = await User.findOne({ email: email.toLowerCase(), deletedAt: null });
            if(!existingUser){
+             let newUser = null;
              try{
-               await new User({
+               newUser = await new User({
                  name,
                  email,
                  password: hashedPassword,
@@ -46,6 +48,17 @@ export const signup = async (req, res) =>{
              catch(error){
                // Two signups for one email at the same moment: the loser gets the same answer.
                if(error?.code !== 11000) throw error;
+             }
+
+             // A mail problem must not fail the signup: the account exists, and the person can
+             // use "Resend" on the verification page.
+             if(newUser){
+               try{
+                 await sendVerificationEmail(newUser);
+               }
+               catch(error){
+                 console.error("Verification email error:", error);
+               }
              }
            }
 
@@ -84,6 +97,14 @@ export const login = async (req, res) =>{
             return  res.status(400).json({message: "Invalid Credentials!"});
           }
 
+          // Checked only AFTER the password is right, so this cannot be used to find out
+          // which emails are registered.
+          // Only PATIENTS verify by email. Doctor accounts are created by the clinic on @seyatkahani.com
+          // addresses that have no real mailbox, so a doctor could never click a verification link.
+          if (user.role === "patient" && !user.isEmailVerified) {
+            return res.status(403).json({ message: "Please verify your email before logging in.", code: "EMAIL_NOT_VERIFIED" });
+          }
+
           const token = JWT.sign(
             { id: user._id, tokenVersion: user.tokenVersion },
             process.env.JWT_SECRET_KEY,
@@ -100,7 +121,8 @@ export const login = async (req, res) =>{
              role: user.role,
              authProvider: user.authProvider,
              emailVerified: user.isEmailVerified,
-             hasPassword: !!user.password
+             hasPassword: !!user.password,
+             profilePicture: user.profilePicture || null
            }
           });
       }

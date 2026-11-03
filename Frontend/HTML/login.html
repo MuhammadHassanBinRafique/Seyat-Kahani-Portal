@@ -26,10 +26,14 @@
             <p>Seyat Khani combines clinical precision with human empathy to provide a seamless healthcare experience for both patients and providers.</p>
             <div class="avatars">
                 <div class="avatar-stack">
-                    <div class="avatar-circle"></div>
-                    <div class="avatar-circle"></div>
+                    <div class="avatar-circle">
+                        <img src="/assests/photos/doctor1.jpg" alt="Doctor profile">
+                    </div>
+                    <div class="avatar-circle">
+                        <img src="/assests/photos/doctor2.jpg" alt="Doctor profile">
+                    </div>
                 </div>
-                <span class="trust-label">Trusted by 10k+ users</span>
+                <span class="trust-label">Trusted by 100+ users</span>
             </div>
         </div>
 
@@ -46,7 +50,7 @@
                     <!-- <div class="logo-icon">SK</div> -->
                       <span class="brand-mark" aria-hidden="true"></span>
                 </div>
-                <a class="brand-name" href="#">Seyat Khani</a>
+                <a class="brand-name" href="/" aria-label="Sehat Kahani home">Seyat Khani</a>
                 <h2>Welcome back. Please enter your details.</h2>
             </div>
 
@@ -82,7 +86,7 @@
                 <div class="field-group">
                     <div class="field-row-between">
                         <label for="password">Password</label>
-                        <a href="#">Forgot Password?</a>
+                        <a href="/forgot-password">Forgot Password?</a>
                     </div>
                     <div class="input-wrap">
                         <input id="password" placeholder="Password" required type="password">
@@ -103,14 +107,17 @@
                 </button>
             </form>
 
-            <div class="auth-divider" style="display:flex; align-items:center; gap:12px; margin:16px 0; color:#727975; font-size:0.8rem;">
-                <span style="flex:1; height:1px; background:#c1c8c4;"></span>
-                <span>OR</span>
-                <span style="flex:1; height:1px; background:#c1c8c4;"></span>
-            </div>
+            <!-- Google sign-in is for patients only: switchTab('doctor') hides this whole block. -->
+            <div id="googleAuthBlock">
+                <div class="auth-divider" style="display:flex; align-items:center; gap:12px; margin:16px 0; color:#727975; font-size:0.8rem;">
+                    <span style="flex:1; height:1px; background:#c1c8c4;"></span>
+                    <span>OR</span>
+                    <span style="flex:1; height:1px; background:#c1c8c4;"></span>
+                </div>
 
-            <div id="googleButtonContainer" style="display:flex; justify-content:center;"></div>
-            <p id="googleAuthError" role="alert" style="color:#ba1a1a; font-size:0.875rem; min-height:1.1em; margin-top:0.5rem; text-align:center;"></p>
+                <div id="googleButtonContainer" style="display:flex; justify-content:center;"></div>
+                <p id="googleAuthError" role="alert" style="color:#ba1a1a; font-size:0.875rem; min-height:1.1em; margin-top:0.5rem; text-align:center;"></p>
+            </div>
 
             <!-- Footer Links -->
             <div class="signup-footer">

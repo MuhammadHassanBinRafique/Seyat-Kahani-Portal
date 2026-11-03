@@ -552,6 +552,14 @@ body.doctor-dashboard main.content {
             gap: 16px;
         }
 
+        body.doctor-dashboard .shared-documents-grid {
+            margin-top: 16px;
+        }
+
+        body.doctor-dashboard .shared-documents-grid .panel {
+            min-width: 0;
+        }
+
         body.doctor-dashboard .panel {
             display: flex;
             flex-direction: column;
@@ -591,10 +599,27 @@ body.doctor-dashboard main.content {
             text-decoration: underline;
         }
 
+        body.doctor-dashboard .shared-doc-btn {
+            border: 1px solid var(--sage-light);
+            background: transparent;
+            color: var(--forest-deep);
+            padding: 6px 12px;
+            margin-right: 6px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        body.doctor-dashboard .shared-doc-btn:hover {
+            background: var(--surface-container-low);
+        }
+
         body.doctor-dashboard .schedule-scroll {
             padding: 8px;
             overflow: auto;
             max-height: 480px;
+            -webkit-overflow-scrolling: touch;
         }
 
         body.doctor-dashboard table.schedule-table {
@@ -832,6 +857,16 @@ body.doctor-dashboard main.content {
             padding: 0 8px;
         }
 
+        body.doctor-dashboard .chart-area::after {
+            content: "";
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: 0;
+            border-bottom: 2px solid var(--sage-light);
+            pointer-events: none;
+        }
+
         body.doctor-dashboard .grid-lines {
             position: absolute;
             inset: 0;
@@ -849,6 +884,7 @@ body.doctor-dashboard main.content {
 
         body.doctor-dashboard .bar-col {
             flex: 1;
+            height: calc(100% - 24px);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -864,6 +900,8 @@ body.doctor-dashboard main.content {
             border-radius: 6px 6px 0 0;
             transition: opacity 0.3s;
             position: relative;
+            min-height: 4px;
+            z-index: 1;
         }
 
         body.doctor-dashboard .bar:hover { opacity: 0.8; }
@@ -884,7 +922,9 @@ body.doctor-dashboard main.content {
         body.doctor-dashboard .bar-col:hover .bar-tooltip { display: block; }
 
         body.doctor-dashboard .bar-label {
-            margin-top: 12px;
+            position: absolute;
+            bottom: -24px;
+            margin-top: 0;
             font-family: var(--font-primary);
             font-size: 10px;
             text-transform: uppercase;
@@ -929,6 +969,14 @@ body.doctor-dashboard main.content {
 
             body.doctor-dashboard .main-grid {
                 grid-template-columns: 2fr 1fr;
+            }
+
+            body.doctor-dashboard .shared-documents-grid {
+                grid-template-columns: 1fr;
+            }
+
+            body.doctor-dashboard .shared-documents-grid .panel {
+                grid-column: 1 / -1;
             }
         }
 
@@ -1038,6 +1086,11 @@ body.doctor-dashboard main.content {
                 align-items: flex-start;
             }
 
+            body.doctor-dashboard .panel-header h4 {
+                font-size: clamp(1.05rem, 3vw, 1.5rem);
+                line-height: 1.25;
+            }
+
             body.doctor-dashboard .chart-area {
                 overflow-x: auto;
             }
@@ -1045,6 +1098,73 @@ body.doctor-dashboard main.content {
             body.doctor-dashboard .fab {
                 right: 16px;
                 bottom: 16px;
+            }
+        }
+
+        @media (max-width: 639px) {
+            body.doctor-dashboard .scroll-content {
+                gap: 16px;
+                padding-right: 12px;
+                padding-left: 12px;
+            }
+
+            body.doctor-dashboard .shared-documents-grid {
+                margin-top: 0;
+            }
+
+            body.doctor-dashboard .panel-header {
+                flex-wrap: wrap;
+                padding: 14px 12px;
+            }
+
+            body.doctor-dashboard .panel-header h4 {
+                max-width: 100%;
+            }
+
+            body.doctor-dashboard .view-cal-link {
+                padding: 6px 0;
+                font-size: 11px;
+            }
+
+            body.doctor-dashboard .schedule-scroll {
+                padding: 4px;
+            }
+
+            body.doctor-dashboard table.schedule-table {
+                min-width: 560px;
+            }
+
+            body.doctor-dashboard .schedule-table th,
+            body.doctor-dashboard .schedule-table td {
+                padding: 10px 8px;
+            }
+
+            body.doctor-dashboard .schedule-table thead {
+                font-size: 10px;
+            }
+
+            body.doctor-dashboard .schedule-table td {
+                font-size: 12px;
+            }
+
+            body.doctor-dashboard .patient-cell {
+                gap: 8px;
+            }
+
+            body.doctor-dashboard .patient-cell .avatar-sm,
+            body.doctor-dashboard .patient-cell .avatar-patient {
+                width: 32px;
+                height: 32px;
+            }
+
+            body.doctor-dashboard .shared-doc-btn {
+                margin: 2px 4px 2px 0;
+                padding: 6px 8px;
+                white-space: nowrap;
+            }
+
+            body.doctor-dashboard .shared-documents-grid .schedule-table {
+                min-width: 600px;
             }
         }
 

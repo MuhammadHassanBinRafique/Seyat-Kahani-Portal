@@ -7,13 +7,15 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "test": "node --test \"tests/**/*.test.js\"",
-    "migrate": "node src/script/migrate.js"
+    "migrate": "node src/script/migrate.js",
+    "verify-existing": "node src/script/verifyExistingUsers.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@vercel/blob": "^2.8.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -24,6 +26,8 @@
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.3",
+    "multer": "^2.5.0",
+    "nodemailer": "^10.3.1",
     "rate-limit-redis": "^4.3.1"
   },
   "devDependencies": {

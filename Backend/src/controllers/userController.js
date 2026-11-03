@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
 import { softDeleteUser } from "../utils/softDeleteUser.js";
 import { verifyGoogleIdToken } from "../utils/googleAuth.js";
+import { put, del } from "@vercel/blob";
+import AppError from "../utils/AppError.js";
 
 // Key name here is "emailVerified" (not the model's "isEmailVerified") to match
 // the field name the frontend profile card already reads.
@@ -13,7 +15,8 @@ const toSafeUser = (user) => ({
     role: user.role,
     authProvider: user.authProvider,
     emailVerified: user.isEmailVerified,
-    hasPassword: !!user.password
+    hasPassword: !!user.password,
+    profilePicture: user.profilePicture || null
 });
 
 // ================= GET MY PROFILE =================
@@ -196,5 +199,108 @@ export const deleteAccount = async (req, res) => {
     } catch (error) {
         console.error("Delete account error:", error);
         res.status(500).json({ message: "Server Error" });
+    }
+};
+
+// ================= PROFILE PICTURE =================
+// Errors go through next(AppError) so the project's own errorHandler formats them.
+const EXTENSIONS = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+
+export const setProfilePicture = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return next(new AppError("Please choose an image", 400, "NO_FILE"));
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return next(new AppError("User not found", 404, "NOT_FOUND"));
+        }
+
+        // Path is built from the JWT user id + our own extension map, never from the client filename.
+        const blob = await put(
+            `profile-pictures/${user._id}.${EXTENSIONS[req.file.mimetype]}`,
+            req.file.buffer,
+            { access: "public", addRandomSuffix: true, contentType: req.file.mimetype }
+        );
+
+        const oldPath = user.profilePicturePath;
+        user.profilePicture = blob.url;
+        user.profilePicturePath = blob.pathname;
+        await user.save();
+
+        // Best-effort cleanup of the previous photo; a failure here must not fail the upload.
+        if (oldPath) await del(oldPath).catch(() => {});
+
+        res.status(200).json({ message: "Profile picture updated", user: toSafeUser(user) });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const removeProfilePicture = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return next(new AppError("User not found", 404, "NOT_FOUND"));
+        }
+
+        const oldPath = user.profilePicturePath;
+        user.profilePicture = null;
+        user.profilePicturePath = null;
+        await user.save();
+
+        if (oldPath) await del(oldPath).catch(() => {});
+
+        res.status(200).json({ message: "Profile picture removed", user: toSafeUser(user) });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ================= HEALTH PROFILE (patient) =================
+const BLOOD_TYPES = ["", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+const toHealthProfile = (user) => ({
+    bloodType: user.bloodType || "",
+    allergies: user.allergies || "",
+    chronicConditions: user.chronicConditions || ""
+});
+
+export const getHealthProfile = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return next(new AppError("User not found", 404, "NOT_FOUND"));
+        res.status(200).json(toHealthProfile(user));
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const updateHealthProfile = async (req, res, next) => {
+    try {
+        const { bloodType = "", allergies = "", chronicConditions = "" } = req.body;
+
+        if (typeof bloodType !== "string" || typeof allergies !== "string" || typeof chronicConditions !== "string") {
+            return next(new AppError("Invalid input", 400, "INVALID_INPUT"));
+        }
+        if (!BLOOD_TYPES.includes(bloodType)) {
+            return next(new AppError("Invalid blood type", 400, "INVALID_INPUT"));
+        }
+        if (allergies.trim().length > 300 || chronicConditions.trim().length > 300) {
+            return next(new AppError("Allergies and conditions must be 300 characters or fewer", 400, "INVALID_INPUT"));
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) return next(new AppError("User not found", 404, "NOT_FOUND"));
+
+        user.bloodType = bloodType;
+        user.allergies = allergies.trim();
+        user.chronicConditions = chronicConditions.trim();
+        await user.save();
+
+        res.status(200).json({ message: "Health profile updated", profile: toHealthProfile(user) });
+    } catch (error) {
+        next(error);
     }
 };
