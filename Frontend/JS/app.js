@@ -1266,9 +1266,15 @@ if (document.querySelector('#forgotPasswordPage')) {
         delete: { icon: 'warning', text: () => 'You deleted' },
         restore: { icon: 'download', text: () => 'You restored' }
       };
+      const ACTIVITY_PAGE_SIZE = 6;
+      let activityPage = 1;
       const renderActivity = (items) => {
-        $('#vaultActivityBody').innerHTML = items.length
-          ? items.map((item) => {
+        const totalPages = Math.max(1, Math.ceil(items.length / ACTIVITY_PAGE_SIZE));
+        activityPage = Math.min(activityPage, totalPages);
+        const start = (activityPage - 1) * ACTIVITY_PAGE_SIZE;
+        const pageItems = items.slice(start, start + ACTIVITY_PAGE_SIZE);
+        $('#vaultActivityBody').innerHTML = pageItems.length
+          ? pageItems.map((item) => {
               const info = ACTIVITY[item.action] || ACTIVITY.view;
               return `<tr>
                 <td><div class="action-cell"><svg class="icon"><use href="#icon-${info.icon}"></use></svg>${escapeHtml(info.text(item))}</div></td>
@@ -1278,6 +1284,19 @@ if (document.querySelector('#forgotPasswordPage')) {
               </tr>`;
             }).join('')
           : '<tr><td colspan="4" class="row-sub">No activity yet.</td></tr>';
+
+        const pagination = $('#vaultActivityPagination');
+        pagination.innerHTML = totalPages > 1
+          ? `<button type="button" class="vault-activity-page-btn" data-page="prev" ${activityPage === 1 ? 'disabled' : ''}>Previous</button>
+             <span>Page ${activityPage} of ${totalPages}</span>
+             <button type="button" class="vault-activity-page-btn" data-page="next" ${activityPage === totalPages ? 'disabled' : ''}>Next</button>`
+          : '';
+        pagination.querySelectorAll('.vault-activity-page-btn').forEach((button) => {
+          button.addEventListener('click', () => {
+            activityPage += button.dataset.page === 'next' ? 1 : -1;
+            renderActivity(items);
+          });
+        });
       };
 
       const loadDocuments = async () => {

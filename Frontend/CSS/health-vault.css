@@ -692,6 +692,26 @@
     border-radius:5px;
     float:right;
   }
+  .vault-activity-pagination{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    margin-top:20px;
+    color:var(--on-surface-variant);
+    font-size:13px;
+  }
+  .vault-activity-page-btn{
+    padding:8px 14px;
+    border:1px solid var(--sage-light);
+    border-radius:var(--radius-sm);
+    color:var(--primary);
+    background:var(--surface);
+    font:inherit;
+    cursor:pointer;
+  }
+  .vault-activity-page-btn:hover:not(:disabled){ background:var(--surface-container-low); }
+  .vault-activity-page-btn:disabled{ cursor:not-allowed; opacity:0.5; }
  
   footer{
     margin-top:auto;
