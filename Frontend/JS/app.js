@@ -1726,7 +1726,7 @@ function setAvatar(element, user) {
     const img = document.createElement('img');
     img.src = user.profilePicture;
     img.alt = 'Profile photo';
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:30%;';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
     element.appendChild(img);
   } else {
     element.textContent = getInitials(getDisplayName(user || {}));
@@ -2886,7 +2886,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
     document.querySelectorAll('.profile-block, .profile, .user-chip').forEach((profileElement) => {
       const nameElement = profileElement.querySelector('.profile-name, .name, p:first-of-type');
       const roleElement = profileElement.querySelector('.profile-role, .role, .profile-id, p:nth-of-type(2)');
-      const avatarElement = profileElement.querySelector('.avatar-circle, .avatar-patient, .patient-initials');
+      const avatarElement = profileElement.querySelector('.avatar-circle, .avatar-patient, .patient-initials, .avatar-doc');
       if (nameElement) nameElement.textContent = fullName;
       if (roleElement) roleElement.textContent = role;
       if (avatarElement) setAvatar(avatarElement, user);

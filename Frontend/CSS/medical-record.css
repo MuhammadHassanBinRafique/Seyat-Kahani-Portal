@@ -270,7 +270,6 @@ h6 { font-weight: 500; }
     .profile-id { font-size:10px; color: var(--on-surface-variant); }
     .avatar-patient {
         width:40px; height:40px; border-radius:50%;
-        border: 2px solid var(--primary-fixed);
         background: var(--sage-light);
         display:flex; align-items:center; justify-content:center;
         font-weight:700; color: var(--forest-deep); overflow:hidden;
