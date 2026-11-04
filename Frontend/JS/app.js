@@ -90,6 +90,7 @@ function switchTab(role) {
     const roleIcon = document.querySelector('#roleIcon');
     const roleText = document.querySelector('#roleText');
     const googleAuthBlock = document.querySelector('#googleAuthBlock');
+    const forgotPasswordLink = document.querySelector('#forgotPasswordLink');
 
     if (!patientTab || !doctorTab || !roleIndicator || !roleIcon || !roleText) {
         return;
@@ -98,6 +99,9 @@ function switchTab(role) {
     // Doctors sign in with email + password only; the backend enforces this too.
     if (googleAuthBlock) {
         googleAuthBlock.hidden = role !== 'patient';
+    }
+    if (forgotPasswordLink) {
+        forgotPasswordLink.hidden = role !== 'patient';
     }
 
     if (role === 'patient') {
