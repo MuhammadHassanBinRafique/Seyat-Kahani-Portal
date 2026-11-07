@@ -3,11 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seyat Khani || Portal Login</title>
+<title>Sehat Kahani | Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/Frontend/CSS/tokens.css">
 <link rel="stylesheet" href="/Frontend/CSS/style.css">
+<link rel="stylesheet" href="/Frontend/CSS/components.css">
 <link rel="icon" type="image/png" href="/assests/photos/favicon.png">
 </head>
 <body>
@@ -17,24 +19,13 @@
     <!-- Left Column: Visual & Atmosphere -->
     <section class="visual-panel">
         <div class="bg-image" aria-hidden="true">
-            <img src="/assests/photos/login-bg-photo.png" alt="Healthcare professionals collaborating in a modern clinic environment.">
+            <img src="/assests/photos/login-bg-photo.webp" alt="Healthcare professionals collaborating in a modern clinic environment.">
         </div>
 
         <!-- Glassmorphism Overlay Content -->
         <div class="glass-card">
-            <h1>Restorative Care for Every Mind.</h1>
-            <p>Seyat Khani combines clinical precision with human empathy to provide a seamless healthcare experience for both patients and providers.</p>
-            <div class="avatars">
-                <div class="avatar-stack">
-                    <div class="avatar-circle">
-                        <img src="/assests/photos/doctor1.jpg" alt="Doctor profile">
-                    </div>
-                    <div class="avatar-circle">
-                        <img src="/assests/photos/doctor2.jpg" alt="Doctor profile">
-                    </div>
-                </div>
-                <span class="trust-label">Trusted by 100+ users</span>
-            </div>
+            <h2>Restorative Care for Every Mind.</h2>
+            <p>Sehat Kahani combines clinical precision with human empathy to provide a seamless healthcare experience for both patients and providers.</p>
         </div>
 
         <!-- Subtle Decorative Element -->
@@ -50,8 +41,8 @@
                     <!-- <div class="logo-icon">SK</div> -->
                       <span class="brand-mark" aria-hidden="true"></span>
                 </div>
-                <a class="brand-name" href="/" aria-label="Sehat Kahani home">Seyat Khani</a>
-                <h2>Welcome back. Please enter your details.</h2>
+                <a class="brand-name" href="/" aria-label="Sehat Kahani home">Sehat Kahani</a>
+                <h1>Welcome back. Please enter your details.</h1>
             </div>
 
             <!-- Tab Toggle: Patient vs Doctor -->
@@ -76,7 +67,7 @@
                 <div class="field-group">
                     <label for="email">Email Address</label>
                     <div class="input-wrap">
-                        <input id="email" placeholder="name@seyatkhani.com" required type="email">
+                        <input id="email" placeholder="name@example.com" required type="email">
                         <span class="input-icon">
                         </span>
                     </div>
@@ -98,7 +89,7 @@
 
                 <!-- Remember Me -->
 
-                <div id="loginServerError" role="alert" style="color:#ba1a1a; font-size:0.875rem; min-height:1.1em; margin-bottom:0.5rem;"></div>
+                <div class="form-error form-error--mb" id="loginServerError" role="alert"></div>
 
                 <!-- Submit Button -->
                 <button class="submit-btn" type="submit" id="submitBtn">
@@ -109,14 +100,14 @@
 
             <!-- Google sign-in is for patients only: switchTab('doctor') hides this whole block. -->
             <div id="googleAuthBlock">
-                <div class="auth-divider" style="display:flex; align-items:center; gap:12px; margin:16px 0; color:#727975; font-size:0.8rem;">
-                    <span style="flex:1; height:1px; background:#c1c8c4;"></span>
+                <div class="auth-divider or-divider">
+                    <span class="divider-line"></span>
                     <span>OR</span>
-                    <span style="flex:1; height:1px; background:#c1c8c4;"></span>
+                    <span class="divider-line"></span>
                 </div>
 
-                <div id="googleButtonContainer" style="display:flex; justify-content:center;"></div>
-                <p id="googleAuthError" role="alert" style="color:#ba1a1a; font-size:0.875rem; min-height:1.1em; margin-top:0.5rem; text-align:center;"></p>
+                <div class="flex-center-x" id="googleButtonContainer"></div>
+                <p class="form-error form-error--center" id="googleAuthError" role="alert"></p>
             </div>
 
             <!-- Footer Links -->

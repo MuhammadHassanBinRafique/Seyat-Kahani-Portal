@@ -143,10 +143,10 @@ function switchTab(role) {
 
         const createErrorElement = (input) => {
             const errorElement = document.createElement('div');
-            errorElement.style.color = '#c62828';
-            errorElement.style.fontSize = '0.875rem';
-            errorElement.style.lineHeight = '1.3';
-            errorElement.style.marginTop = '0.35rem';
+            errorElement.style.color = 'var(--danger-600)';
+            errorElement.style.fontSize = 'var(--text-sm)';
+            errorElement.style.lineHeight = 'var(--lh-snug)';
+            errorElement.style.marginTop = 'var(--space-1)';
             errorElement.style.minHeight = '1.1em';
             errorElement.setAttribute('aria-live', 'polite');
             input.insertAdjacentElement('afterend', errorElement);
@@ -158,7 +158,7 @@ function switchTab(role) {
 
         const showError = (input, errorElement, message) => {
             errorElement.textContent = message;
-            input.style.borderColor = '#c62828';
+            input.style.borderColor = 'var(--danger-600)';
         };
 
         const clearError = (input, errorElement) => {
@@ -288,6 +288,68 @@ function switchTab(role) {
 // sign in functionality starts from here 
 
 
+
+// ---- in-app notifications and confirmations (replace native alert/confirm) ----
+function appNotify(message, type) {
+  var host = document.getElementById('appToastHost');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'appToastHost';
+    host.className = 'app-toast-host';
+    host.setAttribute('role', 'status');
+    host.setAttribute('aria-live', 'polite');
+    document.body.appendChild(host);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'app-toast' + (type === 'success' ? ' is-success' : '');
+  toast.textContent = message;
+  host.appendChild(toast);
+  setTimeout(function () { toast.remove(); }, 5000);
+}
+
+function appConfirm(message, options) {
+  options = options || {};
+  return new Promise(function (resolve) {
+    var previous = document.activeElement;
+    var overlay = document.createElement('div');
+    overlay.className = 'app-dialog-overlay';
+    overlay.innerHTML =
+      '<div class="app-dialog" role="alertdialog" aria-modal="true" aria-labelledby="appDialogText">' +
+      '<p id="appDialogText" class="app-dialog-text"></p>' +
+      '<div class="app-dialog-actions">' +
+      '<button type="button" class="app-dialog-btn" data-action="cancel"></button>' +
+      '<button type="button" class="app-dialog-btn is-primary" data-action="ok"></button>' +
+      '</div></div>';
+    overlay.querySelector('#appDialogText').textContent = message;
+    overlay.querySelector('[data-action="cancel"]').textContent = options.cancelLabel || 'Cancel';
+    overlay.querySelector('[data-action="ok"]').textContent = options.confirmLabel || 'Confirm';
+    function close(result) {
+      document.removeEventListener('keydown', onKey, true);
+      overlay.remove();
+      if (previous && previous.focus) previous.focus();
+      resolve(result);
+    }
+    function onKey(event) {
+      if (event.key === 'Escape') { event.preventDefault(); close(false); }
+      if (event.key === 'Tab') {
+        var btns = overlay.querySelectorAll('button');
+        var first = btns[0], last = btns[btns.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    }
+    overlay.addEventListener('click', function (event) {
+      var action = event.target.getAttribute && event.target.getAttribute('data-action');
+      if (action === 'ok') close(true);
+      else if (action === 'cancel' || event.target === overlay) close(false);
+    });
+    document.addEventListener('keydown', onKey, true);
+    document.body.appendChild(overlay);
+    overlay.querySelector('[data-action="ok"]').focus();
+  });
+}
+
+document.querySelectorAll('[data-year]').forEach(function (el) { el.textContent = new Date().getFullYear(); });
 
 function showToast() {
     var toast = document.getElementById('toast');
@@ -445,10 +507,10 @@ function showToast() {
           if (!errorElement) {
               errorElement = document.createElement('div');
               errorElement.className = 'field-error';
-              errorElement.style.color = '#c62828';
-              errorElement.style.fontSize = '0.875rem';
-              errorElement.style.lineHeight = '1.3';
-              errorElement.style.marginTop = '0.35rem';
+              errorElement.style.color = 'var(--danger-600)';
+              errorElement.style.fontSize = 'var(--text-sm)';
+              errorElement.style.lineHeight = 'var(--lh-snug)';
+              errorElement.style.marginTop = 'var(--space-1)';
               errorElement.style.minHeight = '1.1em';
               errorElement.style.display = 'block';
               errorElement.setAttribute('aria-live', 'polite');
@@ -462,8 +524,8 @@ function showToast() {
           const errorElement = createErrorElement(wrapper);
 
           if (input) {
-              input.style.borderColor = '#c62828';
-              input.style.boxShadow = '0 0 0 1px #c62828';
+              input.style.borderColor = 'var(--danger-600)';
+              input.style.boxShadow = '0 0 0 1px var(--danger-600)';
               input.setAttribute('aria-invalid', 'true');
           }
 
@@ -573,10 +635,10 @@ function showToast() {
               if (!termsError) {
                   termsError = document.createElement('div');
                   termsError.className = 'field-error terms-error';
-                  termsError.style.color = '#c62828';
-                  termsError.style.fontSize = '0.875rem';
-                  termsError.style.lineHeight = '1.3';
-                  termsError.style.marginTop = '0.35rem';
+                  termsError.style.color = 'var(--danger-600)';
+                  termsError.style.fontSize = 'var(--text-sm)';
+                  termsError.style.lineHeight = 'var(--lh-snug)';
+                  termsError.style.marginTop = 'var(--space-1)';
                   termsError.style.minHeight = '1.1em';
                   termsError.style.display = 'block';
                   termsError.setAttribute('aria-live', 'polite');
@@ -592,7 +654,7 @@ function showToast() {
               }
 
               if (termsInput) {
-                  termsInput.style.outline = '1px solid #c62828';
+                  termsInput.style.outline = '1px solid var(--danger-600)';
                   termsInput.setAttribute('aria-invalid', 'true');
               }
 
@@ -1025,7 +1087,7 @@ if (document.querySelector('#forgotPasswordPage')) {
   var searchInput = document.querySelector('.search-wrap input');
     if (searchInput) {
         searchInput.addEventListener('focus', function () {
-            searchInput.style.boxShadow = '0 0 0 2px rgba(50,79,70,0.2)';
+            searchInput.style.boxShadow = '0 0 0 2px color-mix(in srgb, var(--primary-700) 20%, transparent)';
         });
         searchInput.addEventListener('blur', function () {
             searchInput.style.boxShadow = 'none';
@@ -1443,7 +1505,7 @@ if (document.querySelector('#forgotPasswordPage')) {
           const result = await openHealthDocument(target.dataset.openDoc);
           if (!result.ok) showVaultMessage(result.message, true);
         } else if (target.dataset.deleteDoc) {
-          if (!window.confirm('Move this document to trash? You can restore it for 30 days.')) return;
+          if (!await appConfirm('Move this document to trash? You can restore it for 30 days.')) return;
           changeDocument(`${VAULT_API}/${target.dataset.deleteDoc}`, { method: 'DELETE' }, 'Document moved to trash.', target.dataset.deleteDoc);
         } else if (target.dataset.restoreDoc || target.dataset.undoId) {
           changeDocument(`${VAULT_API}/${target.dataset.restoreDoc || target.dataset.undoId}/restore`, { method: 'POST' }, 'Document restored.');
@@ -1466,7 +1528,7 @@ if (document.querySelector('#forgotPasswordPage')) {
         sharedBody.innerHTML = documents.length
           ? documents.map((doc) => `
               <tr>
-                <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">${escapeHtml(getInitials(doc.patient?.name || ''))}</div><span class="name">${escapeHtml(doc.patient?.name || 'Unknown')}</span></div></td>
+                <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--surface-4); color: var(--primary-800);">${escapeHtml(getInitials(doc.patient?.name || ''))}</div><span class="name">${escapeHtml(doc.patient?.name || 'Unknown')}</span></div></td>
                 <td class="type-cell">${escapeHtml(HEALTH_CATEGORY_LABELS[doc.category] || doc.category)}</td>
                 <td class="type-cell">${escapeHtml(doc.originalName)}</td>
                 <td class="type-cell">${escapeHtml(new Date(doc.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }))}</td>
@@ -1475,7 +1537,7 @@ if (document.querySelector('#forgotPasswordPage')) {
                   <button type="button" class="shared-doc-btn" data-download="${escapeHtml(String(doc.id))}" data-name="${escapeHtml(doc.originalName)}">Download</button>
                 </td>
               </tr>`).join('')
-          : '<tr><td colspan="5" style="padding:20px;">No patient has shared a document with you yet.</td></tr>';
+          : '<tr><td colspan="5" style="padding:var(--space-5);">No patient has shared a document with you yet.</td></tr>';
       };
 
       sharedBody.addEventListener('click', async (event) => {
@@ -1493,11 +1555,11 @@ if (document.querySelector('#forgotPasswordPage')) {
           const res = await fetch(`${API_ROOT}/health-documents/shared-with-me`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
           if (res.status === 401) { window.location.href = '/login'; return; }
           const data = await res.json();
-          if (!res.ok) { sharedBody.innerHTML = `<tr><td colspan="5" style="padding:20px;">${escapeHtml(data.message || 'Could not load documents')}</td></tr>`; return; }
+          if (!res.ok) { sharedBody.innerHTML = `<tr><td colspan="5" style="padding:var(--space-5);">${escapeHtml(data.message || 'Could not load documents')}</td></tr>`; return; }
           renderShared(data);
         } catch (error) {
           console.error('Load shared documents error:', error);
-          sharedBody.innerHTML = '<tr><td colspan="5" style="padding:20px;">Unable to reach the server. Please try again.</td></tr>';
+          sharedBody.innerHTML = '<tr><td colspan="5" style="padding:var(--space-5);">Unable to reach the server. Please try again.</td></tr>';
         }
       })();
     }
@@ -1561,6 +1623,7 @@ function showBookingModal() {
   bookingModalOverlay.style.display = 'flex';
   bookingModalOverlay.setAttribute('aria-hidden', 'false');
   bookingModalOverlay.classList.add('visible');
+  document.querySelector('#doctorSelect')?.focus();
   loadDoctorsIntoSelect();
 }
 
@@ -1641,13 +1704,10 @@ const upcomingVisitsBadge = document.querySelector('#upcomingVisitsBadge');
 const upcomingVisitsValue = document.querySelector('#upcomingVisitsValue');
 const recentAppointmentsContainer = document.querySelector('#recentAppointmentsContainer');
 const patientDashboardSearch = document.querySelector('.search-wrap input[placeholder="Search records, doctors, or help..."]');
-const viewCalendarLink = document.querySelector('#viewCalendarLink');
 const patientDashboard = document.querySelector('#upcomingApptContainer');
 const prescriptionValue = document.querySelector('#prescriptionValue');
 const prescriptionBadge = document.querySelector('#prescriptionBadge');
 const messagesValue = document.querySelector('#messagesValue');
-const goalProgressValue = document.querySelector('#goalProgressValue');
-const goalProgressLabel = document.querySelector('#goalProgressLabel');
 const wellnessTipText = document.querySelector('#wellnessTipText');
 const APPT_PAGE_SIZE = 2;
 let upcomingAppointments = [];
@@ -1751,7 +1811,7 @@ async function loadCurrentUserProfile() {
       }
 
       if (userProfileRole) {
-        userProfileRole.textContent = parsedUser.role === 'doctor' ? 'Doctor' : 'Premium Member';
+        userProfileRole.textContent = parsedUser.role === 'doctor' ? 'Doctor' : 'Patient';
       }
 
       if (userAvatarCircle) {
@@ -1771,7 +1831,7 @@ async function loadCurrentUserProfile() {
       userProfileName.textContent = 'Patient';
     }
     if (userProfileRole) {
-      userProfileRole.textContent = 'Premium Member';
+      userProfileRole.textContent = 'Patient';
     }
     if (userAvatarCircle) {
       userAvatarCircle.textContent = 'P';
@@ -1782,7 +1842,7 @@ async function loadCurrentUserProfile() {
       userProfileName.textContent = 'Patient';
     }
     if (userProfileRole) {
-      userProfileRole.textContent = 'Premium Member';
+      userProfileRole.textContent = 'Patient';
     }
     if (userAvatarCircle) {
       userAvatarCircle.textContent = 'P';
@@ -1912,7 +1972,7 @@ function renderUpcomingAppointmentsPage() {
         });
         const data = await res.json();
         if (!res.ok) {
-          alert(data.message || 'Could not cancel');
+          appNotify(data.message || 'Could not cancel');
           return;
         }
         loadMyAppointments();
@@ -2031,8 +2091,6 @@ async function loadMyAppointments() {
 async function loadPatientDashboardSummary() {
   if (!patientDashboard) return;
 
-  if (goalProgressValue) goalProgressValue.textContent = 'Not set';
-  if (goalProgressLabel) goalProgressLabel.textContent = 'No health goal recorded';
   if (messagesValue) messagesValue.textContent = 'Unavailable';
 
   try {
@@ -2178,7 +2236,7 @@ async function updateDoctorAppointmentStatus(id, status) {
   try {
     const res = await fetch(`${API_ROOT}/appointments/${id}/status`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status }) });
     const data = await res.json();
-    if (!res.ok) { alert(data.message || 'Could not update status'); return; }
+    if (!res.ok) { appNotify(data.message || 'Could not update status'); return; }
     await loadDoctorAppointments();
   } catch (error) { console.error('Update status error:', error); }
 }
@@ -2237,7 +2295,7 @@ if (patientTableBody) {
   };
 
   const setPatientMessage = (message) => {
-    patientTableBody.innerHTML = `<tr><td colspan="5" style="padding:24px;">${escapeHtml(message)}</td></tr>`;
+    patientTableBody.innerHTML = `<tr><td colspan="5" style="padding:var(--space-6);">${escapeHtml(message)}</td></tr>`;
   };
 
   const renderPatients = () => {
@@ -2351,7 +2409,7 @@ if (patientTableBody) {
   };
 
   async function deleteAppointment(appointmentId) {
-    if (!appointmentId || !window.confirm('Delete this appointment? You can undo this for 5 minutes.')) return;
+    if (!appointmentId || !await appConfirm('Delete this appointment? You can undo this for 5 minutes.')) return;
     try {
       const response = await fetch(`${API_ROOT}/appointments/${encodeURIComponent(appointmentId)}/doctor-delete`, {
         method: 'DELETE',
@@ -2408,9 +2466,9 @@ if (patientTableBody) {
   const renderDistribution = () => {
     const total = allPatients.length;
     const groups = [
-      { label: 'Upcoming', count: allPatients.filter((patient) => patient.hasUpcoming).length, color: 'var(--primary-container)' },
-      { label: 'Seen', count: allPatients.filter((patient) => !patient.hasUpcoming && patient.lastVisit).length, color: 'var(--status-success)' },
-      { label: 'No completed visit', count: allPatients.filter((patient) => !patient.hasUpcoming && !patient.lastVisit).length, color: 'var(--status-pending)' }
+      { label: 'Upcoming', count: allPatients.filter((patient) => patient.hasUpcoming).length, color: 'var(--info-700)' },
+      { label: 'Seen', count: allPatients.filter((patient) => !patient.hasUpcoming && patient.lastVisit).length, color: 'var(--primary-400)' },
+      { label: 'No completed visit', count: allPatients.filter((patient) => !patient.hasUpcoming && !patient.lastVisit).length, color: 'var(--warning-500)' }
     ];
     if (distributionTotal) distributionTotal.textContent = total;
     if (distributionChart) {
@@ -2421,7 +2479,7 @@ if (patientTableBody) {
         offset += percentage;
         return stop;
       });
-      distributionChart.style.background = total ? `conic-gradient(${stops.join(', ')})` : 'var(--surface-container-high)';
+      distributionChart.style.background = total ? `conic-gradient(${stops.join(', ')})` : 'var(--surface-3)';
     }
     if (distributionLegend) {
       distributionLegend.innerHTML = groups.map((group) => {
@@ -2529,7 +2587,7 @@ if (scheduleTableBody) {
     }
 
     if (todays.length === 0) {
-      scheduleTableBody.innerHTML = '<tr><td colspan="5" style="padding:20px;">No appointments scheduled for today.</td></tr>';
+      scheduleTableBody.innerHTML = '<tr><td colspan="5" style="padding:var(--space-5);">No appointments scheduled for today.</td></tr>';
       return;
     }
 
@@ -2538,7 +2596,7 @@ if (scheduleTableBody) {
       return `
         <tr>
           <td class="time-cell">${escapeHtml(appt.time)}</td>
-          <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--sage-light); color: var(--forest-deep);">${escapeHtml(getInitials(name))}</div><span class="name">${escapeHtml(name)}</span></div></td>
+          <td><div class="patient-cell"><div class="avatar-sm" style="background-color: var(--surface-4); color: var(--primary-800);">${escapeHtml(getInitials(name))}</div><span class="name">${escapeHtml(name)}</span></div></td>
           <td class="type-cell">${escapeHtml(appt.reason || '—')}</td>
           <td><span class="status-badge ${statusBadgeClass(appt.status)}">${escapeHtml(capitalizeStatus(appt.status))}</span></td>
           <td><a class="more-btn" href="/appointments" style="text-decoration:none; display:inline-flex;" aria-label="Manage in Appointments">
@@ -2596,7 +2654,7 @@ if (scheduleTableBody) {
       const appointments = await res.json();
 
       if (!res.ok) {
-        scheduleTableBody.innerHTML = `<tr><td colspan="5" style="padding:20px;">${escapeHtml(appointments.message || 'Could not load schedule')}</td></tr>`;
+        scheduleTableBody.innerHTML = `<tr><td colspan="5" style="padding:var(--space-5);">${escapeHtml(appointments.message || 'Could not load schedule')}</td></tr>`;
         return;
       }
 
@@ -2605,7 +2663,7 @@ if (scheduleTableBody) {
       renderInsightsChart(appointments);
     } catch (error) {
       console.error('Load doctor schedule error:', error);
-      scheduleTableBody.innerHTML = '<tr><td colspan="5" style="padding:20px;">Unable to reach the server. Please try again.</td></tr>';
+      scheduleTableBody.innerHTML = '<tr><td colspan="5" style="padding:var(--space-5);">Unable to reach the server. Please try again.</td></tr>';
     }
   }
 
@@ -2616,7 +2674,7 @@ if (scheduleTableBody) {
     if (!list) return;
 
     if (patients.length === 0) {
-      list.innerHTML = '<p style="padding:12px 4px;">No patients yet.</p>';
+      list.innerHTML = '<p style="padding:var(--space-3) var(--space-1);">No patients yet.</p>';
       return;
     }
 
@@ -2627,7 +2685,7 @@ if (scheduleTableBody) {
     list.innerHTML = top3.map((p) => `
       <div class="patient-row">
         <div class="patient-info">
-          <div class="avatar-patient" style="display:flex; align-items:center; justify-content:center; color: var(--forest-deep); font-weight:700;">${escapeHtml(getInitials(p.name))}</div>
+          <div class="avatar-patient" style="display:flex; align-items:center; justify-content:center; color: var(--primary-800); font-weight:var(--fw-bold);">${escapeHtml(getInitials(p.name))}</div>
           <div>
             <p>${escapeHtml(p.name)}</p>
             <p>${p.lastVisit ? 'Last visit: ' + new Date(p.lastVisit).toLocaleDateString() : 'No visits yet'}</p>
@@ -2647,7 +2705,7 @@ if (scheduleTableBody) {
 
       if (!res.ok) {
         const list = document.querySelector('#recentPatientsList');
-        if (list) list.innerHTML = `<p style="padding:12px 4px;">${escapeHtml(patients.message || 'Could not load patients')}</p>`;
+        if (list) list.innerHTML = `<p style="padding:var(--space-3) var(--space-1);">${escapeHtml(patients.message || 'Could not load patients')}</p>`;
         return;
       }
 
@@ -2655,7 +2713,7 @@ if (scheduleTableBody) {
     } catch (error) {
       console.error('Load recent patients error:', error);
       const list = document.querySelector('#recentPatientsList');
-      if (list) list.innerHTML = '<p style="padding:12px 4px;">Unable to reach the server. Please try again.</p>';
+      if (list) list.innerHTML = '<p style="padding:var(--space-3) var(--space-1);">Unable to reach the server. Please try again.</p>';
     }
   }
 
@@ -2742,47 +2800,47 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
   const profileTriggers = document.querySelectorAll('.profile-block, .profile, .user-chip');
   const profileCardStyle = document.createElement('style');
   profileCardStyle.textContent = `
-    .profile-card-overlay { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 20px; background: rgba(24, 28, 27, 0.58); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; }
+    .profile-card-overlay { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: var(--space-5); background: color-mix(in srgb, var(--ink-900) 58%, transparent); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; }
     .profile-card-overlay.is-open { opacity: 1; visibility: visible; }
-    .profile-card { position: relative; width: min(100%, 480px); max-height: min(760px, calc(100vh - 40px)); overflow-y: auto; padding: 28px; color: var(--on-surface, #181c1b); background: var(--surface, #fff); border: 1px solid var(--outline-variant, #c1c8c4); border-radius: var(--radius-lg, 12px); box-shadow: 0 24px 70px rgba(24, 28, 27, .24); font-family: var(--font-primary, sans-serif); transform: translateY(10px); transition: transform .2s ease; }
+    .profile-card { position: relative; width: min(100%, 480px); max-height: min(760px, calc(100vh - 40px)); overflow-y: auto; padding: var(--space-6); color: var(--ink-900); background: var(--surface-0); border: 1px solid var(--surface-5); border-radius: var(--radius-lg, 12px); box-shadow: 0 24px 70px color-mix(in srgb, var(--ink-900) 24%, transparent); font-family: var(--font-body); transform: translateY(10px); transition: transform .2s ease; }
     .profile-card-overlay.is-open .profile-card { transform: translateY(0); }
-    .profile-card-close { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border: 0; border-radius: var(--radius-full, 999px); color: var(--on-surface, #181c1b); background: transparent; font-size: 26px; line-height: 1; cursor: pointer; }
-    .profile-card-close:hover, .profile-card-close:focus-visible { background: var(--secondary-container, #cde9dd); outline: none; }
-    .profile-card-heading { margin: 0 0 20px; text-align: center; }
-    .profile-card-avatar-wrap { position: relative; width: 88px; height: 88px; margin: 4px auto 14px; }
-    .profile-card-avatar { width: 88px; height: 88px; display: grid; place-items: center; overflow: hidden; border-radius: var(--radius-full, 999px); color: var(--on-primary, #fff); background: var(--primary, #324f46); font-size: 26px; font-weight: 700; }
+    .profile-card-close { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border: 0; border-radius: var(--radius-full, 999px); color: var(--ink-900); background: transparent; font-size: var(--text-2xl); line-height: var(--lh-none); cursor: pointer; }
+    .profile-card-close:hover, .profile-card-close:focus-visible { background: var(--primary-200); outline: none; }
+    .profile-card-heading { margin: 0 0 var(--space-5); text-align: center; }
+    .profile-card-avatar-wrap { position: relative; width: 88px; height: 88px; margin: var(--space-1) auto var(--space-3); }
+    .profile-card-avatar { width: 88px; height: 88px; display: grid; place-items: center; overflow: hidden; border-radius: var(--radius-full, 999px); color: var(--surface-0); background: var(--primary-700); font-size: var(--text-2xl); font-weight: var(--fw-bold); }
     .profile-card-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .profile-card-edit { position: absolute; right: -4px; bottom: -4px; width: 34px; height: 34px; display: grid; place-items: center; border: 2px solid var(--surface, #fff); border-radius: var(--radius-full, 999px); color: var(--on-primary, #fff); background: var(--primary, #324f46); cursor: pointer; }
-    .profile-card-heading h2 { margin: 0; color: var(--on-surface, #181c1b); font-size: 24px; }
-    .profile-card-heading p { margin: 4px 0 0; color: var(--on-surface-variant, #414845); font-size: 14px; }
-    .profile-card-section { margin-top: 20px; }
-    .profile-card-section h3 { margin: 0 0 10px; color: var(--on-surface, #181c1b); font-size: 16px; }
-    .profile-card-field { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; color: var(--on-surface-variant, #414845); font-size: 13px; font-weight: 600; }
-    .profile-card-field input { min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid var(--outline-variant, #c1c8c4); border-radius: var(--radius, 4px); color: var(--on-surface, #181c1b); background: var(--surface, #fff); font: inherit; font-weight: 400; }
-    .profile-card-field input:focus { border-color: var(--primary, #324f46); outline: 2px solid var(--secondary-container, #cde9dd); }
-    .profile-card-field input:disabled { color: var(--on-surface-variant, #414845); background: var(--surface-container-highest, #f1f4f2); }
-    .profile-card-inline { display: flex; gap: 8px; align-items: end; }
+    .profile-card-edit { position: absolute; right: -4px; bottom: -4px; width: 34px; height: 34px; display: grid; place-items: center; border: 2px solid var(--surface-0); border-radius: var(--radius-full, 999px); color: var(--surface-0); background: var(--primary-700); cursor: pointer; }
+    .profile-card-heading h2 { margin: 0; color: var(--ink-900); font-size: var(--text-2xl); }
+    .profile-card-heading p { margin: var(--space-1) 0 0; color: var(--ink-700); font-size: var(--text-sm); }
+    .profile-card-section { margin-top: var(--space-5); }
+    .profile-card-section h3 { margin: 0 0 var(--space-2); color: var(--ink-900); font-size: var(--text-base); }
+    .profile-card-field { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-3); color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--fw-semibold); }
+    .profile-card-field input { min-height: 44px; width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--surface-5); border-radius: var(--radius-xs); color: var(--ink-900); background: var(--surface-0); font: inherit; font-weight: var(--fw-regular); }
+    .profile-card-field input:focus { border-color: var(--primary-700); outline: 2px solid var(--primary-200); }
+    .profile-card-field input:disabled { color: var(--ink-700); background: var(--surface-2); }
+    .profile-card-inline { display: flex; gap: var(--space-2); align-items: end; }
     .profile-card-inline .profile-card-field { flex: 1; }
-    .profile-card-button { min-height: 44px; padding: 10px 14px; border: 1px solid var(--primary, #324f46); border-radius: var(--radius, 4px); color: var(--on-primary, #fff); background: var(--primary, #324f46); font-weight: 700; cursor: pointer; }
-    .profile-card-button.secondary { color: var(--primary, #324f46); background: var(--surface, #fff); }
-    .profile-card-button.danger { width: 100%; border-color: var(--error, #ba1a1a); color: #fff; background: var(--error, #ba1a1a); }
-    .profile-card-button.logout { width: 100%; margin-top: 10px; color: var(--on-surface, #181c1b); border-color: var(--outline-variant, #c1c8c4); background: var(--surface-container-highest, #f1f4f2); }
-    .profile-card-message { min-height: 18px; margin: 8px 0 0; color: var(--status-success, #2e7d32); font-size: 12px; opacity: 0; transition: opacity .2s ease; }
+    .profile-card-button { min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--primary-700); border-radius: var(--radius-xs); color: var(--surface-0); background: var(--primary-700); font-weight: var(--fw-bold); cursor: pointer; }
+    .profile-card-button.secondary { color: var(--primary-700); background: var(--surface-0); }
+    .profile-card-button.danger { width: 100%; border-color: var(--danger-600); color: var(--surface-0); background: var(--danger-600); }
+    .profile-card-button.logout { width: 100%; margin-top: var(--space-2); color: var(--ink-900); border-color: var(--surface-5); background: var(--surface-2); }
+    .profile-card-message { min-height: 18px; margin: var(--space-2) 0 0; color: var(--primary-500); font-size: var(--text-xs); opacity: 0; transition: opacity .2s ease; }
     .profile-card-message.is-visible { opacity: 1; }
-    .profile-card-error { min-height: 18px; margin: 8px 0 0; color: var(--error, #ba1a1a); font-size: 12px; }
-    .profile-card-email-row { display: flex; gap: 8px; align-items: center; }
+    .profile-card-error { min-height: 18px; margin: var(--space-2) 0 0; color: var(--danger-600); font-size: var(--text-xs); }
+    .profile-card-email-row { display: flex; gap: var(--space-2); align-items: center; }
     .profile-card-email-row .profile-card-field { flex: 1; }
-    .profile-card-badge { flex-shrink: 0; padding: 4px 8px; border-radius: var(--radius-full, 999px); color: var(--error, #ba1a1a); background: var(--error-container, #ffdad6); font-size: 11px; font-weight: 700; }
-    .profile-card-badge.is-verified { color: var(--status-success, #2e7d32); background: var(--secondary-container, #cde9dd); }
-    .profile-card-divider { height: 1px; margin: 24px 0 18px; background: var(--outline-variant, #c1c8c4); }
-    .profile-card-delete-panel { display: none; margin-top: 10px; padding: 12px; border: 1px solid var(--error, #ba1a1a); border-radius: var(--radius, 4px); background: var(--error-container, #ffdad6); }
+    .profile-card-badge { flex-shrink: 0; padding: var(--space-1) var(--space-2); border-radius: var(--radius-full, 999px); color: var(--danger-600); background: var(--danger-100); font-size: var(--text-xs); font-weight: var(--fw-bold); }
+    .profile-card-badge.is-verified { color: var(--primary-500); background: var(--primary-200); }
+    .profile-card-divider { height: 1px; margin: var(--space-6) 0 var(--space-4); background: var(--surface-5); }
+    .profile-card-delete-panel { display: none; margin-top: var(--space-2); padding: var(--space-3); border: 1px solid var(--danger-600); border-radius: var(--radius-xs); background: var(--danger-100); }
     .profile-card-delete-panel.is-visible { display: block; }
-      .profile-card-delete-panel p { margin: 0 0 8px; color: var(--error, #ba1a1a); font-size: 12px; }
-      .profile-card-delete-panel p.profile-card-message { color: var(--status-success, #2e7d32); }
-    .profile-card-delete-panel input { min-height: 44px; width: 100%; padding: 10px; border: 1px solid var(--error, #ba1a1a); border-radius: var(--radius, 4px); margin-bottom: 8px; }
-    .profile-card-delete-panel .profile-card-button { width: 100%; margin-top: 8px; }
+      .profile-card-delete-panel p { margin: 0 0 var(--space-2); color: var(--danger-600); font-size: var(--text-xs); }
+      .profile-card-delete-panel p.profile-card-message { color: var(--primary-500); }
+    .profile-card-delete-panel input { min-height: 44px; width: 100%; padding: var(--space-2); border: 1px solid var(--danger-600); border-radius: var(--radius-xs); margin-bottom: var(--space-2); }
+    .profile-card-delete-panel .profile-card-button { width: 100%; margin-top: var(--space-2); }
     .profile-card-delete-panel .profile-card-button:disabled { cursor: not-allowed; opacity: .5; }
-    @media (max-width: 480px) { .profile-card-overlay { padding: 10px; } .profile-card { max-height: calc(100vh - 20px); padding: 24px 18px; } .profile-card-inline, .profile-card-email-row { align-items: stretch; flex-direction: column; } .profile-card-inline .profile-card-button, .profile-card-email-row .profile-card-badge { width: 100%; text-align: center; } }
+    @media (max-width: 480px) { .profile-card-overlay { padding: var(--space-2); } .profile-card { max-height: calc(100vh - 20px); padding: var(--space-6) var(--space-4); } .profile-card-inline, .profile-card-email-row { align-items: stretch; flex-direction: column; } .profile-card-inline .profile-card-button, .profile-card-email-row .profile-card-badge { width: 100%; text-align: center; } }
   `;
   document.head.appendChild(profileCardStyle);
 
@@ -2800,7 +2858,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
   let currentHasPassword = profileUser.hasPassword !== false;
 
   const profileName = getDisplayName(profileUser);
-  const profileRole = profileUser.role === 'doctor' ? 'Doctor' : 'Premium Member';
+  const profileRole = profileUser.role === 'doctor' ? 'Doctor' : 'Patient';
   const profileEmail = profileUser.email || '';
   const isDoctorProfile = profileUser.role === 'doctor';
   const profileCardOverlay = document.createElement('div');
@@ -2817,7 +2875,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
         </div>
         <h2 id="profileCardName">${escapeHtml(profileName)}</h2>
         <p id="profileCardRole">${escapeHtml(profileRole)}</p>
-        <button type="button" id="profileCardRemovePhoto" hidden style="background:none;border:0;padding:4px 8px;margin-top:2px;color:#b3261e;font-size:12px;cursor:pointer;text-decoration:underline;">Remove photo</button>
+        <button type="button" id="profileCardRemovePhoto" hidden style="background:none;border:0;padding:var(--space-1) var(--space-2);margin-top:2px;color:var(--danger-600);font-size:var(--text-xs);cursor:pointer;text-decoration:underline;">Remove photo</button>
       </div>
       <form id="profileCardForm" class="profile-card-section">
         <div class="profile-card-inline">
@@ -2838,7 +2896,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
           <label class="profile-card-field">Email<input type="email" value="${escapeHtml(profileEmail)}" disabled></label>
           <span class="profile-card-badge${isEmailVerifiedForUi(profileUser) ? ' is-verified' : ''}">${isEmailVerifiedForUi(profileUser) ? 'Verified' : 'Not Verified'}</span>
         </div>
-        <button type="button" class="profile-card-button secondary" id="profileCardVerify" style="width:100%;margin-top:10px;">Send Verification Email</button>
+        <button type="button" class="profile-card-button secondary" id="profileCardVerify" style="width:100%;margin-top:var(--space-2);">Send Verification Email</button>
         <p class="profile-card-message" id="profileCardVerifyMessage" aria-live="polite"></p>
       </div>
       <form id="profileCardPasswordForm" class="profile-card-section" novalidate>
@@ -2857,7 +2915,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
           <p>Type DELETE and enter your password to permanently delete your account.</p>
           <input id="profileCardDeleteInput" type="text" autocomplete="off" aria-label="Type DELETE to confirm">
           <input id="profileCardDeletePassword" type="password" autocomplete="current-password" placeholder="Your password" aria-label="Your password">
-          <div id="profileCardDeleteGoogleBtn" style="display:none; margin-bottom:8px;"></div>
+          <div id="profileCardDeleteGoogleBtn" style="display:none; margin-bottom:var(--space-2);"></div>
           <button type="button" class="profile-card-button danger" id="profileCardConfirmDelete" disabled>Confirm Delete</button>
           <p class="profile-card-message" id="profileCardDeleteMessage" aria-live="polite"></p>
         </div>
@@ -2886,7 +2944,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
 
   function syncHeaderProfile(user) {
     const fullName = getDisplayName(user);
-    const role = user.role === 'doctor' ? 'Doctor' : 'Premium Member';
+    const role = user.role === 'doctor' ? 'Doctor' : 'Patient';
     document.querySelectorAll('.profile-block, .profile, .user-chip').forEach((profileElement) => {
       const nameElement = profileElement.querySelector('.profile-name, .name, p:first-of-type');
       const roleElement = profileElement.querySelector('.profile-role, .role, .profile-id, p:nth-of-type(2)');
@@ -2935,7 +2993,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
   updateRemovePhotoButton();
 
   removePhotoButton.addEventListener('click', async () => {
-    if (!window.confirm('Remove your profile photo?')) return;
+    if (!await appConfirm('Remove your profile photo?')) return;
     const messageEl = profileCardOverlay.querySelector('#profileCardNameMessage');
     removePhotoButton.disabled = true;
     try {
@@ -3142,7 +3200,7 @@ if (document.querySelector('.profile-block, .profile, .user-chip')) {
   function renderDeleteGoogleButton() {
     if (deleteGoogleContainer.dataset.rendered) return;
     if (typeof google === 'undefined' || !google.accounts?.id) {
-      deleteGoogleContainer.innerHTML = '<p style="color:var(--error,#ba1a1a);font-size:12px;margin:0 0 8px;">Google sign-in is still loading — please wait a moment.</p>';
+      deleteGoogleContainer.innerHTML = '<p style="color:var(--danger-600);font-size:var(--text-xs);margin:0 0 var(--space-2);">Google sign-in is still loading — please wait a moment.</p>';
       return;
     }
     google.accounts.id.initialize({
@@ -3399,7 +3457,7 @@ async function openMedicalRecord(recordId) {
     const response = await fetch(`${API_ROOT}/medical-records/${encodeURIComponent(recordId)}`, { headers: authHeaders() });
     const record = await response.json();
     if (!response.ok) {
-      alert(record.message || 'Could not load this medical record.');
+      appNotify(record.message || 'Could not load this medical record.');
       return;
     }
 
@@ -3413,7 +3471,7 @@ async function openMedicalRecord(recordId) {
     recordModal.setAttribute('aria-hidden', 'false');
   } catch (error) {
     console.error('Load medical record error:', error);
-    alert('Unable to reach the server. Please try again.');
+    appNotify('Unable to reach the server. Please try again.');
   }
 }
 

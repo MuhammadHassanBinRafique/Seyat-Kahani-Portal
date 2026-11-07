@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medical Records | Seyat Khani</title>
+<title>Sehat Kahani | Medical Records</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/Frontend/CSS/tokens.css">
 <link rel="stylesheet" href="/Frontend/CSS/medical-record.css">
+<link rel="stylesheet" href="/Frontend/CSS/components.css">
 <link rel="icon" type="image/png" href="/assests/photos/favicon.png">
 </head>
 <body>
@@ -43,7 +45,8 @@
     </button>
 
     <div class="sidenav-footer">
-    </div>
+<button type="button" class="logout-link sidebar-logout"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg><span>Log out</span></button>
+</div>
 </aside>
 
 <!-- Topbar -->
@@ -66,7 +69,7 @@
 <main>
     <div class="content-wrap">
         <div class="page-head">
-            <h2>Medical Records</h2>
+            <h1>Medical Records</h1>
             <p>Your health journey, documented with care.</p>
         </div>
 
@@ -132,7 +135,7 @@
                         <span class="vault-value is-text" id="vaultAllergies">—</span>
                     </div>
                     <div class="vault-footer">
-                        <p class="vault-quote">"Your data is encrypted with 256-bit security."</p>
+                        <p class="vault-quote">"Your medical notes are stored encrypted."</p>
                         <a href="/health-vault" class="vault-link">
                             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                             View Full Health Profile
@@ -208,7 +211,7 @@
 
 <!-- FAB -->
 <button class="fab" id="fabBtn" type="button" title="Book an appointment" aria-label="Book an appointment">
-    <svg class="icon" viewBox="0 0 24 24" style="width:28px;height:28px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    <svg class="icon icon-28" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
 </button>
 
 <script src="/Frontend/JS/app.js?v=profile-card-v2"></script>

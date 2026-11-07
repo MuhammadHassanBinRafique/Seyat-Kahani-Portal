@@ -3,11 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seyat Khani | Patient Dashboard</title>
+<title>Sehat Kahani | Patient Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/Frontend/CSS/tokens.css">
 <link rel="stylesheet" href="/Frontend/CSS/patient.css">
+<link rel="stylesheet" href="/Frontend/CSS/components.css">
 <link rel="icon" type="image/png" href="/assests/photos/favicon.png">
 </head>
 <body>
@@ -44,7 +46,8 @@
     </button>
 
     <div class="sidenav-footer">
-    </div>
+<button type="button" class="logout-link sidebar-logout"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg><span>Log out</span></button>
+</div>
 </aside>
 
 <!-- Top App Bar -->
@@ -69,7 +72,7 @@
     <!-- Welcome Hero Section -->
     <section class="hero">
         <div>
-            <h2 id="dashboardGreeting">Good Morning</h2>
+            <h1 id="dashboardGreeting">Good Morning</h1>
             <p>Your restorative journey continues today. Take a deep breath and review your upcoming schedule for professional care.</p>
             <div class="tip-card">
                 <div class="tip-icon">
@@ -82,7 +85,7 @@
             </div>
         </div>
         <div class="hero-image" role="img" aria-label="Patient-Doctor Interaction">
-            <img src="/assests/photos/screen1.png" alt="Patient-Doctor Interaction" style="width: 100%; height: auto; border-radius: 12px;">
+            <img class="fluid-img-rounded" src="/assests/photos/screen1.webp" alt="Patient-Doctor Interaction">
         </div>
     </section>
 
@@ -108,16 +111,6 @@
                 <p class="card-value" id="prescriptionValue">Loading...</p>
             </div>
         </div>
-        <div class="glass-card">
-            <div style="margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center;">
-                <p class="card-label" style="margin:0;">Health Goal Progress</p>
-                <span class="progress-pct" id="goalProgressValue">Not set</span>
-            </div>
-            <div class="progress-track">
-                <div class="progress-fill" id="goalProgress"></div>
-            </div>
-            <p id="goalProgressLabel" style="font-size: 14px; font-weight: 700; color: var(--forest-deep); margin:0;">No health goal recorded</p>
-        </div>
     </section>
 
     <!-- Main Content Area: Appointments & Activity -->
@@ -127,7 +120,6 @@
         <div class="panel">
             <div class="panel-header">
                 <h3><span class="icon sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01"></path></svg></span>Upcoming Appointments</h3>
-                <a href="#upcomingApptContainer" id="viewCalendarLink">View Calendar</a>
             </div>
             <div id="upcomingApptContainer">
              
@@ -148,31 +140,31 @@
 
 <!-- Contextual FAB -->
 <button class="fab" id="fabBtn" type="button" title="Book an appointment" aria-label="Book an appointment">
-    <span class="icon" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
+    <span class="icon icon-24"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
 </button>
 
 <!-- Booking Modal -->
-<div id="bookingModalOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-  <div style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:420px;">
-    <h3 style="margin-top:0;">Book an Appointment</h3>
+<div class="modal-overlay" id="bookingModalOverlay" style="display:none;">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="bookingModalTitle">
+    <h3 class="mt-0" id="bookingModalTitle">Book an Appointment</h3>
     <form id="bookingForm">
-      <label style="display:block; margin-top:12px; font-size:14px;">Doctor</label>
-      <select id="doctorSelect" required style="width:100%; padding:8px; margin-top:4px;">
+      <label class="form-label" for="doctorSelect">Doctor</label>
+      <select class="form-control" id="doctorSelect" required>
         <option value="">Select a doctor</option>
       </select>
 
-      <label style="display:block; margin-top:12px; font-size:14px;">Date</label>
-      <input type="date" id="apptDate" required style="width:100%; padding:8px; margin-top:4px;">
+      <label class="form-label" for="apptDate">Date</label>
+      <input class="form-control" type="date" id="apptDate" required>
 
-      <label style="display:block; margin-top:12px; font-size:14px;">Time</label>
-      <input type="time" id="apptTime" required style="width:100%; padding:8px; margin-top:4px;">
+      <label class="form-label" for="apptTime">Time</label>
+      <input class="form-control" type="time" id="apptTime" required>
 
-      <label style="display:block; margin-top:12px; font-size:14px;">Reason</label>
-      <textarea id="apptReason" required maxlength="300" style="width:100%; padding:8px; margin-top:4px;" rows="3"></textarea>
+      <label class="form-label" for="apptReason">Reason</label>
+      <textarea class="form-control" id="apptReason" required maxlength="300" rows="3"></textarea>
 
-      <p id="bookingError" style="color:#c62828; font-size:14px; margin-top:8px;"></p>
+      <p class="form-error form-error--tight" id="bookingError" role="alert"></p>
 
-      <div style="display:flex; gap:10px; margin-top:16px;">
+      <div class="modal-actions">
         <button type="submit" class="btn-primary-solid">Confirm Booking</button>
         <button type="button" id="closeBookingModal" class="btn-outline">Cancel</button>
       </div>
